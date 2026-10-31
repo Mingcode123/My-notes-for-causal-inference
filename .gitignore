@@ -1,0 +1,4 @@
+# Local PDF rendering and LaTeX build intermediates
+/tmp/
+__pycache__/
+*.pyc

@@ -1,0 +1,873 @@
+\section{Lecture 11: Policy learning}
+\sourcepages{Lecture11-14.pdf, page 1}
+We study how to allocate treatment so as to maximize benefit. The decision is simply which group a person should enter: treatment or control.
+
+A treatment policy is a mapping
+\[
+ \pi:\mathcal X\longrightarrow\{0,1\}.
+\]
+An individual with characteristics $X_i=x$ is treated if and only if $\pi(x)=1$. The goal is to find a policy that maximizes expected utility:
+\[
+ V(\pi)=\mathbb E[Y_i(\pi(X_i))].
+\]
+(The note takes $Y_i=1$ to be a good outcome.) For a policy class $\Pi$, define
+\[
+ \pi^*=\operatorname*{arg\,max}_{\pi'\in\Pi}V(\pi').
+\]
+The regret of another policy is
+\[
+ R(\pi)=\sup_{\pi'\in\Pi}V(\pi')-V(\pi).
+\]
+\textbf{Emphasis in the notebook:} the loss is regret, rather than squared-error loss. The objective is to learn a policy with a guaranteed upper bound on worst-case regret: a minimax regret criterion.
+
+Assume IID observations $(X_i,Y_i,W_i)\in\mathcal X\times\mathbb R\times\{0,1\}$, $i=1,\ldots,n$, with
+\[
+ \{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,\qquad Y_i=Y_i(W_i),
+\]
+\[
+ 0<\eta\le e(X_i)\le1-\eta<1,\qquad e(x)=\mathbb P(W_i=1\mid X_i=x).
+\]
+After learning $\widehat\pi$, set $W_i=\widehat\pi(X_i)$ and expect $Y_i=Y_i(\widehat\pi(X_i))$ to be large. \textbf{My observation:} once treatment is assigned this way, assignment has no randomness; we can no longer learn the causal effect from it in the same way.
+
+\subsection{Policy learning by empirical maximization}
+\sourcepages{Lecture11-14.pdf, page 3, with the analogy on page 2}
+In general,
+\[
+ \widehat\pi=\operatorname*{arg\,max}_{\pi\in\Pi}\widehat V(\pi).
+\]
+If $e(x)$ is known, an unbiased IPW choice is
+\[
+ \widehat V_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n
+ \frac{\mathbf1\{W_i=\pi(X_i)\}Y_i}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]},
+ \qquad
+ \widehat\pi_{\mathrm{IPW}}
+ =\operatorname*{arg\,max}_{\pi\in\Pi}\widehat V_{\mathrm{IPW}}(\pi).
+\]
+In words, retain observations whose treatment $W_i$ agrees with the policy $\pi(X_i)$, and weight their observed outcomes using the inverse assignment probability. Unconfoundedness gives
+\begin{align*}
+ \mathbb E[\widehat V_{\mathrm{IPW}}(\pi)]
+ &=\mathbb E\left[
+ \frac{\mathbf1\{W_i=\pi(X_i)\}Y_i(\pi(X_i))}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]}\right]\\
+ &=\mathbb E\left[
+ \mathbb E\left[\left.
+ \frac{\mathbf1\{W_i=\pi(X_i)\}}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]}\right|X_i\right]
+ \mathbb E[Y_i(\pi(X_i))\mid X_i]\right]\\
+ &=\mathbb E[Y_i(\pi(X_i))]=V(\pi).
+\end{align*}
+The inner expectation of the indicator divided by its probability is $1$ (boxed in red in the original). \textit{Translator's note:} the first handwritten line of this calculation omits $Y_i$; the next line and the estimator above include it.
+
+\paragraph{Left-page analogy: unbiasedness of the ATE IPW estimator.}
+\begin{align*}
+ \mathbb E[\widehat\tau^*_{\mathrm{IPW}}]
+ &=\mathbb E\left[\frac{W_iY_i}{e(X_i)}-
+ \frac{(1-W_i)Y_i}{1-e(X_i)}\right]\\
+ &=\mathbb E\left[\frac{W_iY_i(1)}{e(X_i)}-
+ \frac{(1-W_i)Y_i(0)}{1-e(X_i)}\right]\\
+ &=\mathbb E\left[
+ \mathbb E\left[\left.\frac{W_iY_i(1)}{e(X_i)}\right|e(X_i)\right]
+ -\mathbb E\left[\left.\frac{(1-W_i)Y_i(0)}{1-e(X_i)}\right|e(X_i)\right]
+ \right]\\
+ &=\mathbb E[Y_i(1)-Y_i(0)].
+\end{align*}
+Thus it is unbiased for $\tau$.
+
+\subsection{Policy learning as weighted classification}
+\sourcepages{Lecture11-14.pdf, page 5, with the regret bound on page 4}
+Decompose the value function:
+\[
+ V(\pi)=\mathbb E[Y_i(0)]+
+ \mathbb E[(Y_i(1)-Y_i(0))\pi(X_i)].
+\]
+\textbf{Interpretation in the margin:} this displays the baseline outcome $E_0$ and the contribution from the treatment effects of people treated by $\pi(\cdot)$.
+
+With $\tau(x)$ denoting the CATE, the policy advantage is
+\begin{align*}
+ A(\pi)&=2\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(0)+Y_i(1)]\\
+ &=\mathbb E[(2\pi(X_i)-1)\tau(X_i)].
+\end{align*}
+$A(\pi)$ is the advantage of $\pi(\cdot)$. The same $\pi^*$ maximizes $A(\pi)$ over $\Pi$.
+
+Rewrite IPW: $\widehat\pi_{\mathrm{IPW}}$ maximizes
+\begin{align*}
+ \widehat A_{\mathrm{IPW}}(\pi)
+ &=2\widehat V_{\mathrm{IPW}}(\pi)
+ -\frac1n\sum_{i=1}^n\left\{
+ \frac{W_iY_i}{e(X_i)}+\frac{(1-W_i)Y_i}{1-e(X_i)}\right\}\\
+ &=\frac1n\sum_{i=1}^n(2\pi(X_i)-1)
+ \left\{\frac{W_iY_i}{e(X_i)}-
+ \frac{(1-W_i)Y_i}{1-e(X_i)}\right\}.\tag{11.10}
+\end{align*}
+This estimates the advantage without bias. Write
+\[
+ \widehat A_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\Gamma_i^{\mathrm{IPW}},
+ \qquad
+ \Gamma_i^{\mathrm{IPW}}=
+ \frac{W_iY_i}{e(X_i)}-\frac{(1-W_i)Y_i}{1-e(X_i)}.\tag{11.11}
+\]
+Here $\Gamma_i^{\mathrm{IPW}}$ is the IPW score used in ATE estimation:
+$\widehat\tau_{\mathrm{IPW}}=n^{-1}\sum_i\Gamma_i^{\mathrm{IPW}}$.
+\textbf{My interpretation:} $\widehat A_{\mathrm{IPW}}(\pi)$ resembles the ATE IPW estimator. When $\pi(X_i)=1$, we ``earn'' that individual's treatment effect; when $\pi(X_i)=0$, we ``pay'' that individual's treatment effect.
+
+For optimization, write
+\[
+ \widehat A_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)
+ \operatorname{sign}(\Gamma_i)|\Gamma_i|.\tag{11.12}
+\]
+The sign defines a classification target and $|\Gamma_i|$ is the weight (starred in the scan). Maximizing the advantage is equivalent to optimizing a weighted classification objective. In practice one often minimizes a weighted surrogate loss instead. A marginal reference reads ``Wager [2020]'' [year somewhat unclear]; the author's added warning is: \textbf{``But the estimator may be wrong.''}
+
+\paragraph{Supplement: complexity and a regret rate.}
+The VC dimension measures the complexity of $\Pi$; the note says to look up its precise definition. If $|Y_i|\le M$, $\eta\le e(X_i)\le1-\eta$ (so the scores are bounded), and $\Pi$ has finite Vapnik--Chervonenkis dimension, then
+\[
+ R(\widehat\pi_{\mathrm{IPW}})
+ =O_P\left(\frac M\eta\sqrt{\frac{\operatorname{VC}(\Pi)}n}\right),
+ \quad
+ \widehat\pi_{\mathrm{IPW}}=
+ \operatorname*{arg\,max}_{\pi\in\Pi}\widehat A_{\mathrm{IPW}}(\pi).
+\]
+The author underlines this as an optimal convergence rate, then adds a superefficiency caveat: for a fixed policy $\pi(x)$, the convergence rate with $n$ observations may be faster than $\sqrt{\operatorname{VC}(\Pi)/n}$.
+
+\subsection{Efficient scoring rules for policy learning}
+\sourcepages{Lecture11-14.pdf, page 7, then page 6}
+Is there a better learning method? Observe that
+\begin{align*}
+ A(\pi)&=2\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(0)+Y_i(1)]\\
+ &=\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(1-\pi(X_i))].
+\end{align*}
+Thus $A(\pi)$ is the ATE in an experiment comparing deployment of $\pi(\cdot)$ with deployment of its opposite policy.
+
+Oracle IPW is feasible but inefficient. The oracle AIPW estimator uses an efficient score and reaches the semiparametric efficiency bound:
+\[
+ \widehat A^*_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\Gamma_i^*,
+\]
+\[
+ \Gamma_i^*=\mu_1(X_i)-\mu_0(X_i)
+ +W_i\frac{Y_i-\mu_1(X_i)}{e(X_i)}
+ -(1-W_i)\frac{Y_i-\mu_0(X_i)}{1-e(X_i)}.
+\]
+Assume further that there are $o_P(n^{-1/4})$-consistent regression adjustments $\widehat\mu_w(x)$ and $\widehat e(x)$. The red note emphasizes that, as $n\to\infty$, both nuisance-estimation errors are $o_P(n^{-1/4})$. Construct a doubly robust estimator close to the efficient oracle:
+\[
+ \widehat A_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\widehat\Gamma_i,
+\]
+\begin{align*}
+ \widehat\Gamma_i={}&\widehat\mu_1^{(-k(i))}(X_i)
+ -\widehat\mu_0^{(-k(i))}(X_i)\\
+ &+W_i\frac{Y_i-\widehat\mu_1^{(-k(i))}(X_i)}
+ {\widehat e^{(-k(i))}(X_i)}
+ -(1-W_i)\frac{Y_i-\widehat\mu_0^{(-k(i))}(X_i)}
+ {1-\widehat e^{(-k(i))}(X_i)}.
+\end{align*}
+This too is a weighted classification objective. If $\Pi$ is a VC class, the feasible and oracle objectives are uniformly asymptotically equivalent faster than $1/\sqrt n$:
+\[
+ \sqrt n\sup_{\pi\in\Pi}
+ \left|\widehat A_{\mathrm{AIPW}}(\pi)
+ -\widehat A^*_{\mathrm{AIPW}}(\pi)\right|
+ \xrightarrow{P}0.\tag{11.17}
+\]
+
+\paragraph{Left-page continuation: regret and efficiency.}
+Combining the preceding result with empirical-process concentration gives
+\[
+ R(\widehat\pi_{\mathrm{AIPW}})
+ =O_P\left(\sqrt{\frac{V^*\operatorname{VC}(\Pi)}n}\right),
+ \quad
+ \widehat\pi_{\mathrm{AIPW}}
+ =\operatorname*{arg\,max}_{\pi\in\Pi}\widehat A_{\mathrm{AIPW}}(\pi),
+\]
+\[
+ V^*=\mathbb E[\tau^2(X_i)]
+ +\mathbb E\left[\frac{\operatorname{Var}(Y_i(0)\mid X_i)}{1-e(X_i)}\right]
+ +\mathbb E\left[\frac{\operatorname{Var}(Y_i(1)\mid X_i)}{e(X_i)}\right].
+\]
+The reference written in the notebook is ``Wager 2017.'' The following claim is recorded: this bound is optimal when a treatment effect only just emerges from the noise. \textbf{Author's red annotation: ``Not quite right\ldots''} This reservation is retained rather than resolving the claim on the author's behalf.
+
+\subsection{The role of the policy class}
+\sourcepages{Lecture11-14.pdf, page 8}
+Start from a nonparametric model: $\mu_w(x)$ and $e(x)$ may be arbitrary. Then the Bayes-optimal treatment assignment rule is
+\[
+ \pi_{\mathrm{Bayes}}(x)=\mathbf1\{\tau(x)>0\}.
+\]
+Our goal, however, is to work with a specified policy class $\Pi$, not necessarily to approximate this Bayes rule. Examples include linear decision rules, $k$-sparse decision rules, and decision trees of depth $\ell$. We do not require $\pi_{\mathrm{Bayes}}\in\Pi$.
+
+Reasons:
+\begin{enumerate}
+ \item We use $X_i$ to make unconfoundedness plausible:
+ $\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i$. Generally, access to more pretreatment variables makes this assumption more plausible. For reliable modeling, it is preferable to use richer features and flexible nonparametric models for $e(x)$ and $\mu_w(x)$.
+ \item A policy has a concrete form and practical restrictions: it may not use certain features; resources or treatment budgets may be limited; and the functional form of $\pi(\cdot)$ may be constrained.
+\end{enumerate}
+
+\section{Lecture 12: Evaluating dynamic policies}
+\sourcepages{Lecture11-14.pdf, page 10, with the setup and second assumption on page 9}
+The heading connects this topic with reinforcement learning. We evaluate a dynamic policy: a policy that changes over time.
+
+There are $n$ IID individuals $i=1,\ldots,n$ and times $t=1,\ldots,T$. At each time we observe time-varying covariates $X_{it}$ and a treatment $W_{it}\in\{0,1\}$. At the final time $T$, we additionally observe an outcome $Y_i\in\mathbb R$.
+
+To reflect the dynamic structure, every time-varying observation may depend on all earlier treatments. For each $X_{it}\in\mathcal X_t$, define $2^{t-1}$ potential values $X_{it}(w_{1:t-1})$, with
+\[
+ X_{it}=X_{it}(W_{i,1:t-1}).
+\]
+The final outcome has $2^T$ potential outcomes $Y_i(w_{1:T})$, and
+\[
+ Y_i=Y_i(W_{i,1:T}).
+\]
+Similarly, the note writes $W_{it}=W_{it}(W_{i,1:t-1})$: treatment at time $t$ depends on observed covariate history $X_{i,1:t}$ and past treatment values.
+
+\paragraph{Left-page intuition.}
+Picture one individual observed in successive columns $1,\ldots,T$, with covariates $X_{i1},X_{i2},\ldots$ and decisions $W_{i1},W_{i2},\ldots$. Make one decision at each time. The decision at time $t$ depends on what happened through $t-1$, and there are $2^T$ possible final outcomes.
+
+There are two types of estimand:
+\begin{enumerate}
+ \item Evaluate a fixed treatment sequence $w\in\{0,1\}^T$:
+ \[V(w)=\mathbb E[Y_i(w)].\]
+ \item Evaluate a policy with decision rules $\pi_t$ mapping the available history to $\{0,1\}$:
+ \begin{align*}
+ V(\pi)=\mathbb E\bigl[Y_i\bigl(&\pi_1(X_{i1}),\\
+ &\pi_2(X_{i1},\pi_1(X_{i1}),X_{i2}(\pi_1(X_{i1}))),\ldots\bigr)\bigr].\tag{12.2}
+ \end{align*}
+\end{enumerate}
+The covariates at time $t$ depend on past treatments. Red arrows in the original explicitly connect the second decision to covariate history and previous treatment values. Both problems use potential treatment sequences to define the estimand, including interventions on the assignment distribution that generated the data.
+
+Two natural unconfoundedness-type assumptions are considered:
+\begin{enumerate}
+ \item \textbf{Sequential unconfoundedness / sequential ignorability:}
+ \[
+ \{\text{potential outcomes after time }t\}\perp W_{it}
+ \mid\{\text{history at time }t\}.
+ \]
+ At each time, treatment is unconfounded given the data collected up to that time.
+ \item \textbf{Complete randomization:}
+ \[\{\text{all potential outcomes}\}\perp W_{i,1:T}.\]
+ \textbf{Author's judgment in the left-page note:} this is unreasonable here.
+\end{enumerate}
+
+\subsection{Treatment--confounder feedback}
+\sourcepages{Lecture11-14.pdf, page 11}
+An example of what can go wrong. All individuals have $X_{i1}=0$, and
+\[
+ \mathbb P(W_{i1}=1)=0.5,\qquad
+ \mathbb P(W_{i2}=1\mid X_{i2}=1)=0.8,\qquad
+ \mathbb P(W_{i2}=1\mid X_{i2}=0)=0.4.
+\]
+The target is written $\tau=\mathbb E[Y(1)-Y(0)]$. Analysis shows
+\[
+ \mathbb E[Y_i\mid W_{i1}=0]=\mathbb E[Y_i\mid W_{i1}=1]=0,
+\]
+\[
+ \mathbb E[Y_i\mid W_{i2}=0,W_{i1}=w_1,X_{i2}=x]
+ =\mathbb E[Y_i\mid W_{i2}=1,W_{i1}=w_1,X_{i2}=x]
+\]
+for every $w_1,x$.
+
+The first mistake is to ignore adaptive sampling and use the ordinary difference in means,
+\[
+ \widehat\tau=\widehat{\mathbb E}[Y\mid W=1]
+ -\widehat{\mathbb E}[Y\mid W=0].
+\]
+The second mistake is to stratify on $X_{i2}$:
+\begin{align*}
+ \widehat\tau_0&=\mathbb E[Y\mid W=1,X_{i2}=0]
+ -\mathbb E[Y\mid W=0,X_{i2}=0],\\
+ \widehat\tau_1&=\mathbb E[Y\mid W=1,X_{i2}=1]
+ -\mathbb E[Y\mid W=0,X_{i2}=1],\\
+ \widehat\tau&=\frac{n_0\widehat\tau_0+n_1\widehat\tau_1}{n_0+n_1}.
+\end{align*}
+Why might one try this? We know a statement of the form $Y_i(\cdots)\perp W_{i2}\mid X_{i2}$. But the stratification would actually need
+\[
+ Y_i(\cdots)\perp(W_{i1},W_{i2})\mid X_{i2}.
+\]
+The note illustrates three types:
+\begin{center}
+\begin{tabular}{lcc}
+ Type & $X_{i2}$ if $W_{i1}=0$ & $X_{i2}$ if $W_{i1}=1$\\\hline
+ Stable (1) & 0 & 0\\
+ Responder (2) & 1 & 0\\
+ Acute (3) & 1 & 1
+\end{tabular}
+\end{center}
+Under the consistency comparison drawn in the notebook, the group with $W=1,X_{i2}=0$ contains types (1) and (2), whereas $W=0,X_{i2}=0$ contains only type (1). The group with $W=1,X_{i2}=1$ contains type (3), whereas $W=0,X_{i2}=1$ contains types (2) and (3). Thus, even in a sequentially randomized experiment, this stratification does not control confounding.
+
+\textit{Translator's note:} this page switches between $W$, $W_{i1}$ and $W_{i2}$ without defining the unsubscripted $W$ precisely. That ambiguity is preserved; the type-composition argument itself explicitly compares the first treatment.
+
+\subsection{Sequential inference under sequential ignorability}
+\sourcepages{Lecture11-14.pdf, page 12}
+Since simple stratification does not work, focus directly on estimating $V(\pi)$. Define the filtration
+\[
+ \mathcal F_t=\sigma(X_1,W_1,X_2,W_2,\ldots,W_{t-1},X_t),
+\]
+which contains all information available before selecting treatment at time $t$. Let $\mathbb E_\pi$ denote expectation when treatment is assigned according to $\pi$. Then (12.2) becomes $V(\pi)=\mathbb E_\pi[Y]$.
+
+Define the value function
+\[
+ V_{\pi,t}(X_1,W_1,\ldots,W_{t-1},X_t)
+ =\mathbb E_\pi[Y\mid\mathcal F_t].
+\]
+It measures the expected return from starting in the state represented by $\mathcal F_t$ and following $\pi$ thereafter. The red note calls the overall policy value $V_{\pi,0}$.
+
+By the tower property,
+\begin{align*}
+ &\mathbb E_\pi[V_{\pi,t+1}(X_1,W_1,\ldots,W_t,X_{t+1})\mid\mathcal F_t]\\
+ &\quad=\mathbb E_\pi[\mathbb E_\pi[Y\mid\mathcal F_{t+1}]\mid\mathcal F_t]\\
+ &\quad=\mathbb E_\pi[Y\mid\mathcal F_t]
+ =V_{\pi,t}(X_1,W_1,\ldots,W_{t-1},X_t).\tag{12.6}
+\end{align*}
+\textbf{My interpretation:} given $\mathcal F_t$, the expected future return remains the same when we express it through time $t+1$. The annotation connects this with the Bellman equation,
+\[
+ V(s)=R(s)+\gamma\sum_{s'}P(s'\mid s,a)V(s').
+\]
+If we have a good estimate of $V_{\pi,t+1}$, seek a good estimate of $V_{\pi,t}$ and continue backward until we recover $V(\pi)$.
+
+Write $X_{T+1}=Y$. The joint distribution factors as
+\[
+ P_\pi(X_1,W_1,\ldots,X_T,W_T,Y)
+ =P_\pi(X_1)\prod_{t=1}^T
+ P_\pi(W_t\mid\mathcal F_t)
+ P_\pi(X_{t+1}\mid\mathcal F_t,W_t).
+\]
+Unconfoundedness means that the non-treatment factors do not depend on the policy:
+\[
+ P_\pi(X_1)=P(X_1),\qquad
+ P_\pi(X_{t+1}\mid\mathcal F_t,W_t)
+ =P(X_{t+1}\mid\mathcal F_t,W_t),\quad\text{for all }\pi.
+\]
+The margin emphasizes that the transition effect of treatment on subsequent covariates is unrelated to which policy selected that treatment.
+
+\subsection{Inverse-propensity weighting}
+\sourcepages{Lecture11-14.pdf, page 13}
+To make (12.6) useful with off-policy data, change measure: the actual data were not generated by $\pi(\cdot)$.
+\begin{align*}
+ V_{\pi,t}
+ &=\mathbb E_\pi[V_{\pi,t+1}\mid\mathcal F_t]\\
+ &=\mathbb E\left[\left.
+ \frac{P_\pi(W_t,X_{t+1}\mid\mathcal F_t)}
+ {P(W_t,X_{t+1}\mid\mathcal F_t)}V_{\pi,t+1}
+ \right|\mathcal F_t\right]\\
+ &=\mathbb E\left[\left.
+ \frac{P_\pi(W_t\mid\mathcal F_t)P_\pi(X_{t+1}\mid\mathcal F_t,W_t)}
+ {P(W_t\mid\mathcal F_t)P(X_{t+1}\mid\mathcal F_t,W_t)}
+ V_{\pi,t+1}\right|\mathcal F_t\right]\\
+ &=\mathbb E\left[\left.
+ \frac{\mathbf1\{W_t=\pi_t(\ldots,X_t)\}}
+ {P[W_t=\pi_t(\ldots,X_t)\mid\mathcal F_t]}
+ V_{\pi,t+1}\right|\mathcal F_t\right].
+\end{align*}
+The covariate-transition factors cancel (joined in red in the scan). The marginal note describes moving from the observed policy to $\pi$ by reweighting.
+
+Apply the change of measure at every $t=1,\ldots,T$. Since
+\[
+ V(\pi)=\mathbb E[V_{\pi,1}(X_1)],
+\]
+\[
+ V_{\pi,1}(X_1)=\mathbb E\left[\left.
+ \frac{\mathbf1\{W_1=\pi_1(X_1)\}}
+ {P[W_1=\pi_1(X_1)\mid\mathcal F_1]}
+ V_{\pi,2}(X_1,W_1,X_2)\right|\mathcal F_1\right],
+\]
+repeated substitution eventually leaves $V_{\pi,T+1}=\mathbb E_\pi[Y\mid\mathcal F_{T+1}]=Y$ and gives
+\[
+ V(\pi)=\mathbb E\left[
+ \left\{\prod_{t=1}^T
+ \frac{\mathbf1\{W_t=\pi_t(\ldots,X_t)\}}
+ {P[W_t=\pi_t(\ldots,X_t)\mid\mathcal F_t]}\right\}Y\right].
+\]
+\textit{Translator's note:} the one-step denominator in the source lacks its conditioning argument and has a red ``$\mid\mathcal F_1$?'' beside it. The argument is included here consistently with the preceding general formula; the author's question is retained in this note.
+
+An IPW estimator is
+\[
+ \widehat V_{\mathrm{IPW}}(\pi)=\frac1n\sum_{i=1}^n\gamma_{iT}(\pi)Y_i,
+ \qquad
+ \gamma_{it}(\pi)=\gamma_{i,t-1}(\pi)
+ \frac{\mathbf1\{W_{it}=\pi_t(\ldots,X_{it})\}}
+ {P[W_{it}=\pi_t(\ldots,X_{it})\mid\mathcal F_{it}]}.
+\]
+\textbf{Source transcription:} the initial value at the bottom of the page is written $\gamma_{i0}(\pi)=0$.
+\textit{Translator's note:} this conflicts with the displayed product and would make every weight zero. The product representation requires an initial value of $1$; this is an explicit correction for interpretation, not a silent change to the scan.
+
+\textbf{My interpretation:} average outcomes matching $\pi$, and use IPW to remove the confounding effects of observed time-varying variables. If the weights, that is, each conditional assignment probability, are known, $\widehat V_{\mathrm{IPW}}$ is unbiased.
+
+\subsection{Backward regression adjustment}
+\sourcepages{Lecture11-14.pdf, page 14}
+Use (12.6) and sequential unconfoundedness, iterating backward. At $t=T$,
+\begin{align*}
+ V_{\pi,T}(X_1,W_1,\ldots,X_T)
+ &=\mathbb E_\pi[Y\mid\mathcal F_T]\\
+ &=\mathbb E_\pi[Y\mid\mathcal F_T,W_T=\pi_T(X_1,W_1,\ldots,X_T)]\\
+ &=\mathbb E[Y\mid\mathcal F_T,W_T=\pi_T(X_1,W_1,\ldots,X_T)].
+\end{align*}
+Learn $\widehat V_{\pi,T}$ directly by nonparametric regression. Given a reasonable estimate of the next value function,
+\[
+ V_{\pi,t}(X_1,W_1,\ldots,X_t)
+ \approx\mathbb E[\widehat V_{\pi,t+1}(\ldots,X_{t+1})
+ \mid\mathcal F_t,W_t=\pi_t(\ldots,X_t)].\tag{12.12}
+\]
+Continue backward until an estimate of $V(\pi)$ is recovered.
+\textbf{Author's blue annotation:} unlike IPW, we must quantify how regression errors propagate through backward iteration. This is connected to $Q$-learning.
+
+\subsection{A doubly robust estimator}
+\sourcepages{Lecture11-14.pdf, page 15}
+We now have both IPW and regression. Equation (12.12) yields a value estimate $\widehat V_{\pi,1}(X_1)$, and hence
+\[
+ \widehat V_{\mathrm{REG}}(\pi)=\frac1n\sum_{i=1}^n\widehat V_{\pi,1}(X_{i1}).
+\]
+If we trust $\widehat V_{\pi,2}$ more than $\widehat V_{\pi,1}$, use it to debias the earlier estimate:
+\[
+ \widehat V(\pi)=\frac1n\sum_{i=1}^n\left[
+ \widehat V_{\pi,1}(X_{i1})+
+ \gamma_{i1}(\pi)\{
+ \widehat V_{\pi,2}(X_{i1},W_{i1},X_{i2})
+ -\widehat V_{\pi,1}(X_{i1})\}\right].
+\]
+The arrow labels $\gamma_{i1}$ as the weight and the bracketed difference as the correction term. Continue until $V_{\pi,T+1}=Y$:
+\[
+ \widehat V_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n\left[
+ \gamma_{iT}(\pi)Y_i+
+ \sum_{t=1}^T\{\gamma_{i,t-1}(\pi)-\gamma_{it}(\pi)\}
+ \widehat V_{\pi,t}(X_{i1},\ldots,X_{it})\right].
+\]
+This generalizes AIPW from the nondynamic case. The underlined final statement in the scan reads: ``For any unbiased $\widehat V_{\pi,t}$, $\widehat V_{\mathrm{AIPW}}$ is unbiased.'' \textit{Translator's note:} the page does not state the full conditions for that claim. It is retained as a notebook statement, not expanded into an unconditional theorem.
+
+\section{Lecture 13: Structural equation modeling}
+\sourcepages{Lecture11-14.pdf, page 16}
+SEM means structural equation model. Recall the earlier equation $Y_i=\alpha+W_i\tau+\varepsilon_i$: set $W_i=w$ and observe $Y_i(W_i=w)=\alpha+w\tau+\varepsilon_i$.
+
+\subsection{Nonparametric SEMs}
+Let $(X_1,\ldots,X_p)$ be $p$ random variables with joint distribution $P$. Suppose $P$ can be represented by a directed acyclic graph (DAG) $G$. This means that
+\[
+ P(X_1,\ldots,X_p)=\prod_{j=1}^p P(X_j\mid\operatorname{pa}_j),\tag{13.2}
+\]
+where $\operatorname{pa}_j$ is the set of parents of $X_j$ in $G$. Equivalently,
+\[
+ \operatorname{pa}_j=\{X_i:E_{ij}=1\},
+\]
+with $E_{ij}$ indicating an edge $X_i\to X_j$. Assume further that deterministic functions $f_j$, $j=1,\ldots,p$, yield
+\[
+ X_j=f_j(\operatorname{pa}_j,\varepsilon_j),\qquad
+ \varepsilon_j\sim F_j,\quad\text{mutually independent}.\tag{13.3}
+\]
+\textbf{My interpretation:} an SEM/DAG specifies each node through its parents and noise. If upstream parent values change, the function $f_j(\cdot)$ does not change. This gives a concrete meaning: $f_j$ can be viewed as the distributional index for $X_j$ conditional on its parents.
+
+A causal query externally sets the values of some nodes and examines how other nodes' distributions change. For disjoint node sets $W,Y\subset X$, write the effect of setting $W=w$ on $Y$ as
+\[
+ P[Y\mid\operatorname{do}(W=w)].
+\]
+In (13.3), delete the equations associated with $W$ and replace $W$ by $w$ in the other equations. For an intervention on $X_j$, the source writes the truncated factorization as
+\[
+ P[X\mid\operatorname{do}(X_j=x_j)]
+ =\begin{cases}
+ \displaystyle\frac{P[X]}{P[X_j=x_j\mid\operatorname{pa}_j]},&X_j=w_j,\\
+ 0,&\text{otherwise}.
+ \end{cases}
+\]
+\textbf{Author's marginal question:} ``1?'' beside the denominator.
+\textit{Translator's note:} the source mixes the intervention labels $x_j$ and $w_j$ in this display; both denote the value being imposed. The question mark is retained, rather than interpreting it as an instruction to replace the denominator by $1$.
+
+\subsection{The do-calculus: separation and graph modifications}
+\sourcepages{Lecture11-14.pdf, page 17}
+For disjoint node sets $X,Y,Z$, consider an undirected path $p$ between a node in $X$ and a node in $Y$. The path is blocked by $Z$ if it contains a node $W$ such that either:
+\begin{enumerate}
+ \item $W$ is a collider on $p$, and neither $W$ nor any descendant of $W$ is in $Z$; or
+ \item $W$ is not a collider on $p$, and $W\in Z$.
+\end{enumerate}
+The sketches show the two patterns
+\[
+ X\longrightarrow W\longleftarrow Y
+ \quad\text{(collider not conditioned on)},
+ \qquad
+ X\longrightarrow W\longrightarrow Y
+ \quad\text{($W$ conditioned on)}.
+\]
+The scan calls this $d$-separation. \textit{Translator's clarification:} the stated conditions block an individual path; $Z$ $d$-separates $X$ and $Y$ when all paths between them are blocked.
+
+If $Z$ $d$-separates $X$ and $Y$, (13.2) implies $X\perp Y\mid Z$, written
+\[
+ (X\perp Y\mid Z)_G.
+\]
+Graph notation:
+\begin{itemize}
+ \item $G_{\overline X}$ deletes edges pointing into $X$.
+ \item $G_{\underline X}$ deletes edges leaving $X$.
+ \item $G_{\underline X\overline Z}$ deletes edges leaving $X$ and entering $Z$.
+\end{itemize}
+
+\subsection{The three rules}
+\sourcepages{Lecture11-14.pdf, page 19, with the red mnemonic on page 18}
+The margin reiterates: $\operatorname{do}(X=x)$ removes incoming edges, hence the overbar on $X$. For disjoint node sets $X,Y,Z,W$:
+\begin{enumerate}
+ \item \textbf{Insertion/deletion of observations.} If
+ \[(Y\perp Z\mid X,W)_{G_{\overline X}},\]
+ then
+ \[
+ P[Y\mid\operatorname{do}(X=x),Z=z,W=w]
+ =P[Y\mid\operatorname{do}(X=x),W=w].
+ \]
+ \item \textbf{Action/observation exchange.} If
+ \[(Y\perp Z\mid X,W)_{G_{\overline X\underline Z}},\]
+ then
+ \[
+ P[Y\mid\operatorname{do}(X=x),\operatorname{do}(Z=z),W=w]
+ =P[Y\mid\operatorname{do}(X=x),Z=z,W=w].
+ \]
+ \item \textbf{Insertion/deletion of actions.} If
+ \[(Y\perp Z\mid X,W)_{G_{\overline X\overline{Z(W)}}},\]
+ where $Z(W)$ consists of nodes in $Z$ that are not ancestors of any node in $W$ in $G_{\overline X}$, then
+ \[
+ P[Y\mid\operatorname{do}(X=x),\operatorname{do}(Z=z),W=w]
+ =P[Y\mid\operatorname{do}(X=x),W=w].
+ \]
+\end{enumerate}
+\paragraph{My left-page mnemonic.}
+All three rules contain $\operatorname{do}(X=x)$; the bar over $X$ supplies that intervention. Then, when the appropriate separation condition holds, deleting outgoing edges from $Z$ lets us exchange ``do $Z$'' with ``control for $Z$.'' Deleting incoming edges to $Z(W)$ lets us remove ``do $Z$'' entirely. $Z(W)$ is the part of $Z$ with no ancestry relation to $W$ of the prohibited kind.
+
+Repeatedly apply do-calculus to reduce a causal query to an observable query about $P$: an expression without the do-operator, depending only on observed random variables. Do-calculus is complete: if it cannot reduce the causal query to such an observational expression, the query is not nonparametrically identifiable in the stated SEM framework.
+
+\subsection{Example 1: the back-door criterion}
+\sourcepages{Lecture11-14.pdf, page 20}
+Take three disjoint node sets $X,Y,W$ and query $P[Y\mid\operatorname{do}(W=w)]$. Suppose $X$ contains no descendants of $W$ and $X$ $d$-separates $W$ and $Y$ after the outgoing edges of $W$ are removed:
+\[
+ (Y\perp W\mid X)_{G_{\underline W}}.\tag{13.8}
+\]
+Then
+\begin{align*}
+ P[Y\mid\operatorname{do}(W=w)]
+ &=\sum_xP[X=x\mid\operatorname{do}(W=w)]
+ P[Y\mid X=x,\operatorname{do}(W=w)]\\
+ &=\sum_xP[X=x]P[Y\mid X=x,\operatorname{do}(W=w)]\\
+ &=\sum_xP[X=x]P[Y\mid X=x,W=w].\tag{13.9}
+\end{align*}
+The second equality uses the fact that $X$ is not downstream of $W$; the last is rule 2. The red margin links the first replacement to $(X\perp W)_{G_{\overline W}}$.
+
+\paragraph{My interpretation of the graphical condition.}
+Think of $W$ and $Y$ as single nodes. Removing the outgoing arrows from $W$ removes its downstream causal influence on $Y$; what remains is the dependence that the adjustment set must block. The top annotation says that $X$ must separate the back-door connection between $Y$ and $W$ so that $X$ can be used when evaluating the effect of intervening on $W$ [part of the topmost red wording is unclear in the scan].
+
+If $W$ is a root node in the graph with its downstream arrows cut, (13.8) becomes
+\[
+ F_Y(w)\perp W\mid X,\qquad
+ F_Y(w)=f_Y(w,X,\varepsilon_Y).\tag{13.10}
+\]
+The margin says that this can be inferred graphically, giving a concrete conditional-independence argument, and adds that all the factors other than $w$ remain specified by the structural equations $X_j=f_j(\operatorname{pa}_j,\varepsilon_j)$.
+
+\subsection{Example 2: the front-door criterion}
+\sourcepages{Lecture11-14.pdf, page 21}
+The diagram has edges
+\[
+ U\to W,\qquad U\to Y,\qquad W\to Z\to Y.
+\]
+We want $P[Y\mid\operatorname{do}(W=w)]$. Since $U$ is unobserved, we cannot apply back-door adjustment using $X=U$. But suppose $Z$ fully mediates the effect of $W$ on $Y$ and is not affected by $U$.
+\begin{align*}
+ P[Y\mid\operatorname{do}(W=w)]
+ &=\sum_zP[Z=z\mid\operatorname{do}(W=w)]
+ P[Y\mid Z=z,\operatorname{do}(W=w)]\\
+ &=\sum_zP[Z=z\mid W=w]
+ P[Y\mid Z=z,\operatorname{do}(W=w)].
+\end{align*}
+There is no back-door path from $W$ to $Z$, which explains the first exchange. Next,
+\begin{align*}
+ P[Y\mid Z=z,\operatorname{do}(W=w)]
+ &=P[Y\mid\operatorname{do}(Z=z),\operatorname{do}(W=w)]
+ &&\text{(rule 2)}\\
+ &=P[Y\mid\operatorname{do}(Z=z)]&&\text{(rule 3)}\\
+ &=\sum_{w'}P[W=w']P[Y\mid Z=z,W=w']&&\text{(back-door)}.
+\end{align*}
+Combining the steps,
+\[
+ P[Y\mid\operatorname{do}(W=w)]
+ =\sum_zP[Z=z\mid W=w]
+ \sum_{w'}P[W=w']P[Y\mid Z=z,W=w'].\tag{13.11}
+\]
+The red labels split the overall $W\to Y$ effect into $W\to Z$ and $Z\to Y$ pieces.
+\textbf{My observation:} although this directly describes an intervention $\operatorname{do}(W=w)$, it still has to integrate over the observational distribution $P[W=w']$.
+
+\subsection{Example 3: instrumental variables}
+\sourcepages{Lecture11-14.pdf, page 22, upper part}
+The graph is
+\[
+ Z\to W\to Y,\qquad U\to W,\qquad U\to Y,
+\]
+and we would like to estimate $P[Y\mid\operatorname{do}(W=w)]$. Do-calculus is not useful here: adding the IV node does not provide the required separation; it makes the relevant graphical conditions more complicated.
+
+For IV analysis, the assumptions cannot be specified only as an SEM graph; for example, monotonicity is also needed. Even then, we may identify only a nonstandard causal quantity such as LATE. Encoding monotonicity in an SEM is itself complicated.
+
+\subsection{SEMs and potential outcomes}
+\sourcepages{Lecture11-14.pdf, page 22, lower part}
+For a two-node graph $W\to Y$, the two formulations coincide: the potential outcome $Y_i(w)$ and the SEM expression $f_Y(w,\varepsilon_Y)$ can be mapped one to one.
+
+More generally, the notebook contrasts the formulations. Potential-outcome notation asks what $Y$ would be if specified variables were set to particular values. The SEM formulation is flexible enough to express nested operations. For the graph $W\to Z\to Y$ together with $W\to Y$, define
+\[
+ Z(w):=f_Z(w,\varepsilon_Z).
+\]
+The source then writes
+\[
+ P[Y\mid\operatorname{do}(W=0),\operatorname{do}(Z=Z(w=1))]
+ =f_Y\bigl(w=0,z=f_Z(w=1,\varepsilon_Z),\varepsilon_Y\bigr).
+\]
+\textit{Translator's note:} the left side is written as a distribution and the right side as a random variable in the original; this notational mismatch is retained. The margin highlights combining different counterfactual settings and asks whether this is possible in potential-outcome notation without drawing a graph.
+
+\textbf{Views recorded in the notebook:} some regard the ability of an SEM to identify effects of this kind of operation as a defect, and the inability of the potential-outcome formulation to do so as a limitation. The author adds ``Identifiable?'' next to the word ``identify.'' These are questions and viewpoints in the notes, not assertions resolved by this translation.
+
+\section{Lecture 14: Adaptive experiments}
+\sourcepages{Lecture11-14.pdf, page 24, with the explanatory note on page 23}
+Adaptive experiments dynamically adjust the experimental design. Earlier fixed experiments worked in an IID setting, an assumption that is sometimes too restrictive.
+
+\subsection{Setting and notation}
+There are actions $k=1,\ldots,K$ and subjects $t=1,\ldots,T$. Across subjects, potential outcomes are IID. Write
+\[
+ Y_t(k)\sim F_k,\qquad Y_t=Y_t(W_t),\qquad
+ \mu_k=\mathbb E[Y_t(k)].
+\]
+$W_t$ is the action selected for subject $t$, $F_k$ is the potential-outcome distribution for arm $k$, and $\mu_k$ is its mean. Define regret by
+\[
+ R_T=\sum_{t=1}^T(\mu^*-\mu_{W_t}),\qquad
+ \mu^*=\sup_{1\le k\le K}\mu_k.
+\]
+$\mu^*$ is the largest expected reward among the available actions. Regret is the expected reward lost by choosing a sequence of actions instead of always choosing the best action.
+
+Define
+\[
+ n_{kt}=\sum_{j=1}^t\mathbf1\{W_j=k\},\qquad
+ \widehat\mu_{kt}=\frac1{n_{kt}}\sum_{j=1}^t\mathbf1\{W_j=k\}Y_j.
+\]
+The first is the number of times arm $k$ has been pulled through time $t$; the second is its average reward.
+
+\paragraph{My left-page restatement.}
+Think of $T$ similar, independent individuals. Each has $K$ treatment options and hence $K$ potential outcomes, with the same arm-specific distributions $F_k$. For each individual we observe only the outcome of the chosen treatment, $Y_t=Y_t(W_t)$. The vector $\mu$ collects expected rewards. Total regret adds, across the $T$ individuals, the difference between the chosen treatment and the best treatment; the best arm is the same arm throughout this setup.
+
+In an ordinary randomized experiment, $W_t$ is uniform and nonadaptive over $1,\ldots,K$, so regret grows linearly with $T$:
+\[
+ R_T\sim T\sum_{k=1}^K\frac{\mu^*-\mu_k}{K}.
+\]
+The annotation identifies the summand average as the expected loss per individual. The first objective of an adaptive experiment is sublinear regret. \textbf{My interpretation:} regret should not grow linearly with the number of experiments or elapsed time; choices should get progressively closer to the optimum. This requires balancing \emph{exploration} (trying things) with \emph{exploitation} (using what is known).
+
+\subsection{Optimism in the face of uncertainty}
+\sourcepages{Lecture11-14.pdf, page 25}
+The upper confidence bound (UCB) method balances exploration and exploitation:
+\begin{enumerate}
+ \item Initialize by sampling each arm $t_0$ times: choose it and observe it $t_0$ times, for $Kt_0$ initial samples.
+ \item For each $t=Kt_0+1,Kt_0+2,\ldots$, use data collected through $t-1$ to construct a confidence interval $\widehat U_{kt}$ for each $\mu_k$.
+ \item Select the action $W_t$ whose interval has the largest upper endpoint and observe $Y_t=Y_t(W_t)$.
+\end{enumerate}
+Each new time point adds only one observation.
+
+To understand how UCB controls regret, simplify to Gaussian rewards:
+\[
+ Y_t(k)\sim\mathcal N(\mu_k,b^2),\tag{14.4}
+\]
+with known $b^2$. \textbf{Margin:} treating this variance as known simplifies the calculations. Use
+\[
+ \widehat U_{kt}=\widehat\mu_{k,t-1}
+ \ \pm\ b\sqrt{\frac{4\log T}{n_{k,t-1}}}.\tag{14.5}
+\]
+For $t_0=1$, the stated regret expression is
+\[
+ R_T=\sum_{k\ne k^*}
+ \left\{\frac{16b^2\log T}{\mu_{k^*}-\mu_k}
+ +(\mu_{k^*}-\mu_k)\right\},\tag{14.6}
+\]
+with probability at least $1-K/T$, where $k^*$ denotes the best arm.
+\textit{Translator's note:} the scan writes an equality, although the title and proof treat this as an upper bound. The equality has been preserved above; the intended bound uses $\le$.
+
+\paragraph{My intuition about this bound.}
+UCB regret grows only logarithmically. An arm closer to the optimum takes longer to distinguish from it; a much worse arm can be discarded quickly. A small gap $\mu_{k^*}-\mu_k$ appears to send the displayed bound to infinity. In practice there are two competing bounds: for a strong effect, UCB discards an arm when its interval is separated; for a weak effect, total regret is at most $T(\mu_{k^*}-\mu_k)$. Combining these gives a finite bound, and even in the worst case over the means, the notebook gives an order $K\sqrt{T\log T}$ upper bound. Two small sketches compare a growing linear function with a flatter, logarithmic-looking curve.
+
+\subsection{A regret bound for UCB}
+\sourcepages{Lecture11-14.pdf, page 27, with the attempted concentration calculation on page 26, then page 28}
+Rewrite regret as
+\[
+ R_T=\sum_{k\ne k^*}n_{kT}(\mu_{k^*}-\mu_k).
+\]
+The main task is to bound $n_{kT}$, the number of times UCB pulls a suboptimal arm. \textbf{Red note:} this is also the principle behind designing UCB; the design is aimed at this quantity.
+
+Let $\zeta_{kj}$ be the time of the $j$th pull of arm $k$. For $t=K+1,\ldots,T$, the scan develops the following probability bound:
+\begin{align*}
+ &P\left[\sup_{K<t\le T}\left\{
+ \mu_k-\widehat\mu_{k,t-1}
+ -b\sqrt{\frac{4\log T}{n_{k,t-1}}}\right\}\ge0\right]\\
+ &\quad\le P\left[\sup_{1\le j\le n_{kT}}\left\{
+ \mu_k-\widehat\mu_{k,\zeta_{kj}}
+ -b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]\\
+ &\quad=P\left[\sup_{1\le j\le n_{kT}}\left\{
+ \mu_k-\frac1j\sum_{\ell=1}^jY'_\ell(k)
+ -b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]\\
+ &\quad\le P\left[\sup_{1\le j\le T}\left\{
+ \mu_k-\frac1j\sum_{\ell=1}^jY'_\ell(k)
+ -b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]
+ \le\frac1T.
+\end{align*}
+Here $Y'_\ell(k)$ are independent draws from $\mathcal N(\mu_k,b^2)$. The arrows emphasize that enlarging the range of a supremum makes the event larger; the replacement observations have the same distribution.
+\textit{Translator's note:} two lines of the source write $Y'_\ell(0)$ instead of $Y'_\ell(k)$; the nearby definition identifies the intended arm as $k$. Also, the exact indexing of $\widehat\mu_{k,\zeta_{kj}}$ is terse in the source.
+
+Consequently, for each arm $k$, with probability at least $1-1/T$,
+\[
+ \mu_k\le\widehat\mu_{k,t-1}
+ +b\sqrt{\frac{4\log T}{n_{k,t-1}}}
+ \quad\text{for all }t=K+1,\ldots,T.\tag{14.8}
+\]
+A union bound over the $K$ arms gives probability at least $1-K/T$.
+
+\paragraph{Left-page work: Hoeffding's inequality, and my unresolved calculation.}
+For independent bounded random variables $Z_1,\ldots,Z_n$ with $Z_i\in[a,b]$ almost surely, and $s>0$,
+\[
+ P\left(\frac1n\sum_{i=1}^n(Z_i-\mathbb E[Z_i])\ge s\right)
+ \le\exp\left(-\frac{2ns^2}{(b-a)^2}\right).
+\]
+The same bound holds for a lower-tail deviation $\le-s$; the two-sided absolute-deviation bound has a factor $2$. The margin spells out that boundedness means $Z_i\in[a,b]$ almost surely.
+
+For events $A_1,\ldots,A_n$, the union bound is
+\[
+ P(A_1\cup\cdots\cup A_n)\le\sum_{i=1}^nP(A_i).
+\]
+The note connects this to the $1-K/T$ guarantee.
+
+\textbf{My attempted calculation (with the questions left open):} perhaps it is enough to show
+\[
+ P\left(\mu_k-\frac1j\sum_{\ell=1}^jY'_\ell(k)
+ -b\sqrt{\frac{4\log T}{j}}\ge0\right)\le\frac1T.
+\]
+The left side is
+\[
+ P\left(\frac1j\sum_{\ell=1}^jY'_\ell(k)-\mu_k
+ \le-b\sqrt{\frac{4\log T}{j}}\right).
+\]
+Applying the displayed bounded-variable inequality would suggest
+\[
+ \exp\left(-\frac{2j\,b^2(4\log T)/j}{(b-a)^2}\right)
+ =\exp\left(-\frac{8b^2}{(b-a)^2}\log T\right)
+ \le\frac1T.
+\]
+\textbf{Author's red doubts:} ``$Y'_\ell(k)$ is unbounded; is $k$ written incorrectly?'' and ``I do not know how this is simplified; perhaps there is an unstated assumption.''
+\textit{Translator's note:} this is explicitly an unfinished argument. The letter $b$ is used both for the Gaussian standard deviation and the upper bound in Hoeffding's inequality. The author's concern about applying a bounded-variable result to Gaussian rewards is preserved; no missing proof is supplied as though it were in the notebook.
+
+\paragraph{Continuation of the arm-count argument.}
+If (14.8) holds for all arms and $W_t=k$, the UCB selection rule gives
+\begin{align*}
+ \widehat\mu_{k,t-1}+b\sqrt{\frac{4\log T}{n_{k,t-1}}}
+ &\ge\widehat\mu_{k^*,t-1}+b\sqrt{\frac{4\log T}{n_{k^*,t-1}}}\\
+ &\ge\mu_{k^*}.
+\end{align*}
+The notebook then writes
+\[
+ \mu_k+2b\sqrt{\frac{4\log T}{n_{k,t-1}}}\ge\mu_{k^*},
+ \qquad
+ n_{k,t-1}\le\frac{16b^2\log T}{(\mu_{k^*}-\mu_k)^2}.
+\]
+\textit{Translator's note:} moving from the preceding UCB inequality to this line also needs the upper deviation bound for $\widehat\mu_{k,t-1}$; only the opposite one-sided inequality is explicitly displayed in (14.8). This is a gap in the written derivation, not an omitted translation.
+
+\textbf{My interpretation:} pulling arm $k$ means its upper confidence endpoint must still exceed that of the best arm. Once its pull count passes the threshold, while the threshold grows only with $\log T$, it can no longer be selected in this argument.
+
+Substitute the arm-count bound in the regret definition:
+\[
+ R_T=\sum_{k\ne k^*}(\mu_{k^*}-\mu_k)n_{kT}
+ \ \le\ \sum_{k\ne k^*}\left\{
+ \frac{16b^2\log T}{\mu_{k^*}-\mu_k}+(\mu_{k^*}-\mu_k)\right\}.
+\]
+The final additive gap is the regret from the initial $t_0=1$ pull of the arm; the first term covers $t=K+1,\ldots,T$. The source again uses ``$=$'' in its final display; the bound interpretation is made explicit here.
+
+\subsection{Adaptive randomization schemes}
+\sourcepages{Lecture11-14.pdf, page 29}
+UCB has limitations. It is difficult to combine with methods developed for IID sampling and to generalize to more complicated sampling designs. For example, treatment amounts or arms may vary, so constructing comparable intervals $\widehat U_{kt}$ can be awkward. A red note contrasts UCB's dependence on past observations with methods based on randomized IID data [a short parenthetical aside at the far right is unclear].
+
+\paragraph{Thompson sampling.}
+This is an alternative to UCB: a heuristic algorithm based on Bayesian updating.
+\begin{enumerate}
+ \item Choose a prior $\Pi_{k,0}$ for each potential-outcome distribution $F_k$.
+ \item At time $t$, compute the posterior probability that arm $k$ is the best arm:
+ \[e_{k,t-1}=P_{\Pi_{t-1}}(\mu_k=\mu^*).\]
+ \item Randomly select an action:
+ \[W_t\sim\operatorname{Multinomial}(e_{\cdot,t-1}).\]
+ \item Observe $Y_t=Y_t(W_t)$ and update the posterior to $\Pi_t$.
+\end{enumerate}
+Thompson sampling and UCB have similar statistical behavior: they sample each arm periodically until they are essentially convinced that it is inferior. A red arrow associates this with a posterior probability dropping below $1/T$.
+
+In Thompson sampling the selected action is random, with adaptive randomization probabilities depending on past data. This connects naturally with causal inference. The notebook observes that tuning the prior $\Pi_0$ can be more reasonable than tuning the UCB interval $\widehat U_{kt}$.
+
+\subsection{Inference in adaptive experiments}
+\sourcepages{Lecture11-14.pdf, page 31, with the derivation on page 30}
+Analyze data from UCB or Thompson sampling and provide confidence statements about the underlying problem parameters. This is much harder than in the IID setting.
+
+Two natural estimators of $\mu_k$ are the sample average,
+\[
+ \widehat\mu_k^{\mathrm{AVG}}=\widehat\mu_{kT}
+ =\frac1{n_{kT}}\sum_{t=1}^T\mathbf1\{W_t=k\}Y_t,\tag{14.11}
+\]
+and, under Thompson sampling, the IPW estimator,
+\[
+ \widehat\mu_k^{\mathrm{IPW}}=\frac1T\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}Y_t}{e_{tk}}.\tag{14.12}
+\]
+Because the data collection is adaptive, these estimators need not have asymptotically normal limiting distributions, making confidence intervals difficult. \textit{Translator's note:} the handwritten statement says ``do not have'' such a limit; the context is a warning about the adaptive setting, without a universal theorem or conditions stated on the page.
+
+An adaptively weighted estimator can admit a Gaussian pivot:
+\[
+ \widehat\mu_k^{\mathrm{AW}}
+ =\frac{\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}Y_t}{\sqrt{e_{tk}}}}
+ {\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}}.\tag{14.13}
+\]
+Under reasonable regularity conditions,
+\[
+ \widehat V_k^{-1/2}(\widehat\mu_k^{\mathrm{AW}}-\mu_k)
+ \ \Rightarrow\ \mathcal N(0,1),
+\]
+where
+\[
+ \widehat V_k=
+ \frac{\displaystyle\sum_{t=1}^T
+ \left\{\frac{\mathbf1\{W_t=k\}(Y_t-\widehat\mu_k^{\mathrm{AW}})}
+ {\sqrt{e_{tk}}}\right\}^{\!2}}
+ {\displaystyle\left\{\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}\right\}^{\!2}}.\tag{14.14}
+\]
+\textbf{My explanation:} a CLT can be recovered because the estimator stabilizes variance. Its variance becomes controllable, allowing a central limit theorem.
+
+\paragraph{Left-page derivation: the martingale behind the estimator.}
+A preliminary definition at the top of the page describes a martingale: the variables are measurable with respect to the available history, have finite absolute expectations, and satisfy the conditional-mean identity. Another line describes an adapted sequence $M_n$ as depending only on $X_0,\ldots,X_n$, with
+$\mathbb E[M_n\mid X_0,\ldots,X_{n-1}]=M_{n-1}$.
+\textit{Translator's note:} the first displayed definition appears to use $\mathbb E[X_i]<\infty$ without absolute values; the standard integrability meaning is stated explicitly here.
+
+From (14.13),
+\[
+ \widehat\mu_k^{\mathrm{AW}}-\mu_k
+ =\frac{\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}(Y_t-\mu_k)}{\sqrt{e_{tk}}}}
+ {\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}}.
+\]
+Let the partial sum in the numerator be
+\[
+ M_t=\sum_{j=1}^t
+ \frac{\mathbf1\{W_j=k\}(Y_j-\mu_k)}{\sqrt{e_{jk}}}.
+\]
+$W_t$ is randomized using the information available through time $t$ and is independent of $Y_t(k)$ given the past. Therefore $M_t$ is a martingale:
+\[
+ \mathbb E[M_t\mid M_1,\ldots,M_{t-1}]=M_{t-1}.
+\]
+The red restatement is $\mathbb E[M_{t+1}\mid M_1,\ldots,M_t]=M_t$.
+
+The source then states, ``by the weighting scheme,''
+\[
+ \operatorname{Var}[M_t\mid M_1,\ldots,M_{t-1}]=b_k^2,
+ \qquad b_k^2=\operatorname{Var}[Y_t(k)].\tag{14.8, as labeled in the scan}
+\]
+\textit{Translator's clarification:} conditioning on the previous partial sum makes this the conditional variance of the new increment as well. The notation on the page uses $M_t$ directly; the reference number (14.8) is reused in the notebook.
+
+A martingale CLT gives, provided $e_{tk}$ does not decay too quickly,
+\[
+ \frac{M_T}{\sqrt{Tb_k^2}}\Rightarrow\mathcal N(0,1).
+\]
+\textbf{Author's red notes:} adaptively weighted CLT; finite second moments; the sampling probability $e_{tk}$ should decay more slowly than $1/t$. This excludes the most aggressive strongly efficient exploration regimes that pull an arm only on the order of $\log T$ times.
+
+Next,
+\[
+ \frac1{Tb_k^2}\sum_{t=1}^T
+ \left\{\frac{\mathbf1\{W_t=k\}(Y_t-\widehat\mu_k^{\mathrm{AW}})}
+ {\sqrt{e_{tk}}}\right\}^{\!2}
+ \xrightarrow{P}1.
+\]
+This is a concentration step; the margin again requires the probabilities not to decay too fast. The denominators in $\widehat\mu_k^{\mathrm{AW}}-\mu_k$ and $\widehat V_k^{1/2}$ cancel, yielding the Gaussian pivot above.

@@ -1,0 +1,593 @@
+\section{Chapter 1. Introduction to causality}
+\sourcepages{Chapter1-23.pdf, p. 1}
+$T_i$ is treatment intake; $Y_i$ is the observed outcome. The notebook contrasts ``reality (group assignment)'' with ``truth.''
+\[
+\mathrm{ATE}=E[Y_1-Y_0],\qquad \mathrm{ATT}=E[Y_1-Y_0\mid T=1].
+\]
+ATE is the average treatment effect; ATT concerns those who receive treatment. The causal quantity is the potential-outcome contrast. The observed association decomposes as
+\[
+\underbrace{E[Y\mid T=1]-E[Y\mid T=0]}_{\text{association}}
+=\underbrace{E[Y_1-Y_0\mid T=1]}_{\mathrm{ATT}}
++\underbrace{E[Y_0\mid T=1]-E[Y_0\mid T=0]}_{\text{bias}}.
+\]
+\textbf{My annotation.} When bias is zero, association represents ATT; the arrows then connect ATT to $E[Y_1-Y_0]$, labeled ``causality.'' \textit{Translator's note: the scan's arrow from ATT to ATE requires an additional condition; the two estimands are retained separately here.}
+
+\section{Chapter 2. Randomized experiments}
+\sourcepages{Chapter1-23.pdf, p. 1}
+Randomized experiments provide a way to remove bias. The sketch separates the link from existing circumstances to potential outcomes (the link to eliminate) from the treatment-to-observed-outcome link (the link to study). An RCT supplies
+\[
+(Y_0,Y_1)\perp T,\qquad E[Y_0\mid T=0]=E[Y_0\mid T=1]=E[Y_0],
+\]
+so the selection-bias term is zero.
+
+\section{Chapter 3. A review of statistics}
+\sourcepages{Chapter1-23.pdf, p. 2}
+The standard error of an estimate is written as $\mathrm{SE}=\hat\sigma/\sqrt n$, with
+\[\hat\sigma^2=\frac{1}{N-1}\sum_i(x_i-\bar x)^2.\]
+Smaller sample size $\Rightarrow$ larger standard error $\Rightarrow$ wider confidence interval. The null hypothesis is that the treatment and control distributions have the same mean. Even if their individual confidence intervals overlap, their mean difference may still be statistically different from zero. The blue annotations distinguish the 95\% intervals for the two group means from the difference between those means.
+
+The notebook writes the $p$-value as $P(\text{data}\mid H_0)$: under $H_0$, the probability of the observed data or more extreme data (with a Type I error reminder). Confidence level is described as the probability that the estimate and the population parameter differ by no more than a specified margin. Higher confidence $\Rightarrow$ a wider interval $\Rightarrow$ lower precision. The significance level is the probability of a Type I error.
+
+\textbf{My intuition.} If the $p$-value is very small, then the observed data would be very unlikely under $H_0$, yet they occurred, suggesting that $H_0$ is false. Compare the sample's $p$-value with the significance threshold chosen theoretically. \textit{Translator's note: these are the notebook's informal explanations; a $p$-value is a tail probability under the null, and the confidence level refers to repeated-sampling coverage.}
+
+\section{Chapter 4. Graphical causal models}
+\sourcepages{Chapter1-23.pdf, p. 3}
+$A\to B$ means that $A$ affects $B$; dependence propagates along the arrows.
+\begin{enumerate}
+\item Chain: $A\to B\to C$. Marginally $A\not\perp C$; conditioning on the known intermediate variable $B$ blocks the path: $A\perp C\mid B$.
+\item Fork: $A\leftarrow C\to B$. Without conditioning, $A\not\perp B$; conditioning on $C$ gives $A\perp B\mid C$.
+\item Collider: $A\to C\leftarrow B$. Marginally $A\perp B$; conditioning on $C$ gives $A\not\perp B\mid C$.
+\end{enumerate}
+Confounding bias may involve proxy confounders and variables that cannot be directly measured.
+
+\textbf{My summary.} Confounding bias arises from an uncontrolled open path, illustrated by $X\leftarrow W\to Y$ together with $X\to Y$. Selection bias comes from extra conditioning: conditioning on a collider opens a path, or conditioning on an intermediate variable blocks part of the causal path. The example labels $X$ as education, $Y$ as wages, and $W$ as investment. The collider sketch has education and wages feeding investment, with further investment proxies $W_1,W_2$; the mediator sketch has education feeding $W$, then wages, alongside a direct education-to-wages arrow. The note says controlling $W$ also has a negative effect [the last handwritten phrase is unclear].
+
+\section{Chapter 5. The usefulness of linear regression}
+\sourcepages{Chapter1-23.pdf, p. 4}
+For individual $i$, write $Y_{1i}=Y_{0i}+k$ and estimate $k$. In a single regression,
+\[Y_i=\beta_0+kT_i+u_i,\qquad \hat\beta_1=\frac{\operatorname{Cov}(Y_i,T_i)}{\operatorname{Var}(T_i)}.\]
+The drawn line joins the intercept at $T=0$ to intercept plus $k$ at $T=1$ (a negative slope in the sketch). When $T$ is randomly assigned, its regression coefficient is ATE.
+
+Multiple regression addresses the many factors that affect $T_i$:
+\[y_i=\beta_0+kT_i+\beta_1X_{1i}+\cdots+\beta_KX_{Ki}+u_i.\]
+The $X$ terms are auxiliary covariates. Then
+\[k=\frac{\operatorname{Cov}(Y_i,\widetilde T_i)}{\operatorname{Var}(\widetilde T_i)}.\]
+\textbf{My annotation.} First remove the part explained by the $X$ variables and take the residual $\widetilde T$: the remaining part cannot be explained by $X$. \textit{Translator's note: the black sentence reverses the verbal regression direction; the blue explanation and residual formula indicate residualizing $T$ on $X$.}
+
+If a multiple-regression model is needed but a simple regression omits a variable, consider the correct model
+\[\mathrm{Wage}_i=\alpha+k\,\mathrm{Educ}_i+A_i'\beta+u_i,\]
+where $A_i$ is ability. The omitted-variable calculation is
+\[\frac{\operatorname{Cov}(\mathrm{Wage}_i,\mathrm{Educ}_i)}{\operatorname{Var}(\mathrm{Educ}_i)}=k+\beta'\delta_{\mathrm{Ability}}.\]
+$\delta_A$ is the coefficient vector from regressing ability on education. The extra term is omitted variable bias (OVB). If all confounders are included, there is no OVB. \textbf{Margin:} an RCT breaks the relationship; regression controls it and holds it fixed.
+
+\section{Chapter 6. Grouping and dummy regression}
+\sourcepages{Chapter1-23.pdf, p. 5}
+Heteroskedasticity means that outcome variance is not constant across the values of the covariates. With finer groups, the number of observations falls; grouping reduces variation, but coefficient standard errors can rise and $t$ statistics become smaller. Group-specific regressions should be weighted by within-group treatment variance.
+
+For a dummy treatment (the note gives ``whether 12 years'' as the example),
+\[\mathrm{wage}_i=\beta_0+\beta_1T_i+e_i.\]
+At $T=0$ the expectation is the intercept; at $T=1$ it is intercept plus $\beta_1$. With continuous IQ,
+\[\mathrm{wage}_i=\beta_0+\beta_1T_i+\beta_2\mathrm{IQ}_i+\beta_3\mathrm{IQ}_iT_i+e_i.\]
+\begin{itemize}
+\item $\beta_0$: the expectation at $T=0$, IQ $=0$.
+\item $\beta_1$: the effect of one unit of $T$ when IQ is zero (all other terms are zero).
+\item $\beta_2$: the effect of one unit of IQ when $T=0$.
+\item $\beta_3$: IQ also has a return when $T=1$, making that group's regression slope larger when $\beta_3>0$.
+\end{itemize}
+To analyze the coefficient on $T_i$, calculate each group's contribution to the overall coefficient: group by years of education (12-year groups in the note) and compute the corresponding categorical education/treatment contrast $C(\mathrm{educ})[T_i]$.
+
+With more covariates, the target coefficient is a weighted average of the effect in each dummy-variable subgroup:
+\[E\!\left[\{E[Y_i\mid T=1,G_i]-E[Y_i\mid T=0,G_i]\}\,w(G_i)\right],\qquad
+w(G_i)\propto\operatorname{Var}(T_i\mid G_i).
+\]
+The weights depend on the distribution of $T_i$ within a subgroup. The margin says to find both the education and IQ-bin treatment contrasts.
+
+\section{Chapter 7. Beyond controlling for confounders}
+\sourcepages{Chapter1-23.pdf, p. 6}
+This chapter concerns the effects of controlling for given variables. In $X\to Y\leftarrow T$, controlling $T$ when studying $X\to Y$ can make the effect of $X$ clearer and reduce the variance of its estimate. A second sketch has $B\to A\to X\to Y$ and $B\to Y$: $A$ is related only to $X$, while $B$ is related to both $X$ and $Y$. The annotation warns that adding a variable related only to $X$ can increase bias in the coefficient of $X$ [the small handwritten variable label is unclear].
+\[\hat\sigma^2=\frac{1}{n-2}\sum_i(y_i-\hat y_i)^2,\qquad
+\operatorname{Var}(\hat\beta_2)=\frac{\hat\sigma^2}{\sum_i(x_i-\bar x)^2}.\]
+The adjacent prose says ``standard error is proportional to the variance of $X$,'' followed by ``larger sample variation gives a smaller standard error.'' \textit{Translator's note: the displayed denominator and the second annotation indicate an inverse relationship, despite the first wording.}
+
+Confounding is the bias from failing to control for a common cause. Selection bias occurs when controlling for a common effect or a variable on the path from cause to effect.
+
+\paragraph{Bad controls and participation.}
+For a treatment that affects whether the outcome is zero, an RCT makes the mean difference causal. The note decomposes it into a participation effect and an effect among positive outcomes:
+\begin{align*}
+E[Y\mid T=1]-E[Y\mid T=0]
+={}&\{P(Y>0\mid T=1)-P(Y>0\mid T=0)\}E[Y\mid Y>0,T=1]\\
+&+\{E[Y\mid Y>0,T=1]-E[Y\mid Y>0,T=0]\}P(Y>0\mid T=0).
+\end{align*}
+The margin identifies the first part as the effect on the probability of a positive outcome, and distinguishes customers' participation from spending ability. Restricting analysis to participants gives
+\begin{align*}
+E[Y_{i1}\mid Y_{i1}>0]-E[Y_{i0}\mid Y_{i0}>0]
+={}&\underbrace{E[Y_{i1}-Y_{i0}\mid Y_{i1}>0]}_{\text{causal effect among participants}}\\
+&+\underbrace{E[Y_{i0}\mid Y_{i1}>0]-E[Y_{i0}\mid Y_{i0}>0]}_{\text{selection bias}}.
+\end{align*}
+The last term compares participants and nonparticipants [the end of the annotation is clipped]. The accompanying graph has $X\to T_1\to Y\to T_2$, and $X\to T_2$. $T_1,T_2$ are marked in red as bad selections/controls: ``do not control!''
+
+\section{Chapter 8. Instrumental variables}
+\sourcepages{Chapter1-23.pdf, pp. 7--8}
+Suppose
+\[Y_i=\beta_0+kT_i+\beta W_i+u_i,\]
+where $T$ is treatment and $W$ is a confounder. When $W_i$ is unavailable, fit $Y_i=\beta_0+kT_i+v_i$, with $v_i=\beta W_i+u_i$. Then $\operatorname{Cov}(T,v)\ne0$, so the estimate of $k$ is biased. The unobserved term carries information linking $T$ and $Y$.
+
+Introduce an instrument $Z$ related to $T$ and affecting $Y$ only through $T$, with $\operatorname{Cov}(Z,v)=0$. The graph is $Z\to T\to Y$, $W\to T$, $W\to Y$. Thus
+\begin{align*}
+\operatorname{Cov}(Z,Y)&=\operatorname{Cov}(Z,\beta_0+kT+v)\\
+&=k\operatorname{Cov}(Z,T)+\operatorname{Cov}(Z,v)=k\operatorname{Cov}(Z,T),\\
+k&=\frac{\operatorname{Cov}(Z,Y)}{\operatorname{Cov}(Z,T)}
+=\frac{\operatorname{Cov}(Y,Z)/\operatorname{Var}(Z)}{\operatorname{Cov}(T,Z)/\operatorname{Var}(Z)}.
+\end{align*}
+Both numerator and denominator are regression coefficients. The numerator is the reduced-form coefficient: the effect of $Z$ on $Y$, operating only through $T$.
+
+\textbf{My calculus intuition.}
+\[k=\frac{dY/dZ}{dT/dZ}=\frac{dY}{dZ}\frac{dZ}{dT}=\frac{dY}{dT}.\]
+For a binary instrument, the Wald estimator is
+\[k=\frac{E[Y\mid Z=1]-E[Y\mid Z=0]}{E[T\mid Z=1]-E[T\mid Z=0]}.\]
+The note describes this as turning the change from $Z\to Y$ back into the effect $T\to Y$.
+
+\paragraph{Using an instrument.}
+The example labels $Z_0$ ``qob'' (quarter of birth), $T$ education, $W$ ability, and $Y$ wages; additional variables are $Z_1,Z_2$. The proposed requirements are (1) $\operatorname{Cov}(Z,T)\ne0$, which can be checked directly in the data, and (2) $Y\perp Z\mid T$, followed by question marks and ``$Z$ affects $Y$ only through $T$.'' \textbf{Author's red correction:} ``Not accurate; corrected in Chapter 09.'' This conditional-independence statement is therefore retained as a superseded note, not an accepted assumption.
+
+Regress $T\sim Z_0$ to check the first-stage relationship, then $Y\sim Z_0$ to examine the reduced form. Method 1 takes the ratio of these regression coefficients. Method 2 is 2SLS:
+\begin{enumerate}
+\item Regress $T$ on $Z_0,Z_1,Z_2$.
+\item Regress $Y$ on fitted $T$ and $Z_1,Z_2$; the sketch substitutes $(Z_0,Z_1,Z_2)$ for fitted $T$.
+\end{enumerate}
+The coding note says that one can specify $T\sim Z_0$ because the other terms are automatically added in stage 2. The OLS comparison is written $Y\sim T+C(Z_0,Z_1,Z_2)$.
+
+With a weak correlation between $T$ and $Z$, estimates differ between OLS and 2SLS, and standard errors are large [the last parenthetical word is unclear]. 2SLS has finite-sample bias toward OLS, with the same direction as OLS bias; 2SLS is consistent while OLS is not. Bias increases with the number of instruments: with too many IVs, 2SLS increasingly resembles OLS.
+
+\section{Chapter 9. Noncompliance and local average treatment effects}
+\sourcepages{Chapter1-23.pdf, pp. 9--10}
+Compliers follow assignment; never-takers never receive treatment; always-takers always receive it; defiers do the opposite. In $Z\to T\to Y$ with $W\to T$ and $W\to Y$, never-takers and always-takers weaken the first stage. The blue intuition says that, for example, never-takers pull the reduced-form outcome difference toward the control condition.
+
+Potential outcomes now have two arguments: $Y_i(t,z)$; the written example is $Y_i(1,0)$ for $T_i=1,Z_i=0$. Potential treatment $T_{0i}$ corresponds to $Z_i=0$.
+\paragraph{IV assumptions, as recorded.}
+\begin{enumerate}
+\item $(T_{0i},T_{1i})\perp Z_i$ and $(Y_i(T_{1i},1),Y_i(T_{0i},0))\perp Z_i$. $Z$ is unrelated to potential treatment; people in different instrument groups are comparable.
+\item Exclusion: $Y_i(1,0)=Y_i(1,1)=Y_{i1}$ and $Y_i(0,0)=Y_i(0,1)=Y_{i0}$. The instrument affects the outcome only via treatment.
+\item $E[T_{1i}-T_{0i}]\ne0$: the first stage exists; the instrument really affects treatment.
+\item The scan writes $T_{1i}>T_{0i}$ and says switching on the instrument increases the probability of treatment. \textit{Translator's note: the subsequent derivation allows never-takers and always-takers, so the intended population monotonicity condition is non-strict, $T_{1i}\ge T_{0i}$, with a positive share of strict compliers.}
+\end{enumerate}
+
+\paragraph{Deriving the Wald estimand.}
+The scan initially labels the ratio ``ATE'':
+\[\frac{E[Y\mid Z=1]-E[Y\mid Z=0]}{E[T\mid Z=1]-E[T\mid Z=0]}.\]
+Using exclusion and random assignment,
+\begin{align*}
+E[Y_i\mid Z_i=1]&=E[Y_{i0}+T_{i1}(Y_{i1}-Y_{i0})\mid Z_i=1]\\
+&=E[Y_{i0}+T_{i1}(Y_{i1}-Y_{i0})],\\
+E[Y_i\mid Z_i=0]&=E[Y_{i0}+T_{i0}(Y_{i1}-Y_{i0})].
+\end{align*}
+The numerator is
+\begin{align*}
+E[(Y_{i1}-Y_{i0})(T_{i1}-T_{i0})]
+=E[Y_{i1}-Y_{i0}\mid T_{i1}>T_{i0}]P(T_{i1}>T_{i0}),
+\end{align*}
+and the denominator is $E[T_{i1}-T_{i0}]=P(T_{i1}>T_{i0})$. Their ratio is therefore
+\[E[Y_{i1}-Y_{i0}\mid T_{i1}>T_{i0}].\]
+\textbf{Author's red annotation:} this is the condition attached to that average treatment effect: compliance. IV identifies the treatment effect only for compliers. Compliers have $T_{i1}>T_{i0}$; never-takers have $T_{i1}=T_{i0}=0$; always-takers have $T_{i1}=T_{i0}=1$. Defiers run counter to assignment. \textit{Translator's note: the derived quantity is LATE, although the scan labels it ATE.}
+
+\section{Chapter 10. Matching}
+\sourcepages{Chapter1-23.pdf, pp. 11--12}
+When grouping on confounders to estimate ATE, weight the treatment effect in each group. Weighting by sample size pulls the estimate toward larger groups, even though their treatment variation may be small; this is marked ``nonparametric estimation.'' Weighting by variance gives higher-variance groups greater weight; this is linked to linear, parametric regression and its emphasis on high-variance covariates.
+
+\paragraph{Subclassification.}
+If $X$ creates confounding, group by equal $X$ values. Under $(Y_0,Y_1)\perp T\mid X$,
+\begin{align*}
+\mathrm{ATE}&=\int\{E[Y\mid X=x,T=1]-E[Y\mid X=x,T=0]\}\,dP(x),\\
+\widehat{\mathrm{ATE}}&=\sum_{k=1}^{K}(\bar Y_{k1}-\bar Y_{k0})\frac{N_k}{N}.
+\end{align*}
+The blue annotation describes averaging over individual covariate values $\{x_1,\ldots,x_K\}$.
+
+\paragraph{Matching estimator.}
+Use distances between observations to define similarity, then compare similar or nearby individuals receiving different treatments. K-nearest neighbors is noted. Normalize a coordinate when defining distance: $(x_i-\bar x)/\sqrt{\operatorname{Var}(x)}$.
+\[\widehat{\mathrm{ATE}}=\frac1N\sum_i(2T_i-1)(Y_i-Y_{j(i)}).\]
+$j(i)$ is the most similar observation from the other treatment group. The factor $2T_i-1$ changes the sign according to which treatment group $i$ belongs to.
+
+\paragraph{Matching bias and correction.}
+For the treated group, consider
+\[\widehat{\mathrm{ATET}}=\frac1{N_1}\sum_{i:T_i=1}(Y_i-Y_{j(i)}),\qquad
+\mu_0(x)=E[Y\mid X=x,T=0].\]
+The centering discrepancy is written
+\[E[\sqrt{N_1}(\widehat{\mathrm{ATET}}-\mathrm{ATET})]
+=E[\sqrt{N_1}\{\mu_0(X_i)-\mu_0(X_{j(i)})\}],\]
+and need not converge to zero. Multiplying the discrepancy by $\sqrt{N_1}$ magnifies it. The blue explanation contrasts $X_i$'s untreated potential outcome (counterfactual because $i$ is treated) with $X_j$'s observed untreated outcome; $X_i\approx X_j$ is meant to make their untreated outcomes close. Correct the estimator so that it converges:
+\[\widehat{\mathrm{ATET}}_{\mathrm{bc}}=
+\frac1{N_1}\sum_{i:T_i=1}\left[(Y_i-Y_{j(i)})-
+\{\hat\mu_0(X_i)-\hat\mu_0(X_{j(i)})\}\right].\]
+$\hat\mu_0$ is estimated, for example by least squares. A local LS correction does not alter the matching estimator's original aim.
+
+\textbf{The curse of dimensionality.} More covariates mean larger matching distances: each cell contains fewer observations.
+
+\section{Chapter 11. Propensity scores}
+\sourcepages{Chapter1-23.pdf, pp. 13--14}
+Another way to address confounding bias is to summarize the confounders by a number between zero and one. The graph is $X\to p(X)\to T\to Y$, with $X\to Y$. The page writes $(Y_1,Y_0)\perp T\mid p(X)$ next to a double arrow and the balancing identity
+\[E[T\mid p(X),X]=E[T\mid p(X)].\]
+\textit{Translator's note: balancing is a property of the propensity score; the potential-outcome independence additionally uses unconfoundedness given $X$.}
+
+\textbf{My example.} Take two individuals, one treated and one control. If their probabilities of treatment are the same, they are comparable, even if their $X$ values differ.
+\begin{align*}
+E[T\mid p(X),X]&=E[T\mid X]=p(X), &&\text{since }p(X)\text{ is a function of }X,\\
+E[T\mid p(X)]&=E[E[T\mid p(X),X]\mid p(X)]\\
+&=E[p(X)\mid p(X)]=p(X).
+\end{align*}
+
+\paragraph{Inverse propensity weighting (IPW).}
+The conditional difference can be rewritten as
+\begin{align*}
+E[Y\mid X,T=1]-E[Y\mid X,T=0]
+={}&p(X)E\!\left[\frac{Y}{p(X)}\,\middle|\,X,T=1\right]\\
+&-\{1-p(X)\}E\!\left[\frac{Y}{1-p(X)}\,\middle|\,X,T=0\right].
+\end{align*}
+\textbf{My understanding (marked with a question mark in the scan).} We observe treatment for individual $i$, but the probability that $i$ would be treated is only $p(X_i)$, determined by $X$. Give every observed treated individual weight $1/p(X_i)$ to correct for this. If $p(X_i)$ is small, that observation contributes little to the unweighted outcome distribution; increase its representation with the reciprocal weight. For $T=1$ and $T=0$, the weights are respectively $1/p(X)$ and $1/(1-p(X))$. This reconstructs a population in which everyone is treated ($Y_1$) and another in which everyone is untreated ($Y_0$), and ATE is their difference.
+
+A weighted variance is written
+\[\hat\sigma_w^2=\frac{\sum_{i=1}^n w_i(Y_i-\hat\mu)^2}{\sum_{i=1}^n w_i}.\]
+But the estimated propensity $\hat p(X)$ itself contains error. Adding nonconfounding covariates carelessly can make the propensity estimator highly variable. Treated people may have a higher estimated probability of treatment than untreated people. The bottom warning says that propensity weights above 20\% can increase variance (the threshold is recorded as written).
+
+\paragraph{Propensity-score matching.}
+Replace matching distance with $p(X)$. The author comments, ``this is not very good.'' Better prediction of treatment does not necessarily improve causal estimation and can increase variance. If treated and untreated propensity-score distributions lack overlap, matching encounters problems.
+
+\section{Chapter 12. Doubly robust estimation}
+\sourcepages{Chapter1-23.pdf, p. 15}
+Combine linear outcome regression and propensity weighting to estimate the treatment-control contrast conditional on $X$:
+\begin{align*}
+\widehat{\mathrm{ATE}}={}&\frac1N\sum_i\left[\frac{T_i\{Y_i-\hat\mu_1(X_i)\}}{\hat p(X_i)}+\hat\mu_1(X_i)\right]\\
+&-\frac1N\sum_i\left[\frac{(1-T_i)\{Y_i-\hat\mu_0(X_i)\}}{1-\hat p(X_i)}+\hat\mu_0(X_i)\right].
+\end{align*}
+Here $\hat p(X)$ estimates the propensity score (for example, using logistic regression), and $\hat\mu_1(X)$ and $\hat\mu_0(X)$ estimate $E[Y\mid X,T=1]$ and $E[Y\mid X,T=0]$. The first average estimates $E[Y_1]$ and the second $E[Y_0]$. Only one of the propensity or outcome models needs to be correct.
+
+\textbf{My algebraic explanation.} For $E[Y_1]$,
+\[\widehat E[Y_1]=\frac1N\sum_i\left[\frac{T_i\{Y_i-\hat\mu_1(X_i)\}}{\hat p(X_i)}+\hat\mu_1(X_i)\right].\]
+If $\hat p$ is wrong but $\hat\mu_1$ is correct, the first term is zero for $T_i=0$ and has mean zero for $T_i=1$, leaving the regression prediction. The scan's shorthand writes $E[\hat\mu_1(X_i)]=Y_i$; the intended cancellation is in conditional expectation, not for each observation.
+
+Alternatively,
+\[\widehat E[Y_1]=\frac1N\sum_i\left[\frac{T_iY_i}{\hat p(X_i)}-\frac{T_i-\hat p(X_i)}{\hat p(X_i)}\hat\mu_1(X_i)\right].\]
+If the outcome model is wrong but the propensity model is correct, $T_i-\hat p(X_i)$ has mean zero conditional on $X_i$, so the correction vanishes in expectation. The final reminder says the theory and the data must be right; try to use DRE even when beginning with a single model.
+
+\section{Chapter 13. Difference-in-differences}
+\sourcepages{Chapter1-23.pdf, p. 17; placed before Chapter 14 on pp. 16 and 18}
+Difference-in-differences evaluates the effect of a macro-level intervention. $D$ indicates treatment and $T$ time; $Y_D(T)$ is the potential outcome under treatment $D$ in period $T$.
+
+\paragraph{Two comparisons and their problems.}
+The target among the treated is $E[Y_1(1)-Y_0(1)\mid D=1]$, comparing treatment and no treatment in the same period; $Y_0(1)$ is counterfactual. Before treatment, $E[Y_1(0)\mid D=1]=E[Y_0(0)\mid D=1]$. A before/after comparison uses the pre-intervention outcome to stand in for the post-intervention untreated outcome. This fails when there is a time trend: the two untreated potential outcomes need not coincide.
+
+A treated/control comparison in the post period uses
+\[E[Y(1)\mid D=1]-E[Y(1)\mid D=0].\]
+It uses the control group's untreated post-period outcome to estimate the treated group's counterfactual. The blue annotation warns that this too can fail.
+
+Combine the two:
+\begin{align*}
+\widehat{\mathrm{ATET}}={}&\{E[Y(1)\mid D=1]-E[Y(1)\mid D=0]\}\\
+&-\{E[Y(0)\mid D=1]-E[Y(0)\mid D=0]\}.
+\end{align*}
+The connecting arrows give the equivalent reading: the experimental group's post-minus-pre change minus the control group's post-minus-pre change. The margin notes a linear model with an interaction, an unknown variance, and ``check parallel [trends].''
+
+\section{Chapter 14. Panel data and fixed effects}
+\sourcepages{Chapter1-23.pdf, pp. 16 and 18}
+Panel data repeatedly observe the same person at several times, holding that person's identity fixed and avoiding confounding bias from fixed characteristics. The notes describe the fixed-effects model as a way to account for the person [a short ``IV'' abbreviation is written in the scan].
+
+Recall DID. For the treated city, estimate its untreated outcome after intervention by its untreated outcome before intervention plus the untreated city's change over time:
+\[Y_0(1)\mid D=1
+=Y_0(0)\mid D=1+\{Y_0(1)\mid D=0-Y_0(0)\mid D=0\}.
+\]
+\textit{Translator's note: this is the notebook's shorthand for a statement about conditional mean outcomes.}
+Then $\widehat{\mathrm{ATT}}=Y_1(1)\mid D=1-\widehat Y_0(1)\mid D=1$: the first is known, the second estimated. The example annotation mentions the effect of advertising in a DMA.
+
+Parallel trends means treatment assignment is unrelated to growth in the potential outcome over time. The scan writes $(Y_d(t)-Y_d(t-1))\perp D$.
+\[y_{it}=\beta X_{it}+\gamma U_i+e_{it}.\]
+$y_{it}$ is the outcome for person $i$ at time $t$, $X_{it}$ a time-varying treatment/covariate, and $U_i$ a set of unobserved characteristics that do not vary with time.
+
+\paragraph{Limits of panel data (top margin on the continuation page).}
+Panel data cannot solve reverse causality, where cause and effect reinforce one another; fixed effects cannot control this. They also cannot remove unobserved confounders that vary over time.
+
+\paragraph{Residualizing a linear panel model.}
+For two groups of features, $X_1,X_2$,
+\[\hat y=\hat\beta_1X_1+\hat\beta_2X_2.\]
+The drawn feature matrix has observations as rows and features as columns.
+\begin{enumerate}
+\item Regress $y$ on the second feature group: $\hat y^*=\hat\gamma_1X_2$.
+\item Regress $X_1$ on $X_2$: $\hat X_1=\hat\gamma_2X_2$.
+\item Take residuals $\widetilde X_1=X_1-\hat X_1$ and $\widetilde y=y-\hat y^*$.
+\item Regress the outcome residual on the feature residual, yielding the coefficient on $X_1$.
+\end{enumerate}
+
+\paragraph{Within transformation.}
+Compute $\ddot Y_{it}=Y_{it}-\bar Y_i$ and $\ddot X_{it}=X_{it}-\bar X_i$, then regress $\ddot Y_{it}$ on $\ddot X_{it}$. Since $\bar U_i=U_i$, the fixed effect disappears:
+\begin{align*}
+Y_{it}&=\beta X_{it}+\gamma U_i+e_{it},\\
+\bar Y_i&=\beta\bar X_i+\gamma\bar U_i+\bar e_i,\\
+Y_{it}-\bar Y_i&=\beta(X_{it}-\bar X_i)+\gamma(U_i-\bar U_i)+(e_{it}-\bar e_i),\\
+\ddot Y_{it}&=\beta\ddot X_{it}+\ddot e_{it}.
+\end{align*}
+This removes all unobserved characteristics that are constant over time. For time effects, such as inflation, add one dummy for each period; time-varying factors may also matter. Group the data by person and sum the deviations: a zero total for the fixed characteristic expresses its lack of within-person change.
+
+The sketch shows several parallel purchase-versus-cost lines. A fixed-effects model fits a line for each city and assumes a constant causal effect across conditions.
+
+\section{Chapter 15. Synthetic control}
+\sourcepages{Chapter1-23.pdf, pp. 19--21}
+Panel methods require disaggregated data. If only aggregate data are available, or no similar control unit can be found, combine several units into one similar unit.
+
+There are $J+1$ units. Unit 1 receives treatment; units $2,\ldots,J+1$ are untreated and form the donor pool. $Y_{jt}^{I}$ and $Y_{jt}^{N}$ are the potential outcomes with and without intervention for unit $j$ at time $t$. Treatment starts at $T_0$. For $t>T_0$,
+\[\tau_{1t}=Y_{1t}^{I}-Y_{1t}^{N}.\]
+The treated outcome is factual and the untreated one counterfactual; the effect is a function of time. For weights $W=(w_2,\ldots,w_{J+1})$,
+\[\widehat Y_{1t}^{N}=\sum_{j=2}^{J+1}w_jY_{jt}.\]
+Regression can be used to choose these weights: minimize the squared pre-intervention distance between the treated unit and the weighted donor average.
+
+\paragraph{Synthetic control as regression.}
+Build a virtual California from donor states. The matrix has years as rows, states as columns, and cigarette sales as entries. Set California's series to $Y$, other states' series to $X$, and regress $Y\sim X$. The example weights include $-0.436$ and $-0.032$ (39 weights for 39 states). Their weighted sum is the virtual state, chosen to minimize its discrepancy from the treated unit.
+
+This easily overfits: the virtual state can almost coincide with California before intervention, then fluctuate strongly afterward and exceed California. The note mentions Ridge or Lasso regression. The handwritten size comparison reads ``$T$ large, $N$ large'' [its exact intended inequality is unclear].
+
+\paragraph{Avoiding extrapolation.}
+Earlier overfitting is attributed to extrapolation: weights place observations outside the range of the data. Impose a convex-combination restriction. The synthetic control still has the form $\widehat Y_{1t}^{N}=\sum_{j=2}^{J+1}w_jY_{jt}$, but choose $W$ to minimize
+\[\|X_1-X_0W\|_V=
+\left\{\sum_{h=1}^{k}v_h\left(X_{h1}-\sum_{j=2}^{J+1}w_jX_{hj}\right)^2\right\}^{1/2},
+\qquad w_j\ge0,\quad\sum_{j=2}^{J+1}w_j=1.
+\]
+The drawings contrast unconstrained extrapolation from donor points to a treated point outside their triangle with a constrained fit inside the donor convex hull.
+
+$v_h$ reflects each variable's importance in matching treatment and synthetic control; different $v_h$ values yield different weights. Choices mentioned are standardizing each variable to mean zero and unit variance, or giving greater importance to variables that predict $Y$ better. The implementation here gives every variable equal importance: define a loss function, use SciPy quadratic optimization with weights summing to one, and constrain each weight to $[0,1]$. The resulting weights are sparse, small, and sum to one (the handwritten illustrative vector includes zeros and an approximately $0.3852$ entry).
+
+\paragraph{Significance and placebo comparisons.}
+Use a Fisher exact/permutation-style test. Refit synthetic control and estimate an effect for each of the 39 states. California gives the actual intervention estimate; the other states give placebo effects. If untreated states also appear to have large effects, that is concerning. Post-intervention variation is larger than pre-intervention variation; some units fit poorly even before intervention and should be excluded. Set a pre-period fit threshold using
+\[\mathrm{MSE}=\frac1N\sum_t(Y_t-\widehat Y_t^{\mathrm{synth}})^2.\]
+The stated test steps are to compute all state effects, then form
+\[p=\frac1N\sum_j\mathbf1\{\hat\tau_{\mathrm{California}}>\hat\tau_j\},\]
+with the reminder that California's effect is negative. A blue annotation says only one state's effect is more extreme than California's, gives $p=0.0286$, and concludes that California's estimated intervention effect is very extreme (effective). \textit{Translator's note: ``higher'' in one margin conflicts with the displayed lower-tail inequality; the inequality and the negative-effect reminder are preserved. The exact denominator for the quoted numerical $p$ is not specified on the page.}
+
+\section{Chapter 16. Regression discontinuity design}
+\sourcepages{Chapter1-23.pdf, pp. 22--24}
+A discontinuity: what effect does it reveal? Let $R$ be the running variable, with treatment assigned discontinuously at cutoff $c$:
+\[D_i=\mathbf1\{R_i>c\}.\]
+Below $c$ treatment is zero; above it treatment is one. Thus $Y_1$ is observed for $R>c$, and $Y_0$ for $R<c$. The figure draws smooth potential-outcome curves $Y_1,Y_0$, with the observed curve switching from $Y_0$ to $Y_1$ at $c$. The example plots age against all deaths / motor-vehicle deaths / suicide, looking for a discontinuity.
+
+If potential-outcome means are smooth, their left and right limits agree, e.g.
+\[\lim_{r\to c^-}E[Y_{1i}\mid R_i=r]=\lim_{r\to c^+}E[Y_{1i}\mid R_i=r].\]
+The discontinuity in observed outcomes therefore identifies
+\begin{align*}
+&\lim_{r\to c^+}E[Y_i\mid R_i=r]-\lim_{r\to c^-}E[Y_i\mid R_i=r]\\
+&\quad=\lim_{r\to c^+}E[Y_{1i}\mid R_i=r]-\lim_{r\to c^-}E[Y_{0i}\mid R_i=r]\\
+&\quad=E[Y_{1i}-Y_{0i}\mid R_i=c].
+\end{align*}
+The source labels this a local average treatment effect. \textbf{My annotation.} This is a local random experiment, closest to an RCT.
+
+Estimate the treatment effect by a linear regression with different slopes on either side:
+\[y_i=\beta_0+\beta_1r_i+\beta_2\mathbf1\{r_i>c\}+\beta_3\mathbf1\{r_i>c\}r_i.\]
+The low-side line is the first part; the high-side line adds the indicator and interaction. The next page identifies $\beta_0$ with the left limit, $\beta_0+\beta_2$ with the right limit, and $\beta_2$ with the cutoff effect. \textit{Translator's note: those intercept statements assume the running variable is centered at the cutoff (or $c=0$); the source writes the uncentered formula.} Standard errors assess significance.
+
+\paragraph{Kernel weighting.}
+RDD relies heavily on linear regression's extrapolation. A fit can focus too much on distant observations and fit badly at the cutoff. Give observations nearer the threshold higher weight. The triangular kernel is
+\[K(R,c,h)=\mathbf1\{|R-c|<h\}\left(1-\frac{|R-c|}{h}\right).\]
+The indicator keeps only observations within $c\pm h$; the second factor decreases as distance from $c$ increases. Use WLS, weighted least squares.
+
+\paragraph{Fuzzy RDD.}
+At the cutoff, treatment need not switch deterministically from zero to one: only its probability jumps. Use cutoff crossing as an IV; ignoring noncompliance biases the treatment estimate toward zero. The diagrams show a jump in treatment probability and a corresponding jump in outcome. The note assumes $T_{1i}>T_{0i}$ for all $i$ and no negative changes [the prose is abbreviated]. The Wald ratio is
+\[
+\frac{\lim_{r\to c^+}E[Y_i\mid R_i=r]-\lim_{r\to c^-}E[Y_i\mid R_i=r]}
+{\lim_{r\to c^+}E[T_i\mid R_i=r]-\lim_{r\to c^-}E[T_i\mid R_i=r]}
+=E[Y_{1i}-Y_{0i}\mid T_{1i}>T_{0i},R_i=c].
+\]
+The margin distinguishes simply estimating an RD discontinuity from IV estimation. \textit{Translator's note: as in Chapter 9, non-strict monotonicity permits noncompliers; strict inequality identifies the complier subgroup in the estimand.}
+
+The continuation says a large $p$-value means nonsignificance and a smaller effect [author's shorthand, not an equivalence between significance and effect size]. The McCrary test checks bunching in the running-variable distribution: is there a spike near the cutoff?
+
+\section{Part II. Applications}
+\section{Chapter 17. Predictive Models 101}
+\sourcepages{Chapter1-23.pdf, p. 25}
+Machine learning estimates $E[Y\mid X]$, the expected outcome at a given $X$, producing $\widehat E[Y\mid X]$. An overly complex model overfits. The cross-validation diagram separates training data, test data, and unseen data. Distinguish predictions from policies. Estimators and maximum likelihood are noted.
+
+$R^2$ evaluates a continuous-outcome model, describing how much outcome variation the model explains. The written range is $(-\infty,1)$, with a reminder that it measures performance relative to the mean. As tree depth rises, training $R^2$ increases while test $R^2$ can decrease: overfitting.
+
+\texttt{pandas.qcut} divides model-predicted values into quantile bins, i.e. model segments. A return strategy can use a threshold to decide whether to trade or to lend, and how much money to commit.
+
+\section{Chapter 18. Heterogeneous treatment effects and personalization}
+\sourcepages{Chapter1-23.pdf, p. 26}
+Unlike ordinary ML, the aim is to intervene and predict the effect of intervention. Consider $E[Y\mid X,T]$, where $X$ consists of external characteristics we cannot control (e.g. sales volume, as written), and $T$ is the treatment (e.g. price). Optimize $\arg\max_T E[Y\mid X,T]$.
+
+Move from ATE to CATE. For binary treatment, ATE is $E[Y_1-Y_0]$; for continuous treatment, the note uses $E[y'(t)]$, the derivative of the outcome with respect to treatment. The conditional versions are
+\[E[Y_1-Y_0\mid X],\qquad E[y'(t)\mid X].\]
+\textbf{My annotation.} Add the condition $X$: calculate the expectation separately for each $X$, then choose a personalized policy.
+
+Predicting elasticity means estimating $\partial Y_i/\partial T_i$, approximated by
+\[\frac{Y(T_i)-Y(T_i+\varepsilon)}{T_i-(T_i+\varepsilon)}.\]
+But both outcomes are unobservable for the same individual: the causal-inference problem. In a simple regression $y_i=\beta_0+\beta_1t_i+\beta_2X_i+e_i$, the derivative is only $\beta_1$, a common elasticity. Add an interaction:
+\[y_i=\beta_0+\beta_1t_i+\beta_2X_i+\beta_3t_iX_i+e_i,
+\qquad \frac{\partial\hat y_i}{\partial t_i}=\hat\beta_1+\hat\beta_3X_i.
+\]
+The interaction makes CATE depend on the covariates. $\beta_1,\beta_3$ determine the derivative relationship. The note also writes a finite difference $\{y(t+\varepsilon)-y(t)\}/\varepsilon$, followed by the practical one-unit approximation $\hat y(t+1)-\hat y(t)$.
+
+\section{Chapter 19. Evaluating causal models}
+\sourcepages{Chapter1-23.pdf, pp. 27--28}
+The purpose is prediction and ranking (grouping). Use nonrandom data to estimate causal models. Compare:
+\begin{enumerate}
+\item $\mathrm{sales}_i=\beta_0+\beta_1\mathrm{price}_i+\beta_2X_i+\beta_3X_i\mathrm{price}_i+e_i$, a linear model (the feature terms can be matrices).
+\item $\mathrm{sales}_i=G(X_i,\mathrm{price}_i)+e_i$, using a regression tree. Check $R^2$ for overfitting.
+\item A random-number prediction as a placebo comparison.
+\end{enumerate}
+An elasticity model ranks units by treatment sensitivity. Within a segment, estimate elasticity by a univariate regression $y_i=\beta_0+\beta_1t_i+e_i$:
+\[\hat\beta_1=\frac{\sum_i(t_i-\bar t)(y_i-\bar y)}{\sum_i(t_i-\bar t)^2},\]
+where $\bar t$ is mean treatment and $\bar y$ mean outcome.
+
+\paragraph{Cumulative elasticity curve.}
+Sort by predicted elasticity, from most sensitive downward. Estimate the slope for the first group, then keep adding groups until all observations are included, where the curve reaches ATE:
+\[\widehat{y'}(t)_k=\hat\beta_k=
+\frac{\sum_{i=1}^{k}(t_i-\bar t)(y_i-\bar y)}{\sum_{i=1}^{k}(t_i-\bar t)^2}.\]
+The goals in the note are that $\widehat{y'}(t)_k>\widehat{y'}(t)_{k+a}$ and that the difference be large. The sketch descends toward the overall effect and labels a well-performing ranking as preferable.
+
+\paragraph{Cumulative gain curve.}
+\[\widehat F(k)=\hat\beta_k\frac{k}{N}
+=\frac{\sum_{i=1}^{k}(t_i-\bar t)(y_i-\bar y)}{\sum_{i=1}^{k}(t_i-\bar t)^2}\frac{k}{N}.\]
+The sketch compares a curved gain line with a straight reference. For a confidence interval, the standard error is
+\[S_{\hat\beta_1}=\sqrt{\frac{\sum_i\hat\varepsilon_i^2}{(n-2)\sum_i(t_i-\bar t)^2}}.\]
+
+\section{Chapter 20. Plug-and-play estimators}
+\sourcepages{Chapter1-23.pdf, pp. 29--31}
+The author marks this part as ``translation for reference.'' Previously, comparable treatment and control groups gave ATE. The source writes $Y(0),Y(1)\perp X$ here [the conditioning/assignment symbol is inconsistent with the surrounding discussion]. Now ask: for whom does treatment work better; who is more sensitive?
+\[\tau_i=Y_i(1)-Y_i(0),\qquad
+Y_i^{\mathrm{obs}}=\begin{cases}Y_i(1),&t=1,\\Y_i(0),&t=0,\end{cases}
+\]
+\[\mathrm{ATE}=\tau=E[Y_i(1)-Y_i(0)]=E[\tau_i],\qquad
+\mathrm{CATE}=\tau(x)=E[Y_i(1)-Y_i(0)\mid X=x]=E[\tau_i\mid X=x].\]
+With $y_i=\beta_0+\beta_1t_i+\beta_2X_i+\beta_3t_iX_i+e_i$, the fitted effect is $\hat\tau(x)=\hat\beta_1+\hat\beta_3x$. The blue note says the effect does not involve $\beta_2$, but if $X$ is related to the outcome, $\beta_1,\beta_3$ can still be biased [conditions are not elaborated].
+
+Outcome MSE is $E[(Y_i-\hat Y_i)^2]$. The aim is instead to minimize treatment-effect error, written in the source as
+\[E[(\tau(x)-\hat\tau(x))^2]=E[(Y_i(1)-Y_i(0)-\hat\tau(x))^2].\]
+\textit{Translator's note: these two risks differ by irreducible conditional treatment-effect variance; their minimizers agree under the usual squared-loss decomposition, but the displayed equality is not generally literal.}
+
+\paragraph{Transformed outcomes for binary treatment.}
+Introduce $Y_i^*=2Y_iT_i-2Y_i(1-T_i)$. Under 50/50 random assignment, $T\perp(Y(0),Y(1))$, so $E[TY(t)]=E[T]E[Y(t)]$. Also, $Y_iT_i=Y_i(1)T_i$ and $Y_i(1-T_i)=Y_i(0)(1-T_i)$. Therefore
+\begin{align*}
+E[Y_i^*\mid X_i=x]
+&=2E[Y_i(1)T_i\mid X_i=x]-2E[Y_i(0)(1-T_i)\mid X_i=x]\\
+&=2E[Y_i(1)\mid X_i=x]\,0.5-2E[Y_i(0)\mid X_i=x]\,0.5\\
+&=\tau(x).
+\end{align*}
+For nonrandom assignment, introduce propensity $e(X_i)$, with the relevant conditional independence assumption, and use
+\[Y_i^*=Y_i\frac{T_i-e(X_i)}{e(X_i)(1-e(X_i))}.\]
+When treatment is randomized at a known probability $p$, substitute $p$ for $e(X_i)$. The red derivation expands its conditional expectation as
+\begin{align*}
+E[Y_i^*\mid X_i=x]
+={}&\frac{E[Y_i(1)\mid X_i=x]E[T_i\mid X_i=x]}{e(x)}\\
+&-\frac{E[Y_i(0)\mid X_i=x]E[1-T_i\mid X_i=x]}{1-e(x)}=\tau(x).
+\end{align*}
+From the cumulative gain curve, the transformed target provides an unbiased but very noisy estimate of an individual's treatment effect. With large data, this is less problematic.
+
+\paragraph{Continuous treatment.}
+The target is $\tau(x)=E[\partial Y_i(t)/\partial t\mid X=x]=E[\tau_i\mid X=x]$. The sketch shows a downward demand-versus-price slope. A linear slope estimate is
+\[\hat\tau(x)=\frac{\operatorname{Cov}(Y_i,T_i)}{\operatorname{Var}(T_i)}
+=\frac{\sum_i(Y_i-\bar Y)(T_i-\bar T)}{\sum_i(T_i-\bar T)^2}.
+\]
+For a single observation under randomized treatment, define
+\[Y_i^*=(Y_i-\bar Y)\frac{T_i-\bar T}{\sigma_T^2}.\]
+Set $V_i=(T_i-\bar T)/\sigma_T^2$. The derivation uses $E[V_i\mid X_i=x]=0$, $E[T_iV_i\mid X_i=x]=1$, and
+\[E[T_i(T_i-\bar T)\mid X_i=x]=E[(T_i-\bar T)^2\mid X_i=x],\]
+as well as $E[T_ie_i\mid X_i=x]=E[T_i\mid X_i=x]E[e_i\mid X_i=x]$. With $Y_i=\alpha+\beta T_i+e_i$ at $X_i=x$,
+\begin{align*}
+E[Y_i^*\mid X_i=x]
+&=E[(Y_i-\bar Y)V_i\mid X_i=x]\\
+&=E[(\alpha+\beta T_i+e_i-\bar Y)V_i\mid X_i=x]=\beta=\tau(x).
+\end{align*}
+The proposed continuous-treatment extension is written
+\[Y_i^*=(Y_i-\bar Y)\frac{T_i-M(T_i)}{\{T_i-M(T_i)\}^2},\]
+with a note that $M$ estimates $E[T_i\mid X_i=x]$. \textit{Translator's note: the model's written argument and the squared-residual denominator are questionable; this unverified proposal is retained rather than silently replaced by a conditional-variance formula.} The author's red note says the denominator creates numerical difficulty; for the intended use, only relative ranking is needed, not a numerical explanation.
+
+For nonlinear relationships, the author writes ``no solution yet,'' then suggests $D_i=1/P_i^\alpha$, so $\log D=-\alpha\log P_i$.
+
+\section{Chapter 21. Meta-learners}
+\sourcepages{Chapter1-23.pdf, pp. 32--33}
+These are ML methods for CATE. The note says to fit on nonrandom data and validate on random data, then adds that one must still remove confounding. The targets are $E[Y_i(1)-Y_i(0)\mid X]$ or the conditional derivative for continuous treatment.
+
+\paragraph{S-learner (``Go-Horse Learner'').}
+Use one ML model $M_S$ to estimate $\mu(X,T)=E[Y\mid T,X]$. Fit with $(X,T)$, then pass the same $X$ through the model once with $T=0$ and once with $T=1$. The predicted outcome difference gives CATE. A cumulative gain curve can reveal overfitting; tune \texttt{max\_depth}.
+
+The weakness is a tendency to shrink treatment effects toward zero. An S-learner is a regularized ML model, so regularization restricts the estimated treatment effect. If other covariates have strong predictive effects, it may drop the treatment variable entirely.
+
+\paragraph{T-learner.}
+Splitting the data addresses complete omission of treatment. Fit
+\[\mu_0(x)=E[Y\mid T=0,X=x],\qquad \mu_1(x)=E[Y\mid T=1,X=x],\]
+then estimate $\hat\tau(x)=M_1(x)-M_0(x)$. The diagram sends treatment and control data to separate models, then applies both models to the same $X$ and subtracts predictions.
+
+\textbf{My annotation.} Splitting also shrinks the data sets. For example, abundant $T=0$ data may support a good fit, but scarce $T=1$ data force a simpler model to avoid overfitting. Regularization then creates a tension with effect estimation.
+
+\paragraph{X-learner.}
+The first stage resembles the T-learner; another stage fits the imputed effects and uses a propensity model.
+\begin{enumerate}
+\item Fit $\hat M_0(x)\approx E[Y\mid T=0,X=x]$ and $\hat M_1(x)\approx E[Y\mid T=1,X=x]$. The red note assumes the relationships can differ for $T=0$ and $T=1$.
+\item Impute treatment effects by differencing observed outcomes and predicted missing outcomes:
+\[\hat\tau_i^{(0)}=\hat M_1(X_i)-Y_i\quad(T_i=0),\qquad
+\hat\tau_i^{(1)}=Y_i-\hat M_0(X_i)\quad(T_i=1).
+\]
+\item Fit effect models $\hat M_{\tau0}(x)\approx E[\hat\tau^{(0)}\mid X=x,T=0]$ and $\hat M_{\tau1}(x)\approx E[\hat\tau^{(1)}\mid X=x,T=1]$.
+\item Combine them:
+\[\hat\tau(x)=\hat M_{\tau0}(x)\hat e(x)+\hat M_{\tau1}(x)\{1-\hat e(x)\}.\]
+\end{enumerate}
+The flowchart crosses the two outcome models over to the opposite groups, constructs CATE pseudo-outcomes, fits two further models, and combines them using propensity $PS(X)$. The red annotation says a larger $e(X)$ means more $T=1$ observations and a more accurate corresponding outcome model, warranting greater weight. This refers to the model supplying the imputed counterfactual used by the opposite group's effect regression.
+
+\section{Chapter 22. Debiased / orthogonal machine learning}
+\sourcepages{Chapter1-23.pdf, pp. 34--36}
+The notebook cites ``Double Machine Learning for Treatment and Causal Parameters'' (2016). ML is used for nuisance parameters. Existing data are biased because features are correlated: for sales, these may include price, temperature, cost, and weekday, with complex relationships.
+
+\paragraph{Frisch--Waugh--Lovell.}
+For $\hat Y=\hat\beta_1X_1+\hat\beta_2X_2$, where $X_1,X_2$ are feature matrices (one feature per column, one observation per row), the same coefficient on $X_1$ is obtained by:
+\begin{enumerate}
+\item Regressing $Y$ on $X_2$, giving $\hat Y^*=\hat\gamma_1X_2$.
+\item Regressing $X_1$ on $X_2$, giving $\hat X_1=\hat\gamma_2X_2$.
+\item Taking $\widetilde X_1=X_1-\hat X_1$ and $\widetilde Y=Y-\hat Y^*$.
+\item Regressing $\widetilde Y$ on $\widetilde X_1$ to recover $\hat\beta_1$.
+\end{enumerate}
+Thus $(Y-\widehat{Y\sim X})\sim(T-\widehat{T\sim X})$ estimates $\tau$ in
+\[Y_i-E[Y_i\mid X_i]=\tau\{T_i-E[T_i\mid X_i]\}+\varepsilon_i.\]
+
+\paragraph{``FWL on steroids'': ML for ATE.}
+\[Y_i-\hat M_Y(X_i)=\tau\{T_i-\hat M_T(X_i)\}+\varepsilon_i.\]
+$\hat M_Y$ estimates $E[Y\mid X]$ and acts as a denoising model, explaining variation in $Y$ due to $X$. $\hat M_T$ estimates $E[T\mid X]$ and acts as a debiasing model, removing treatment-assignment bias associated with $X$.
+\begin{enumerate}
+\item Estimate outcome $Y$ from features $X$ with flexible ML regression $M_Y$.
+\item Estimate treatment $T$ from $X$ with $M_T$.
+\item Obtain residuals $\widetilde Y=Y-M_Y(X)$ and $\widetilde T=T-M_T(X)$.
+\item Regress outcome residuals on treatment residuals: $\widetilde Y=\alpha+\tau\widetilde T$.
+\end{enumerate}
+The note calls this ``two predictions, one regression''; $\tau$ is the causal ATE parameter.
+
+\textbf{My overfitting explanation.} If $M_Y$ overfits, it captures more than the $Y$--$X$ relationship: it also absorbs some $Y$--$T$ relationship. The final effect is biased toward zero because the outcome model has swallowed the causal relationship instead of leaving it for residual regression. If $M_T$ overfits, it explains too much variation in $T$, leaving little treatment-residual variance. The final estimate then has high variance. The margin links this to an overly accurate or extreme propensity score and violation of positivity.
+
+To address overfitting, split the data into $K$ folds. For each fold, train ML models on the other $K-1$ folds and obtain residuals on the held-out fold. Combine predictions/residuals for all folds and fit $\widetilde Y=\alpha+\tau\widetilde T$.
+
+\paragraph{CATE and the R-learner.}
+Allow the slope to depend on $X$:
+\[Y_i-M_Y(X_i)=\tau(X_i)\{T_i-M_T(X_i)\}+\varepsilon_i.\]
+One final regression is $\widetilde Y_i=\alpha+\beta_1\widetilde T_i+\beta_2X_i\widetilde T_i+\varepsilon_i$. The final model estimates the sales effect by $M(\mathrm{Price}=1,X_i)-M(\mathrm{Price}=0,X_i)$. The bottom red label is ``R-learner.''
+
+\paragraph{Nonparametric double/debiased ML.}
+For a continuous relationship, such as price and sales, write
+\[Y_i=\hat M_Y(X_i)+\tau(X_i)\{T_i-\hat M_T(X_i)\}+\hat\varepsilon_i.\]
+Rearrange the residual:
+\[\hat\varepsilon_i=\{Y_i-\hat M_Y(X_i)\}-\tau(X_i)\{T_i-\hat M_T(X_i)\}.\]
+Minimizing its square gives the causal R-loss and estimates CATE:
+\begin{align*}
+\hat L_n(\tau)&=\frac1n\sum_{i=1}^n\left[\{Y_i-\hat M_Y(X_i)\}-\tau(X_i)\{T_i-\hat M_T(X_i)\}\right]^2\\
+&=\frac1n\sum_{i=1}^n(\widetilde Y_i-\tau(X_i)\widetilde T_i)^2\\
+&=\frac1n\sum_{i=1}^n\widetilde T_i^2\left(\frac{\widetilde Y_i}{\widetilde T_i}-\tau(X_i)\right)^2.
+\end{align*}
+\textbf{My interpretation.} This is predicting $\widetilde Y_i/\widetilde T_i$ with any prediction model, using weights $\widetilde T_i^2$. The last expression requires care when $\widetilde T_i=0$; the original squared-residual form remains defined.
+
+``What is nonparametric about it?'' distinguishes nonparametric from nonlinear. The underlying equation $\widetilde Y_i=\tau(X_i)\widetilde T_i+e_i$ is still linear in residual treatment. Double ML yields a local linear approximation to a nonlinear CATE relationship, finding a derivative at a particular $X_i$.
+
+\subsection{An unfinished nonlinear extension}
+\sourcepages{Chapter1-23.pdf, p. 38 main discussion, then facing-page supplement p. 37}
+\textbf{Author's status: unfinished.} The heading is ``Non-Scientific Double/Debiased ML.'' The author wants counterfactual prediction (``CATE?'') and an entire outcome curve from individual data points. Replace
+\[\widetilde Y_i=\tau(X_i)\widetilde T_i+e_i\]
+by
+\[\widetilde Y_i=\tau(X_i,\widetilde T_i)+e_i.\]
+The note calls this an unusual function to estimate with ML: first predict $\widetilde T_i$, then use it and $X$ to fit $\widetilde Y$. It mentions any ML model, particularly LGBM. A handwritten prediction label reads ``price'' although the adjacent function is $\hat\tau(X_i,\widetilde T_i)$; that label is inconsistent with the outcome being modeled.
+
+For a test set, follow the same processing steps as in training. The margin mentions using JS for subsequent prediction and averaging model predictions into one predicted value [the exact implementation wording is unclear].
+
+The flowchart uses two cross-fitted treatment models and two outcome models, obtains $T$ residuals and $Y$ residuals, and feeds these together with $X$ into a final model for CATE. Drawbacks: (1) regularization biases the effect toward zero; (2) behavior depends on the ML method. Boosted trees have difficulty making smooth predictions or extrapolating to previously unseen prices, and can return strange predictions there.
+
+\paragraph{Facing-page step-by-step supplement.}
+Let $Y$ be sales, $T$ price, and $X$ covariates. Use five-fold LGBM cross-prediction to estimate $\hat Y\sim X$ and $\hat T\sim X$. Compute $\widetilde Y=Y-\hat Y$ and $\widetilde T=T-\hat T$. Fit an ML model (LGBM is suggested) to $\widetilde Y$ using $(\widetilde T,X)$; call it \texttt{finalM}.
+
+For prediction, obtain $\hat T'$ from the five LGBM models given $X$. Subtract it from a proposed new treatment $T_{\mathrm{new}}$ to form $\widetilde T'$. This proposed treatment is a counterfactual value. Pass $(\widetilde T',X)$ through the final model to get $\widetilde Y'$ for each $T_{\mathrm{new}}$. The note adds that zero can be supplied as a reference residual. Add the predicted baseline $\hat Y$ back to $\widetilde Y'$ to obtain the final outcome curve. This supplement explains the unfinished construction; it is not presented as a validated estimator.
+
+\section{Chapter 23. Effect heterogeneity and nonlinearity}
+\sourcepages{Chapter1-23.pdf, pp. 39--40}
+Treatment effect heterogeneity (TEH) means treatment effects differ among individuals. The example studies a latent outcome:
+\begin{align*}
+Y_{\mathrm{latent}}&\sim N(-4.5+0.001\,\mathrm{income}+\mathrm{nudge}
++0.01\,\mathrm{nudge}\cdot\mathrm{age},\ 1),\\
+\mathrm{nudge}&\sim B(0.5),\qquad \mathrm{age}\sim G(10,4).
+\end{align*}
+The income distribution is written $G(20,2)$. Income's additive coefficient is the same for everyone; age is the variable used to split heterogeneous treatment effects. Define $\mathrm{conversion}=\mathbf1\{Y_{\mathrm{latent}}>0\}$, with ``50\%'' written beside the threshold. The stated true ATE is 1.4 on the latent scale, versus 0.394 for conversion. Conversion is not linear.
+
+\paragraph{What the sketches show.}
+For the effect on the latent outcome, the cumulative effect curve ranked by age starts high and declines toward ATE; the estimated-income ranking stays near ATE. For the effect on conversion, both age and estimated income show treatment-effect heterogeneity. Income is strongly predictive of conversion even though it does not interact with treatment on the latent scale.
+
+A third sketch shows conversion probability as an S-shaped function of estimated income. Its lower end is labeled a low conversion rate, its upper end a high conversion rate. At both ends the curve is flatter and treatment effects are small. The final written comparison says high conversion / high baseline conversion gives a low treatment effect, followed by ``low conversion, high baseline conversion, high treatment effect.'' \textit{Translator's note: the second line repeats ``high baseline conversion'' despite saying low conversion; this contradiction is retained as an unresolved source note rather than silently rewritten.}
+
+\paragraph{A second example: price response.}
+The sales-versus-price sketch has two downward-sloping nonlinear curves for types $a$ and $b$. Type $a$ is labeled wealthy. Across increasing price intervals the drawn declines are roughly 1, 2, 3, 4 for $a$ and 2, 4, 5 for $b$. The effect depends both on type ($a$ or $b$) and on price, so ranking by one fixed elasticity is problematic. The last suggestion is to transform price to make the relationship with $Y$ linear, with an example written $-(\mathrm{price}^{4})$; the exponent is not fully clear.
