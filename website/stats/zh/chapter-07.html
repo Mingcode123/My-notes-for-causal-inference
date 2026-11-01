@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 7 讲：平衡估计量 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-07.html">EN</a><a href="chapter-07.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html" aria-current="page">第 7 讲：平衡估计量</a><ul class="section-list"><li><a href="#回顾-ipw">回顾 IPW</a></li><li><a href="#总体平衡与样本平衡">总体平衡与样本平衡</a></li><li><a href="#倾向得分估计的平衡损失">倾向得分估计的平衡损失</a></li><li><a href="#高维混杂变量下的-ate-估计">高维混杂变量下的 ATE 估计</a></li><li><a href="#近似平衡权重与回归增广">近似平衡权重与回归增广</a></li></ul></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-7-讲平衡估计量">第 7 讲：平衡估计量</h1>
+<p>平衡性指导 <span class="math inline">\(\widehat e(x)\)</span> 的构造。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">平衡性／<span class="math inline">\(\widehat e(x)\)</span> 的设计原理</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 构造倾向得分的平衡损失函数；高维 ATE 估计。</p>
+</div>
+<p>两个目标是：构造倾向得分的平衡损失函数，以及在高维协变量下估计 ATE。IPW、AIPW 都使用倾向得分；这一讲通过凸优化推导如何估计 <span class="math inline">\(e(x)\)</span>。</p>
+<h2 id="回顾-ipw">回顾 IPW</h2>
+<p>给定独立同分布观测 <span class="math inline">\((X_i,Y_i,W_i)\in\mathcal X\times\mathbb R\times\{0,1\}\)</span>，目标为 <span class="math inline">\(\tau=\mu_{(1)}-\mu_{(0)}\)</span>，其中 <span class="math inline">\(\mu_{(w)}=E[Y_i(w)]\)</span>。假设 <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,\qquad
+0&lt;\eta\leq e(X_i)\leq1-\eta&lt;1,\]</span> 其中 <span class="math inline">\(e(x)=P(W_i=1\mid X_i=x)\)</span>，<span class="math inline">\(\eta\)</span> 为正常数。用下式估计处理状态下的均值： <span class="math display">\[\widehat\mu_{\rm IPW}(1)=\frac1n\sum_i\frac{W_iY_i}{\widehat e(X_i)}.
+\tag{ 7.3}\]</span> 下面<span style="color: #244DA8">简略地</span>分三步说明一致性：</p>
+<ol>
+<li><p>总体平衡：无混杂性下，<span class="math inline">\(\mu_{(1)}=E[W_iY_i/e(X_i)]\)</span>。</p></li>
+<li><p>理想估计量：使用真实的 <span class="math inline">\(e(x)\)</span> 时无偏；重叠性给出有限方差。</p></li>
+<li><p>可实施近似：若估计的倾向得分也满足重叠性，由 Cauchy–Schwarz 不等式可得 <span class="math display">\[\begin{aligned}
+|\widehat\mu_{\rm IPW}(1)-\widehat\mu^*_{\rm IPW}(1)|
+&amp;\leq\left[\frac1n\sum_i\left(\frac1{\widehat e(X_i)}-\frac1{e(X_i)}\right)^2\right]^{1/2}
+\left[\frac1n\sum_i(W_iY_i)^2\right]^{1/2}\\
+&amp;\leq\frac1{\eta^2}\left[\frac1n\sum_i(\widehat e(X_i)-e(X_i))^2\right]^{1/2}
+\left[\frac1n\sum_i(W_iY_i)^2\right]^{1/2}.
+\end{aligned}\]</span> <span style="color: #244DA8">回顾 <span class="math inline">\(|a\cdot b|^2\leq\|a\|^2\|b\|^2\)</span>，在乘积风险条件下，<span class="math inline">\(n\to\infty\)</span> 时，相应的 AIPW 误差相对于 <span class="math inline">\(1/\sqrt n\)</span> 可以忽略。</span></p></li>
+</ol>
+<h2 id="总体平衡与样本平衡">总体平衡与样本平衡</h2>
+<p>用预先指定的基展开条件均值： <span class="math display">\[\mu_{(w)}(x)=\sum_{j=1}^\infty\beta_{j(w)}\psi_j(x).\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">多项式基或 Fourier 基</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 条件均值展开中的 <span class="math inline">\(\psi_j(x)\)</span>。</p>
+</div>
+<p>在合理的正则条件下， <span class="math display">\[\mu_{(w)}=\sum_{j=1}^\infty\beta_{j(w)}E[\psi_j(X_i)].\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">两边取期望</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span class="math inline">\(\mu_{(w)}=\sum_j\beta_{j(w)}E[\psi_j(X)]\)</span>。</p>
+</div>
+<p><span style="color: #C92B32">这些正则条件会不会有问题？</span></p>
+<h4 id="补充说明">补充说明。</h4>
+<p>交换求和与期望的一个充分条件是 <span class="math inline">\(\sum_j|\beta_{j(w)}|E|\psi_j(X)|&lt;\infty\)</span>；部分和在 <span class="math inline">\(L^1\)</span> 中收敛也足够，概率分布下的 <span class="math inline">\(L^2\)</span> 收敛蕴含它。仅逐点收敛并不够。总体平衡也可直接条件于 <span class="math inline">\(X\)</span> 来证明。</p>
+<p>在无混杂性下，<span class="math inline">\(Y_i=\mu_{(W_i)}(X_i)+\varepsilon_i\)</span>，且 <span class="math inline">\(E[\varepsilon_i\mid X_i,W_i]=0\)</span>。总体 IPW 论证为 <span class="math display">\[\begin{aligned}
+E\left[\frac{W_iY_i}{e(X_i)}\right]
+&amp;=E\left[\frac{W_i}{e(X_i)}\sum_j\beta_{j(1)}\psi_j(X_i)\right]\\
+&amp;=\sum_j\beta_{j(1)}E\left[\frac{W_i\psi_j(X_i)}{e(X_i)}\right]
+=\sum_j\beta_{j(1)}E[\psi_j(X_i)]=\mu_{(1)}.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">核心：<span class="math inline">\(E[W_i\mid X_i]=e(X_i)\)</span></span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(E[W_i\psi_j(X_i)/e(X_i)]=E[\psi_j(X_i)]\)</span>。</p>
+</div>
+<p>因此选择权重，使样本中满足 <span class="math display">\[\frac1n\sum_i\frac{W_i\psi_j(X_i)}{\widehat e(X_i)}
+\approx\frac1n\sum_i\psi_j(X_i),\qquad j=1,2,\ldots.
+\tag{ 7.8}\]</span></p>
+<h2 id="倾向得分估计的平衡损失">倾向得分估计的平衡损失</h2>
+<p>假设结果模型为线性：<span class="math inline">\(\mu_{(w)}(x)=x\beta_{(w)}\)</span>，倾向得分模型为 logistic： <span class="math display">\[e(x)=\frac1{1+\exp(-x\theta)}.\]</span> <span style="color: #244DA8">此时样本平衡只涉及协变量 <span class="math inline">\(X_i\)</span>，平衡的目标是均值。</span>式 (7.8) 变为 <span class="math display">\[\frac1n\sum_i(1+e^{-X_i\widehat\theta})W_iX_i=\frac1n\sum_iX_i.
+\tag{ 7.9}\]</span> 这是以下凸优化问题的 KKT 条件： <span class="math display">\[\widehat\theta=\arg\min_\theta\frac1n\sum_i\ell_\theta(X_i,Y_i,W_i),\qquad
+\ell_\theta(X_i,Y_i,W_i)=W_ie^{-X_i\theta}+(1-W_i)X_i\theta.
+\tag{ 7.10}\]</span> 因此可以用 Newton 下降法求解。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">平衡方程 (7.9) 是凸损失的 KKT 条件</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 当存在合适的有限最小点时，可用 Newton 下降法。</p>
+</div>
+<p>这可以作为平衡损失函数。 Hessian <span class="math inline">\(n^{-1}\sum_iW_ie^{-X_i\theta}X_i^\mathsf TX_i\)</span> 为半正定。唯一有限最小点还需要足够的秩和解的存在性；目标均值位于处理组协变量凸支撑之外时，精确平衡可能无法实现。 <span style="color: #244DA8">为分别实现两组的平衡，可以拟合两个校准损失。真实处理机制仍只有一个倾向得分 <span class="math inline">\(e(x)\)</span>，对照概率为 <span class="math inline">\(1-e(x)\)</span>。</span></p>
+<h2 id="高维混杂变量下的-ate-估计">高维混杂变量下的 ATE 估计</h2>
+<p>设 <span class="math inline">\(X_i\in\mathbb R^p\)</span>，可能有 <span class="math inline">\(p\gg n\)</span>，且 <span class="math inline">\(\mu_{(w)}(x)=x\beta_{(w)}\)</span>。高维下很难充分准确地估计 <span class="math inline">\(e(x)\)</span>，精确权重无法得到，因此寻求近似平衡。由 Hölder 不等式， <span class="math display">\[\begin{aligned}
+&amp;\frac1n\sum_i\frac{W_i\mu_{(1)}(X_i)}{\widehat e(X_i)}-\frac1n\sum_i\mu_{(1)}(X_i)\\
+&amp;\quad=\left(\frac1n\sum_i\frac{W_iX_i}{\widehat e(X_i)}-\frac1n\sum_iX_i\right)\beta_{(1)}\\
+&amp;\quad\leq\left\|\frac1n\sum_i\frac{W_iX_i}{\widehat e(X_i)}-\frac1n\sum_iX_i\right\|_\infty\|\beta_{(1)}\|_1.
+\end{aligned}\]</span> <span style="color: #C92B32">第一个范数衡量不平衡程度。</span><span style="color: #244DA8">回顾 Hölder 不等式：</span> <span style="color: #244DA8"><span class="math inline">\(\sum_i|a_ib_i|\leq(\sum_i|a_i|^p)^{1/p}(\sum_i|b_i|^q)^{1/q}\)</span>.</span></p>
+<h4 id="个人理解与问题">个人理解与问题。</h4>
+<p><span style="color: #244DA8">好的逆概率权重使最坏情形下的不平衡程度尽可能小。</span>还剩两个问题：（1）如何参数化 <span class="math inline">\(\widehat e(X_i)\)</span>，实现上确界范数下的近似平衡；（2）只有 <span class="math inline">\(\|\beta_{(1)}\|_1\)</span> 有界时，该界才有意义。<span style="color: #244DA8">高维统计通常假设系数向量稀疏，而不是直接限制其 <span class="math inline">\(1\)</span> 范数。</span></p>
+<h4 id="补充范数回顾">补充：范数回顾。</h4>
+<p>非零元素数为 <span class="math inline">\(\|x\|_0=\sum_i\mathbf1\{x_i\ne0\}\)</span>，它并非范数。<span class="math inline">\(1\)</span> 范数为 <span class="math inline">\(\sum_i|x_i|\)</span>，<span class="math inline">\(2\)</span> 范数为 <span class="math inline">\((\sum_i x_i^2)^{1/2}\)</span>，无穷范数为 <span class="math inline">\(\max_i|x_i|\)</span>；对 <span class="math inline">\(p\ge1\)</span>，<span class="math inline">\(\|x\|_p=(\sum_i|x_i|^p)^{1/p}\)</span>。 Holder 不等式要求 <span class="math inline">\(p,q\ge1\)</span> 且 <span class="math inline">\(1/p+1/q=1\)</span>，包括 <span class="math inline">\((1,\infty)\)</span> 端点。该端点给出上方不平衡误差绝对值的界。</p>
+<h2 id="近似平衡权重与回归增广">近似平衡权重与回归增广</h2>
+<p>选择合适的调节参数 <span class="math inline">\(\zeta\)</span>，求解 <span class="math display">\[\widehat\gamma=\arg\min_{\gamma_i\geq1}
+\left\{\frac1{n^2}\|\gamma\|_2^2+
+\zeta\left\|\frac1n\sum_i(\gamma_iW_i-1)X_i\right\|_\infty^2\right\}.
+\tag{ 7.12}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32"><span class="math inline">\(L_2\)</span> 大小的平方；不平衡程度；调节权重</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(n^{-2}\|\gamma\|_2^2\)</span>；无穷范数的平方；<span class="math inline">\(\zeta\)</span>。</p>
+</div>
+<p>然后将 <span class="math inline">\(1/\widehat e(X_i)=\widehat\gamma_i\)</span> 作为逆倾向得分权重。利用次高斯集中不等式，可对理想权重验证如下形式的界： <span class="math display">\[\frac1{n^2}\|1/e(X_i)\|_2^2\leq\frac{\eta^{-2}}n,
+\qquad
+\left\|\frac1n\sum_i(\gamma_iW_i-1)X_i\right\|_\infty^2
+=O_p\left(\frac{\eta^{-2}\log p}{n}\right).\]</span> <span class="math inline">\(\widehat e(X_i)\)</span> 不需要很好地估计 <span class="math inline">\(e(X_i)\)</span>；选择合适的 <span class="math inline">\(\zeta\)</span> 后，这些逆权重仍满足偏差界。 接着用高维回归增广加权估计量，以去掉对 <span class="math inline">\(\|\beta_{(1)}\|_1\)</span> 的依赖。增广平衡估计量为 <span class="math display">\[\widehat\mu_{\rm AB}(1)=\frac1n\sum_i
+\left[\widehat\mu_{(1)}(X_i)+\widehat\gamma_iW_i(Y_i-\widehat\mu_{(1)}(X_i))\right],
+\quad\widehat\mu_{(1)}(X_i)=X_i\widehat\beta_{(1)}.
+\tag{ 7.14}\]</span> 其分解为 <span class="math display">\[\begin{aligned}
+\widehat\mu_{\rm AB}(1)={}&amp;\underbrace{\frac1n\sum_iX_i\beta_{(1)}}_{\textcolor{red}{\mu_{(1)}(X_i)}\text{\textcolor{red}{ 的均值}}}
++\underbrace{\frac1n\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})}_{\text{\textcolor{red}{零均值噪声}}}\\
+&amp;+\left[\frac1n\sum_i(1-\widehat\gamma_iW_i)X_i\right](\widehat\beta_{(1)}-\beta_{(1)}).
+\end{aligned}\]</span> 最后一项的绝对值上界为</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[\left\|\frac1n\sum_i(1-\widehat\gamma_iW_i)X_i\right\|_\infty
+\|\widehat\beta_{(1)}-\beta_{(1)}\|_1.\]</span></p>
+</div>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">权重只需修正 <span class="math inline">\(\beta_{(1)}-\widehat\beta_{(1)}\)</span>，不必修正整个系数向量</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 不平衡程度乘回归误差的余项。</p>
+</div>
+<p>高维回归给出该误差的界：在稀疏性 <span class="math inline">\(\|\beta_{(1)}\|_0\leq k\)</span> 与限制特征值条件下，lasso 可达到 <span class="math display">\[\|\widehat\beta_{(1)}-\beta_{(1)}\|_1
+=O_p\left(k\sqrt{\frac{\log p}{n}}\right).\]</span></p>
+<h4 id="将步骤组合起来">将步骤组合起来。</h4>
+<p>假设设计满足上述界所需的条件，<span class="math inline">\(\beta_{(1)}\)</span> 为 <span class="math inline">\(k\)</span> 稀疏，且 <span class="math inline">\(k\ll\sqrt n/\log p\)</span>。</p>
+<ol>
+<li><p>在处理组上拟合 lasso；系数的 <span class="math inline">\(1\)</span> 范数误差为 <span class="math inline">\(o_p(1/\sqrt{\log p})\)</span>。</p></li>
+<li><p>用式 (7.12) 拟合 <span class="math inline">\(\widehat\gamma\)</span>，得到无穷范数不平衡程度 <span class="math inline">\(O_p(\sqrt{\log(p)/n})\)</span>。</p></li>
+<li><p>使用式 (7.14)，将这些界代入分解： <span class="math display">\[\widehat\mu_{\rm AB}(1)-\frac1n\sum_iX_i\beta_{(1)}
+=\frac1n\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})+o_p(n^{-1/2}).
+\tag{ 7.17}\]</span> <span style="color: #C92B32">噪声项为 <span class="math inline">\(O_p(n^{-1/2})\)</span>。</span> 这些速率使用受控次高斯协变量、适当 lasso 调参、限制特征值及噪声矩条件。权重依赖 <span class="math inline">\((X,W)\)</span>，而非结果噪声。学生化要求不存在支配性的加权残差，并论证替换估计系数的有效性。</p></li>
+</ol>
+<p>还成立中心极限定理： <span class="math display">\[\frac{\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})}
+{\sqrt{\sum_i\widehat\gamma_i^2W_i^2(Y_i-X_i\beta_{(1)})^2}}
+\Rightarrow N(0,1).\]</span></p>
+<h4 id="个人保留意见">个人保留意见。</h4>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p>这比预想的弱：只给出了样本均值 <span class="math inline">\(\overline\mu_{(1)}=n^{-1}\sum_iX_i\beta_{(1)}\)</span> 的置信区间，而不是 <span class="math inline">\(\mu_{(1)}\)</span> 本身的区间。要得到总体均值的结果，一个可行途径是证明估计权重 <span class="math inline">\(\widehat\gamma_i\)</span> 的收敛性。</p>
+</div>
+<p>对总体目标，还须加入 <span class="math inline">\(n^{-1}\sum_i\mu_{(1)}(X_i)-E[\mu_{(1)}(X)]\)</span>，并确定它与加权噪声的联合极限。权重收敛到稳定函数是一个充分途径。</p>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-06.html">← 第 6 讲：断点回归的有限样本推断</a><a href="chapter-08.html">第 8 讲：面板数据方法 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"回顾-ipw": "review-of-ipw", "总体平衡与样本平衡": "population-versus-sample-balance", "补充说明": "supplementary-explanation.", "倾向得分估计的平衡损失": "a-balancing-loss-for-propensity-estimation", "高维混杂变量下的-ate-估计": "ate-estimation-with-high-dimensional-confounders", "个人理解与问题": "personal-interpretation-and-questions.", "补充范数回顾": "supplement-norm-reminders.", "近似平衡权重与回归增广": "approximate-balancing-weights-and-regression-augmentation", "将步骤组合起来": "putting-the-steps-together.", "个人保留意见": "personal-caveat."}</script></body></html>

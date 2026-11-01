@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 10 讲：局部平均处理效应 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-10.html">EN</a><a href="chapter-10.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html" aria-current="page">第 10 讲：局部平均处理效应</a><ul class="section-list"><li><a href="#不依从情形下的处理效应">不依从情形下的处理效应</a></li><li><a href="#供给与需求">供给与需求</a></li><li><a href="#阈值跨越与支付意愿">阈值跨越与支付意愿</a></li><li><a href="#单次跳跃多次跳跃与连续阈值">单次跳跃、多次跳跃与连续阈值</a></li><li><a href="#估计边际处理效应">估计边际处理效应</a></li></ul></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-10-讲局部平均处理效应">第 10 讲：局部平均处理效应</h1>
+<p>回顾第 9 讲的 IV 模型： <span class="math display">\[Y_i=\alpha+W_i\tau+\varepsilon_i,\quad\varepsilon_i\perp Z_i,
+ \qquad W_i=Z_i\gamma+\eta_i.\tag{10.1}\]</span> 当 <span class="math inline">\(Z_i\)</span> 为二元变量时， <span class="math display">\[\begin{aligned}
+ \tau&amp;=\frac{\operatorname{Cov}(Y_i,Z_i)}{\operatorname{Cov}(W_i,Z_i)}\\
+ &amp;=\frac{\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]}
+ {\mathbb E[W_i\mid Z_i=1]-\mathbb E[W_i\mid Z_i=0]}.
+\end{aligned}
+\tag{10.2}\]</span></p>
+<h2 id="不依从情形下的处理效应">不依从情形下的处理效应</h2>
+<p>在存在不依从的 RCT 中，<span class="math inline">\(Y_i\in\mathbb R\)</span> 是通常的结果变量；<span style="color: #C92B32"><span class="math inline">\(W_i\in\{0,1\}\)</span> 是实际接受的处理</span>，并未随机化；<span style="color: #C92B32"><span class="math inline">\(Z_i\in\{0,1\}\)</span> 是随机化的处理分配。</span></p>
+<p>(10.1) 中的常数 <span class="math inline">\(\tau\)</span> 可能并不合适，而且是否接受处理可能与处理效应相关。定义潜在的处理接受状态 <span class="math inline">\(W_i(0),W_i(1)\)</span>，满足 <span class="math inline">\(W_i=W_i(Z_i)\)</span> 以及 <span class="math inline">\(Y_i=Y_i(W_i(Z_i))\)</span>。</p>
+<p>IV 有效性假设为：</p>
+<ul>
+<li><p><strong>排除限制：</strong><span class="math inline">\(Y_i(w,z)=Y_i(w)\)</span>。分配仅通过实际接受的处理影响结果。</p></li>
+<li><p><strong>外生性：</strong><span class="math inline">\(\{Y_i(0),Y_i(1),W_i(0),W_i(1)\}\perp Z_i\)</span>。分配是随机的。</p></li>
+<li><p><strong>相关性：</strong><span class="math inline">\(\mathbb E[W_i(1)-W_i(0)]\ne0\)</span>。分配会影响是否接受处理。</p></li>
+</ul>
+<p>有四种依从类型：</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: center;"><span class="math inline">\(W_i(1)=0\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(W_i(1)=1\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><span class="math inline">\(W_i(0)=0\)</span></td>
+<td style="text-align: center;">从不接受者</td>
+<td style="text-align: center;">依从者</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math inline">\(W_i(0)=1\)</span></td>
+<td style="text-align: center;">反向依从者</td>
+<td style="text-align: center;">总是接受者</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>假设没有反向依从者，即满足<strong>单调性</strong>：</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[W_i(1)\ge W_i(0)\quad\text{对每个 }i.\]</span></p>
+</div>
+<p>于是 <span class="math display">\[\begin{aligned}
+ &amp;\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]\\
+ &amp;\quad=\mathbb E[Y_i(W_i(1))\mid Z_i=1]
+ -\mathbb E[Y_i(W_i(0))\mid Z_i=0]\\
+ &amp;\quad=\mathbb E[Y_i(W_i(1))-Y_i(W_i(0))]\\
+ &amp;\quad=\mathbb E[\mathbf1\{C_i=\mathrm{complier}\}
+ (Y_i(1)-Y_i(0))].
+\end{aligned}\]</span> 若依从者存在，使用 Bayes 法则得到 <span class="math display">\[\begin{aligned}
+ \tau_{\mathrm{LATE}}
+ &amp;=\frac{\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]}
+ {\mathbb E[W_i\mid Z_i=1]-\mathbb E[W_i\mid Z_i=0]}\\
+ &amp;=\mathbb E[Y_i(1)-Y_i(0)\mid C_i=\mathrm{complier}].
+\end{aligned}
+\tag{10.3}\]</span> <span style="color: #244DA8">这就是依从者平均处理效应。</span> 还须假设 <span class="math inline">\(0&lt;P(Z=1)&lt;1\)</span> 且依从者比例为正。由此识别依从者平均效应，一般并非总体 ATE。</p>
+<h4 id="我的蓝色补记">我的蓝色补记。</h4>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p>当常数效应模型 (10.1) 不成立，并存在从不接受者、总是接受者、反向依从者等类型时，个体差值 <span class="math inline">\(Y_i(1)-Y_i(0)\)</span> 一般不可观测。尤其是，从不接受者永远不会被观测到 <span class="math inline">\(W_i=1\)</span>。总体 ATE 为 <span class="math inline">\(\mathbb E[Y_i(1)-Y_i(0)]\)</span>，仅依从者的结果并不足以识别它。</p>
+</div>
+<h2 id="供给与需求">供给与需求</h2>
+<p>对每个市场 <span class="math inline">\(i=1,\ldots,n\)</span>，设供给曲线为 <span class="math inline">\(S_i(p,z)\)</span>，需求曲线为 <span class="math inline">\(Q_i(p,z)\)</span>，其中价格 <span class="math inline">\(p\in\mathbb R\)</span>，工具变量 <span class="math inline">\(z\in\{0,1\}\)</span>。假设供给随价格连续且严格递增，需求连续且严格递减，并且两条曲线相交。均衡价格 <span class="math inline">\(P_i\)</span> 是下式的唯一解： <span class="math display">\[S_i(P_i,Z_i)=Q_i(P_i,Z_i).\]</span> 因此，<span class="math inline">\(Z_i\)</span> 是 IV，<span class="math inline">\(P_i\)</span> 是处理，<span class="math inline">\(Q_i(P_i,Z_i)\)</span> 是结果 <span class="math inline">\(Y_i\)</span>。</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[Z_i\longrightarrow S_i\longrightarrow P_i\longrightarrow Q_i(P_i).\]</span></p>
+</div>
+<p>约束条件：</p>
+<ul>
+<li><p>排除限制：对每个 <span class="math inline">\(p,z\)</span>，<span class="math inline">\(Q_i(p,z)=Q_i(p)\)</span>。</p></li>
+<li><p>外生性：<span class="math inline">\(\{Q_i(p),S_i(p,z)\}\perp Z_i\)</span>。</p></li>
+<li><p>相关性：<span class="math inline">\(\operatorname{Cov}(P_i,Z_i)\ne0\)</span>。</p></li>
+<li><p>单调性：对所有相关的 <span class="math inline">\(p\)</span>，<span class="math inline">\(S_i(p,1)\le S_i(p,0)\)</span>。</p></li>
+</ul>
+<p>下面的普通积分公式假设需求在受影响的价格区间上绝对连续，并满足 Fubini 所需的可积性。我的进一步想法是：即使没有普通导数，单调需求也存在分布意义的导数。 <span class="math display">\[\begin{aligned}
+ \tau_{\mathrm{LATE}}
+ &amp;=\frac{\mathbb E[Q_i\mid Z_i=1]-\mathbb E[Q_i\mid Z_i=0]}
+ {\mathbb E[P_i\mid Z_i=1]-\mathbb E[P_i\mid Z_i=0]}\\
+ &amp;=\frac{\displaystyle\int
+ \mathbb E[Q_i&#39;(p)\mid P_i(0)\le p\le P_i(1)]
+ P[P_i(0)\le p\le P_i(1)]\,dp}
+ {\displaystyle\int P[P_i(0)\le p\le P_i(1)]\,dp}.
+\end{aligned}\]</span> <span style="color: #C92B32">分母是总权重。</span></p>
+<details class="technical-note"><summary>补充说明：分布导数</summary><div class="technical-content">
+<p>对仅单调的需求函数，导数是有符号测度 <span class="math inline">\(dQ_i\)</span>，且 <span class="math inline">\(Q_i(P_i(1))-Q_i(P_i(0))=\int_{(P_i(0),P_i(1)]}dQ_i\)</span>。这种解释包括普通导数密度未必捕捉的奇异连续变化。</p>
+</div></details>
+<h4 id="推导">推导。</h4>
+<p><span class="math display">\[\begin{aligned}
+ &amp;\mathbb E[Q_i\mid Z_i=1]-\mathbb E[Q_i\mid Z_i=0]\\
+ &amp;\quad=\mathbb E[Q_i(P_i(1))\mid Z_i=1]
+ -\mathbb E[Q_i(P_i(0))\mid Z_i=0]\\
+ &amp;\quad=\mathbb E[Q_i(P_i(1))-Q_i(P_i(0))]\\
+ &amp;\quad=\mathbb E\left[\int_{P_i(0)}^{P_i(1)}Q_i&#39;(p)\,dp\right]\\
+ &amp;\quad=\int\mathbb E[Q_i&#39;(p)\mid P_i(0)\le p\le P_i(1)]
+ P[P_i(0)\le p\le P_i(1)]\,dp.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Fubini：交换积分次序</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(E[\int Q_i&#39;(p)\,dp]\)</span> 变成期望的积分。</p>
+</div>
+<h2 id="阈值跨越与支付意愿">阈值跨越与支付意愿</h2>
+<p>假设每个受试者都有不可观测的内生变量 <span class="math inline">\(U_i\)</span>，满足 <span class="math display">\[W_i=\mathbf1\{U_i\ge c(Z_i)\},\]</span> 其中 <span class="math inline">\(c(z)\)</span> 是依赖工具变量的阈值函数。不失一般性，取 <span class="math inline">\(U_i\sim\operatorname{Unif}[0,1]\)</span>，于是 <span class="math display">\[c(z)=1-P(W_i=1\mid Z_i=z).\]</span> 这里使用 <span class="math inline">\(U\perp Z\)</span> 及有效截点 <span class="math inline">\(c(z)\in[0,1]\)</span>。连续潜变量分布可以直接作均匀秩变换；含原子的分布需要另行论证。</p>
+<p>IV 设定要求：</p>
+<ol>
+<li><p>潜在结果 <span class="math inline">\(Y_i(0),Y_i(1)\)</span> 满足 <span class="math inline">\(Y_i=Y_i(W_i)\)</span>：<span style="color: #244DA8">工具变量不存在直通结果的路径。</span></p></li>
+<li><p><span class="math inline">\(\{Y_i(0),Y_i(1),U_i\}\perp Z_i\)</span>：<span style="color: #244DA8">外生性。</span></p></li>
+<li><p><span class="math inline">\(c(Z_i)\)</span> 具有非平凡分布：<span style="color: #244DA8">相关性。</span></p></li>
+<li><p><span class="math inline">\(c(z)\)</span> 是 càdlàg（右连续且存在左极限）的非减函数。<span style="color: #244DA8">此时 <span class="math inline">\(W_i\)</span> 随 <span class="math inline">\(Z_i\)</span> 非增。</span> 反转工具变量方向后，转换组就具有前面的依从者解释。两个 IV 协方差的符号同时反转，比值不变。</p></li>
+</ol>
+<p>定义边际处理效应（MTE） <span class="math display">\[\tau(u)=\mathbb E[Y_i(1)-Y_i(0)\mid U_i=u].\tag{10.6}\]</span> IV 的目标参数是 <span class="math inline">\(\tau(u)\)</span> 的加权平均。设 <span class="math inline">\(Z_i\sim\mathcal N(0,1)\)</span>，密度为 <span class="math inline">\(\varphi\)</span>。令 <span class="math inline">\(S\subset\mathbb R\)</span> 为 <span class="math inline">\(c\)</span> 的不连续点集，并定义 <span class="math display">\[c_-(z)=\lim_{a\uparrow z}c(a).\]</span> 若 <span class="math inline">\(c\)</span> 仅有绝对连续变化和跳跃，表示式为 <span class="math display">\[\tau_{\mathrm{LATE}}=
+ \frac{\displaystyle\sum_{z\in S}
+ \left\{\int_{c_-(z)}^{c(z)}\tau(u)\,du\right\}\varphi(z)
+ +\int_{\mathbb R\setminus S}\tau(c(z))c&#39;(z)\varphi(z)\,dz}
+ {\displaystyle\sum_{z\in S}(c(z)-c_-(z))\varphi(z)
+ +\int_{\mathbb R\setminus S}c&#39;(z)\varphi(z)\,dz}.\]</span> 这将 IV 目标参数表示为边际处理效应的凸平均。</p>
+<h4 id="我对权重的解释">我对权重的解释。</h4>
+<p>图中画出 <span class="math inline">\(c(z)\)</span> 随 <span class="math inline">\(z\)</span> 的变化，在左极限处画空心点，跳跃后的函数值处画实心点。跳跃位置属于 <span class="math inline">\(S\)</span>。</p>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-007.png" alt="image" /></p>
+</div>
+<p><span style="color: #C92B32">在跳跃处，对从 <span class="math inline">\(c_-(z)\)</span> 到 <span class="math inline">\(c(z)\)</span> 的条带内的 <span class="math inline">\(\tau(u)\)</span> 积分，再乘以 <span class="math inline">\(\varphi(z)\)</span>。</span><span style="color: #C92B32">在连续部分，取 <span class="math inline">\(u=c(z)\)</span> 处的处理效应，以 <span class="math inline">\(c&#39;(z)\varphi(z)\)</span> 加权。</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">高斯密度因子</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\varphi(z)\)</span>。</p>
+</div>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32"><span class="math inline">\(u=c(z)\)</span> 处的处理效应</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\tau(c(z))\)</span>。</p>
+</div>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">权重</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(c&#39;(z)\varphi(z)\)</span>。</p>
+</div>
+<p><span style="color: #C92B32">分母累加总权重。</span> <span class="math inline">\(\varphi(z)\)</span> 是密度值，而非 <span class="math inline">\(P(Z=z)\)</span>。归一化前，跳跃权重是 <span class="math inline">\((c(z)-c_-(z))\varphi(z)\)</span>。 第二幅草图在跳跃对应的 <span class="math inline">\(u\)</span> 区间内标出窄的 <span class="math inline">\(du\)</span> 阴影条带，使其贡献更直观。</p>
+<h4 id="关于单调性">关于单调性。</h4>
+<p>有界单调截点 <span class="math inline">\(c\)</span> 具有有界变差，可以用 Stieltjes 测度 <span class="math inline">\(dc\)</span> 描述。若进一步绝对连续，则 <span class="math display">\[c(z)=c_0+\int_{-\infty}^z c&#39;(a)\,da,\]</span> 且 <span class="math inline">\(c&#39;\ge0\)</span>。仅有单调性时，普通导数积分可能遗漏跳跃或奇异连续变化。</p>
+<h2 id="单次跳跃多次跳跃与连续阈值">单次跳跃、多次跳跃与连续阈值</h2>
+<h4 id="例-1一次跳跃">例 1：一次跳跃。</h4>
+<p>设阈值除一次跳跃外保持常数： <span class="math display">\[c(z)=c_0+\delta_1\mathbf1\{z\ge z_1\},\]</span> 各组为（反转工具变量方向后，中间组为依从者） <span class="math display">\[\begin{array}{ll}
+ \text{从不接受者：}&amp;U_i&lt;c_0,\\
+ \text{转换组：}&amp;c_0\le U_i&lt;c_0+\delta_1,\\
+ \text{总是接受者：}&amp;U_i\ge c_0+\delta_1.
+ \end{array}\]</span></p>
+<p>当有 <span class="math inline">\(K\)</span> 次跳跃时， <span class="math display">\[c(z)=c_0+\sum_{k=1}^K\delta_k\mathbf1\{z\ge z_k\},\]</span> 可得 <span class="math display">\[\tau_{\mathrm{LATE}}=
+ \frac{\displaystyle\sum_{k=1}^K
+ \mathbb E[\tau(U_i)\mid c_-(z_k)\le U_i&lt;c(z_k)]
+ (c(z_k)-c_-(z_k))\varphi(z_k)}
+ {\displaystyle\sum_{k=1}^K(c(z_k)-c_-(z_k))\varphi(z_k)}.\]</span> 这是各个转换层内平均处理效应的凸组合。权重依赖各层在 <span class="math inline">\(U\)</span> 空间中的大小，以及 <span class="math inline">\(\varphi(z_k)\)</span>。</p>
+<h4 id="例-2连续阈值">例 2：连续阈值。</h4>
+<p>若 <span class="math inline">\(c(z)\)</span> 绝对连续，公式变为 <span class="math display">\[\tau_{\mathrm{LATE}}=
+ \frac{\displaystyle\int_{\mathbb R}\tau(c(z))c&#39;(z)\varphi(z)\,dz}
+ {\displaystyle\int_{\mathbb R}c&#39;(z)\varphi(z)\,dz}.\]</span> 协方差推导为 <span class="math display">\[\begin{aligned}
+ \operatorname{Cov}(Y_i,Z_i)
+ &amp;=\operatorname{Cov}(Y_i(0)+(Y_i(1)-Y_i(0))W_i,Z_i)\\
+ &amp;=\operatorname{Cov}((Y_i(1)-Y_i(0))W_i,Z_i)\\
+ &amp;=\operatorname{Cov}((Y_i(1)-Y_i(0))\mathbf1\{U_i\ge c(Z_i)\},Z_i)\\
+ &amp;=\operatorname{Cov}(\tau(U_i)\mathbf1\{U_i\ge c(Z_i)\},Z_i).
+\end{aligned}\]</span> 定义 <span class="math display">\[H(z)=\mathbb E[\tau(U_i)\mathbf1\{U_i\ge c(z)\}].\]</span> 对标准高斯变量 <span class="math inline">\(Z_i\)</span>，若 <span class="math inline">\(H\)</span> 绝对连续并满足所需可积性，高斯分部积分给出 <span class="math display">\[\operatorname{Cov}(H(Z_i),Z_i)=\mathbb E[H&#39;(Z_i)].\]</span></p>
+<h4 id="我的疑问分布导数">我的疑问：分布导数。</h4>
+<p><span class="math inline">\(H&#39;(z)\)</span> 表示 <span class="math inline">\(H(\cdot)\)</span> 的分布导数吗？我尝试把跳跃与连续部分写在一起： <span class="math display">\[-H&#39;\;\stackrel{?}{=}\;
+\begin{cases}
+\left\{\displaystyle\int_{c_-(z)}^{c(z)}\tau(u)\,du\right\}\delta_z,&amp;z\in S,\\
+\tau(c(z))c&#39;(z),&amp;\text{其他部分}.
+\end{cases}\]</span> 这里想到的是位于 <span class="math inline">\(z\)</span> 的 Dirac delta：质量集中于一点，总质量为 <span class="math inline">\(1\)</span>。这个分段式只是我对测度与密度的尝试性简写。</p>
+<details class="technical-note"><summary>补充推导：把分布导数写成测度</summary><div class="technical-content">
+<p>令 <span class="math inline">\(F(u)=\int_0^u\tau(v)\,dv\)</span>。由于 <span class="math inline">\(H=F(1)-F\circ c\)</span>，正确的整体表达是 <span class="math inline">\(-dH=d(F\circ c)\)</span>。在跳跃 <span class="math inline">\(z\)</span> 处，其质量为 <span class="math inline">\(\int_{c_-(z)}^{c(z)}\tau(u)\,du\)</span>；在绝对连续部分，其密度为 <span class="math inline">\(\tau(c(z))c&#39;(z)\)</span>，还可能有奇异连续部分。Dirac delta 应作为测度或分布理解，并非普通函数。 对右连续、非减、取值于 <span class="math inline">\([0,1]\)</span> 的非平凡截点，假设 <span class="math inline">\(\tau\)</span> 可积且所需协方差矩存在，高斯分部积分给出 <span class="math display">\[\tau_{\rm IV}=\frac{\int_{\mathbb R}\varphi(z)\,d[F(c(z))]}{\int_{\mathbb R}\varphi(z)\,dc(z)}.\]</span> 两个协方差各带一个负号，取比值时抵消。这保留了我对跳跃条带权重的理解，也包括普通积分可能遗漏的变化。<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+</div></details>
+<h2 id="估计边际处理效应">估计边际处理效应</h2>
+<p>在 <span class="math inline">\(c(z)\)</span> 的光滑点处， <span class="math display">\[\tau(c(z))=
+ \frac{\displaystyle\frac d{dz}\mathbb E[Y_i\mid Z_i=z]}
+ {\displaystyle\frac d{dz}P(W_i=1\mid Z_i=z)}.\tag{10.12}\]</span> 假设这些导数性质良好，分子、分母可估计，而且分母非零。 该式识别的潜在秩限于工具变量倾向得分覆盖的范围。目标点处需要 <span class="math inline">\(c&#39;(z)\ne0\)</span>，且对 <span class="math inline">\(F(u)=\int_0^u\tau(v)\,dv\)</span> 有 <span class="math inline">\(F&#39;(c(z))=\tau(c(z))\)</span>；<span class="math inline">\(\tau\)</span> 在该点连续是充分条件。</p>
+<h4 id="证明-1">证明。</h4>
+<p><span class="math display">\[\begin{aligned}
+ \mathbb E[Y_i\mid c(Z_i)=c]
+ &amp;=\mathbb E[Y_i(0)+\mathbf1\{U_i\ge c\}(Y_i(1)-Y_i(0))
+ \mid c(Z_i)=c]\\
+ &amp;=\mathbb E[Y_i(0)+\mathbf1\{U_i\ge c\}(Y_i(1)-Y_i(0))]\\
+ &amp;=\mathbb E[Y_i(0)]+\int_c^1\tau(u)\,du.
+\end{aligned}\]</span> 最后一步由 Fubini 定理交换积分次序。因此 <span class="math display">\[\tau(c)=-\frac d{dc}\mathbb E[Y_i\mid c(Z_i)=c].\]</span> 由链式法则， <span class="math display">\[\frac d{dz}\mathbb E[Y_i\mid Z_i=z]
+ =\left.\frac d{dc}\mathbb E[Y_i\mid c(Z_i)=c]\right|_{c=c(z)}c&#39;(z).\]</span> 由于 <span class="math inline">\(U_i\sim\operatorname{Unif}(0,1)\)</span> 且独立于 <span class="math inline">\(Z_i\)</span>， <span class="math display">\[c&#39;(z)=-\frac d{dz}P(W_i=1\mid Z_i=z).\]</span> 合并这些恒等式，就得到 (10.12)，结论成立。</p>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>讲义第 10 讲脚注 4 的有界变差论述也需要这一测度解释。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-09.html">← 第 9 讲：工具变量回归</a><a href="chapter-11.html">第 11 讲：策略学习 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"不依从情形下的处理效应": "treatment-effects-under-noncompliance", "我的蓝色补记": "my-comparison-with-the-ate.", "供给与需求": "supply-and-demand", "推导": "derivation.", "阈值跨越与支付意愿": "threshold-crossing-and-willingness-to-pay", "我对权重的解释": "my-explanation-of-the-weights.", "关于单调性": "a-thought-about-monotonicity.", "单次跳跃多次跳跃与连续阈值": "single-jumps-multiple-jumps-and-continuous-cutoffs", "例-1一次跳跃": "example-1-one-jump.", "例-2连续阈值": "example-2-a-continuous-cutoff.", "我的疑问分布导数": "my-question-distributional-derivatives.", "估计边际处理效应": "estimating-the-marginal-treatment-effect", "证明-1": "proof.-1"}</script></body></html>

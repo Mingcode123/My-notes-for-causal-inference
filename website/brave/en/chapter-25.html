@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chapter 25: Synthetic Difference-in-Differences · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-25.html" aria-current="true">EN</a><a href="../zh/chapter-25.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>Brave and True</h2><ol class="chapter-list"><li><a href="chapter-01.html">Chapter 1. Introduction to causality</a></li><li><a href="chapter-02.html">Chapter 2. Randomized experiments</a></li><li><a href="chapter-03.html">Chapter 3. A review of statistics</a></li><li><a href="chapter-04.html">Chapter 4. Graphical causal models</a></li><li><a href="chapter-05.html">Chapter 5. The usefulness of linear regression</a></li><li><a href="chapter-06.html">Chapter 6. Grouping and dummy regression</a></li><li><a href="chapter-07.html">Chapter 7. Beyond controlling for confounders</a></li><li><a href="chapter-08.html">Chapter 8. Instrumental variables</a></li><li><a href="chapter-09.html">Chapter 9. Noncompliance and local average treatment effects</a></li><li><a href="chapter-10.html">Chapter 10. Matching</a></li><li><a href="chapter-11.html">Chapter 11. Propensity scores</a></li><li><a href="chapter-12.html">Chapter 12. Doubly robust estimation</a></li><li><a href="chapter-13.html">Chapter 13. Difference-in-differences</a></li><li><a href="chapter-14.html">Chapter 14. Panel data and fixed effects</a></li><li><a href="chapter-15.html">Chapter 15. Synthetic control</a></li><li><a href="chapter-16.html">Chapter 16. Regression discontinuity design</a></li><li class="chapter-group">Part II. Applications</li><li><a href="chapter-17.html">Chapter 17. Predictive Models 101</a></li><li><a href="chapter-18.html">Chapter 18. Heterogeneous treatment effects and personalization</a></li><li><a href="chapter-19.html">Chapter 19. Evaluating causal models</a></li><li><a href="chapter-20.html">Chapter 20. Plug-and-play estimators</a></li><li><a href="chapter-21.html">Chapter 21. Meta-learners</a></li><li><a href="chapter-22.html">Chapter 22. Debiased / orthogonal machine learning</a></li><li><a href="chapter-23.html">Chapter 23. Effect heterogeneity and nonlinearity</a></li><li><a href="chapter-24.html">Chapter 24: The Difference-in-Differences Saga</a></li><li><a href="chapter-25.html" aria-current="page">Chapter 25: Synthetic Difference-in-Differences</a><ul class="section-list"><li><a href="#representing-panel-data">Representing panel data</a></li><li><a href="#revisiting-did-and-synthetic-controls">Revisiting DiD and synthetic controls</a></li><li><a href="#combining-the-two-synthetic-did">Combining the two: synthetic DiD</a></li><li><a href="#time-effect-heterogeneity-and-staggered-adoption">Time-effect heterogeneity and staggered adoption</a></li><li><a href="#placebo-variance-estimation">Placebo variance estimation</a></li></ul></li><li><a href="chapter-26.html">Appendix: Debiasing and Prediction</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">Brave and True · English</div><h1 id="chapter-25-synthetic-difference-in-differences">Chapter 25: Synthetic Difference-in-Differences</h1>
+<h2 id="representing-panel-data">Representing panel data</h2>
+<p>Observe multiple units over multiple periods. In <span class="math inline">\(D\)</span>, rows are times and columns are units: <span class="math display">\[D=\begin{pmatrix}0&amp;0&amp;0&amp;\cdots&amp;0&amp;0\\0&amp;0&amp;0&amp;\cdots&amp;0&amp;0\\\vdots&amp;\vdots&amp;\vdots&amp;&amp;\vdots&amp;\vdots\\0&amp;0&amp;0&amp;\cdots&amp;1&amp;1\\0&amp;0&amp;0&amp;\cdots&amp;1&amp;1\end{pmatrix}.\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Columns containing ones after adoption</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Treated units</p>
+</div>
+<p><strong>Absorbing treatment:</strong> once a unit is treated, it does not return to the untreated state. The four-block form here also uses a common pre/post split for the treated units. These are design restrictions; causal identification still requires assumptions about the untreated outcomes. Staggered adoption is handled later through subpanels.</p>
+<h4 id="representation-1-synthetic-control.">Representation 1: synthetic control.</h4>
+<p>Group the observations into four blocks: <span class="math display">\[D=\begin{pmatrix}0&amp;0\\0&amp;1\end{pmatrix},\qquad
+Y=\begin{pmatrix}Y_{\mathrm{pre,co}}&amp;Y_{\mathrm{pre,tr}}\\Y_{\mathrm{post,co}}&amp;Y_{\mathrm{post,tr}}\end{pmatrix}.\]</span> Here pre/post means before/after treatment, and co/tr means control/treated.</p>
+<h4 id="representation-2-did.">Representation 2: DiD.</h4>
+<p>Use a long table with columns for unit, time, outcome, treatment-group membership, and whether treatment has already begun.</p>
+<p>The observed blocks and the missing counterfactual are <span class="math display">\[Y=\begin{pmatrix}Y(0)_{\mathrm{pre,co}}&amp;Y(0)_{\mathrm{pre,tr}}\\Y(0)_{\mathrm{post,co}}&amp;Y(1)_{\mathrm{post,tr}}\end{pmatrix},
+\qquad
+\operatorname{ATT}=\overline Y(1)_{\mathrm{post,tr}}-\underbrace{\overline Y(0)_{\mathrm{post,tr}}}_{\text{counterfactual}}.\]</span> Bars average over the treated post-treatment cells.</p>
+<h2 id="revisiting-did-and-synthetic-controls">Revisiting DiD and synthetic controls</h2>
+<p>The DiD regression and its parallel-trends restriction are <span class="math display">\[Y_{it}=\beta_0+\beta_1\mathrm{Post}_t+\beta_2\mathrm{Treated}_i
++\beta_3\mathrm{Treated}_i\mathrm{Post}_t+e_{it},\]</span> <span class="math display">\[E[Y(0)_{\mathrm{post,co}}-Y(0)_{\mathrm{pre,co}}]
+=E[Y(0)_{\mathrm{post,tr}}-Y(0)_{\mathrm{pre,tr}}].\]</span> Without treatment, the two groups would have the same average change.</p>
+<p><span class="math inline">\(\widehat\tau^{\mathrm{did}}\)</span> is the treatment coefficient minimizing <span class="math display">\[\min_{\mu,\alpha,\beta,\tau}\sum_{i=1}^N\sum_{t=1}^T
+[Y_{it}-(\textcolor{blue}{\mu+\alpha_i}+\beta_t+\tau D_{it})]^2.\]</span> <span class="math display">\[\begin{aligned}
+\widetilde Y_{it}&amp;=Y_{it}-\overline Y_{i\cdot}-\overline Y_{\cdot t}+\overline Y_{\cdot\cdot},\\
+\widetilde D_{it}&amp;=D_{it}-\overline D_{i\cdot}-\overline D_{\cdot t}+\overline D_{\cdot\cdot}.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Demeaning <span class="math inline">\(Y\)</span> and <span class="math inline">\(D\)</span> in a balanced panel</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> The fixed-effects least-squares criterion.</p>
+</div>
+<p>This resembles synthetic control, but lacks the weights.</p>
+<p>For synthetic control, fit weights before treatment: <span class="math display">\[\widehat w^{\mathrm{sc}}=\operatorname*{argmin}_{w_{\mathrm{co}}}
+\|\overline y_{\textcolor{blue}{\mathrm{pre,tr}}}-Y_{\mathrm{pre,co}}w_{\mathrm{co}}\|_2^2,
+\quad \sum_{i\in\mathrm{co}}w_i=1,\quad w_i\ge0.\]</span> <span class="math inline">\(Y_{\mathrm{pre,co}}\)</span> is <span class="math inline">\(T_{\mathrm{pre}}\times N_{\mathrm{co}}\)</span>: rows are times, columns are units. <span class="math inline">\(w_{\mathrm{co}}\)</span> is <span class="math inline">\(N_{\mathrm{co}}\times1\)</span>. Each entry of <span class="math inline">\(\overline y_{\mathrm{pre,tr}}\)</span> averages treated units at one pre-treatment time. <span style="color: #244DA8">Fit a synthetic control to the treated group: this is similar to linear regression.</span> Zero donor weights are allowed.</p>
+<p>After treatment, use the weighted controls to predict the missing outcome, and average the post-treatment gaps. The corresponding SC regression criterion is also shown: <span class="math display">\[\widehat Y(0)_{\mathrm{post,tr}}=Y_{\mathrm{post,co}}\widehat w^{\mathrm{sc}}_{\mathrm{co}},\qquad
+\widehat{\operatorname{ATT}}=\operatorname{average}_{t\in\mathrm{post}}
+[\overline y_{t,\mathrm{tr}}-\widehat Y(0)_{t,\mathrm{tr}}].\]</span> <span class="math display">\[\min_{\beta,\tau}\sum_{i=1}^N\sum_{t=1}^T
+[Y_{it}-(\beta_t+\tau D_{it})]^2\widehat w_i^{\mathrm{sc}},
+\qquad \widehat w_i^{\mathrm{sc}}=1/N_{\mathrm{tr}}\quad(i\in\mathrm{tr}).\]</span> <span style="color: #244DA8">Unlike DiD, this criterion has neither an overall intercept <span class="math inline">\(\mu\)</span> nor unit fixed effects <span class="math inline">\(\alpha_i\)</span>.</span> Interpreting the gap causally requires the synthetic comparison to remain valid for untreated post-treatment outcomes; close pre-treatment fit alone does not guarantee that.</p>
+<h4 id="how-i-picture-the-comparison.">How I picture the comparison.</h4>
+<p>In the first sketch, extending the control trend in parallel overstates the effect in this particular example. In the second, pre-treatment weights form a synthetic untreated version of the treatment group; apply those weights after treatment and compare the two averages.</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-English-figure-017.png" alt="image" /></p>
+</div>
+<h2 id="combining-the-two-synthetic-did">Combining the two: synthetic DiD</h2>
+<p><span style="color: #C92B32"><span class="math inline">\(\star\)</span></span> Compare the two ingredients: <span class="math display">\[\begin{array}{ll}
+\mathrm{SC}:&amp;\displaystyle\min_{\beta,\tau}\sum_{i,t}[Y_{it}-(\beta_t+\tau D_{it})]^2\widehat w_i^{\mathrm{sc}},\\[2mm]
+\mathrm{DiD}:&amp;\displaystyle\min_{\mu,\alpha,\beta,\tau}\sum_{i,t}[Y_{it}-(\mu+\alpha_i+\beta_t+\tau D_{it})]^2.
+\end{array}\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">SC weights and DiD fixed effects</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Combine them, adding time weights.</p>
+</div>
+<p><span class="math inline">\(\widehat\tau^{\mathrm{sdid}}\)</span> is the treatment coefficient minimizing <span class="math display">\[\min_{\mu,\alpha,\beta,\tau}\sum_{i=1}^N\sum_{t=1}^T
+[Y_{it}-(\mu+\alpha_i+\beta_t+\tau D_{it})]^2
+\underbrace{\widehat w_i^{\mathrm{sdid}}}_{\textcolor{red}{\text{unit weight}}}
+\underbrace{\widehat\lambda_t^{\mathrm{sdid}}}_{\textcolor{red}{\text{time weight}}}.\]</span></p>
+<h4 id="time-weights.">Time weights.</h4>
+<p>Fit the controls’ average post-treatment outcomes from their pre-treatment outcomes: <span class="math display">\[(\widehat\lambda_0,\widehat\lambda_{\mathrm{pre}})
+=\operatorname*{argmin}_{\lambda_0,\lambda_{\mathrm{pre}}}
+\|\overline y_{\textcolor{blue}{\mathrm{post,co}}}-(\lambda_{\mathrm{pre}}Y_{\mathrm{pre,co}}+\lambda_0\mathbf1^{\mathsf T})\|_2^2,
+\quad \sum_{t\in\mathrm{pre}}\lambda_t=1,\quad\lambda_t\ge0.\]</span></p>
+<ul>
+<li><p><span class="math inline">\(Y_{\mathrm{pre,co}}\)</span>: <span class="math inline">\(T_{\mathrm{pre}}\times N_{\mathrm{co}}\)</span>, with times in rows and units in columns.</p></li>
+<li><p><span class="math inline">\(\overline y_{\mathrm{post,co}}\)</span>: <span class="math inline">\(1\times N_{\mathrm{co}}\)</span>, averaging each control unit over post-treatment times.</p></li>
+<li><p><span class="math inline">\(\lambda_{\mathrm{pre}}\)</span>: <span class="math inline">\(1\times T_{\mathrm{pre}}\)</span>, one weight per pre-treatment period.</p></li>
+</ul>
+<p>With this row-vector convention, prepend a row of ones for the intercept. Fit <span class="math inline">\((\lambda_0,\lambda_{\mathrm{pre}})\)</span> to predict the post-treatment control average:</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-English-figure-018.png" alt="image" /></p>
+</div>
+<h4 id="unit-weights.">Unit weights.</h4>
+<p>The two weighting directions fit together as follows:</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-English-figure-019.png" alt="image" /></p>
+</div>
+<p><span class="math display">\[\begin{aligned}
+(\widehat w_0,\widehat w_{\mathrm{co}})
+=\operatorname*{argmin}_{w_0,w_{\mathrm{co}}}\big\{&amp;
+\|\overline y_{\textcolor{blue}{\mathrm{pre,tr}}}-(Y_{\mathrm{pre,co}}w_{\mathrm{co}}+w_0\mathbf1)\|_2^2\\
+&amp;+\zeta^2T_{\mathrm{pre}}\|w_{\mathrm{co}}\|_2^2\big\},\\
+\sum_{i\in\mathrm{co}}w_i&amp;=1,\quad w_i\ge0,\\
+\zeta&amp;=(N_{\mathrm{tr}}T_{\mathrm{post}})^{1/4}\widehat\sigma(\Delta_{it}),
+\qquad \Delta_{it}=Y_{it}-Y_{i,t-1}.
+\end{aligned}\]</span> Estimate <span class="math inline">\(\widehat\sigma\)</span> from first differences of control outcomes during the pre-treatment period.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">The <span class="math inline">\(L_2\)</span> penalty tends to spread the nonzero weights more widely</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\zeta^2T_{\mathrm{pre}}\|w_{\mathrm{co}}\|_2^2\)</span></p>
+</div>
+<p>Add a column of ones to the predictor matrix: <span class="math display">\[X=[\,\mathbf1_{T_{\mathrm{pre}}}\ \ Y_{\mathrm{pre,co}}\,].\]</span> Fit <span class="math inline">\((w_0,w_{\mathrm{co}})\)</span>, leaving the intercept unconstrained and unpenalized.</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">There is an intercept</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(w_0\)</span></p>
+</div>
+<p><span style="color: #244DA8">Compared with SC: the intercept can improve the match to the treated trajectory, and the <span class="math inline">\(L_2\)</span> penalty regularizes the donor weights.</span></p>
+<p>Use uniform weights <span class="math inline">\(1/N_{\mathrm{tr}}\)</span> for treated units and <span class="math inline">\(1/T_{\mathrm{post}}\)</span> for post-treatment times. <strong>My intuition:</strong> I initially understood SDID, compared with SC, as focusing only on data taking effect near the intervention. Looking at the time-weighting objective, the weights actually use the controls’ pre-treatment outcomes to fit their average post-treatment outcomes. A useful earlier period can therefore also receive weight; distance from the intervention date does not directly determine the weights.</p>
+<h2 id="time-effect-heterogeneity-and-staggered-adoption">Time-effect heterogeneity and staggered adoption</h2>
+<p>To estimate an effect separately for each period, run SDID on separate subpanels. Subscripts on the zeros and ones identify the original period.</p>
+<h4 id="time-effect-heterogeneity."><span style="color: #C92B32">Time-effect heterogeneity.</span></h4>
+<p>The full matrix estimates an average ATT over periods 3 and 4. Split it to estimate the two periods separately:</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-English-figure-020.png" alt="image" /></p>
+</div>
+<h4 id="staggered-adoption."><span style="color: #C92B32">Staggered adoption.</span></h4>
+<p>Now adoption occurs at different times. First split by post-treatment period:</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-English-figure-021.png" alt="image" /></p>
+</div>
+<p>Period 4 contains two treated cells and period 3 one, hence the weights <span class="math inline">\(2/3\)</span> and <span class="math inline">\(1/3\)</span>. Use genuinely untreated donors in each subpanel.</p>
+<p>Alternatively, split by treated cohort, keeping the never-treated unit as the donor:</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-English-figure-022.png" alt="image" /></p>
+</div>
+<p>For example, California is treated for 12 years, and three other units for 8 years each: <span class="math display">\[\mathrm{ATT}_0\frac{12}{36}
++\left(\sum_{j=1}^{3}\mathrm{ATT}_j\right)\frac13\frac{3\times8}{36}.\]</span> These weights target the average over observed treated unit-period cells. A different target population can require different weights.</p>
+<h2 id="placebo-variance-estimation">Placebo variance estimation</h2>
+<p>In the example, SDID has smaller error bars than SC: adjusting across units and across time can reduce outcome variation. This can improve precision, although smaller valid uncertainty than SC is not guaranteed in every design. Placebo inference is especially useful when there is only one treated unit.</p>
+<p>Pretend each control unit was treated, and estimate its placebo ATT using SDID.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Placebo ATT estimates</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Their variance, then an approximate confidence interval.</p>
+</div>
+<p><span class="math display">\[\overline\tau^{\mathrm{pl}}=\frac1B\sum_{b=1}^B\widehat\tau^{(b)},\qquad
+\widehat V_\tau^{\mathrm{pl}}=\frac1B\sum_{b=1}^B
+(\widehat\tau^{(b)}-\overline\tau^{\mathrm{pl}})^2,\]</span> <span class="math display">\[\left[\widehat\tau^{\mathrm{sdid}}-z_{1-\alpha/2}\sqrt{\widehat V_\tau^{\mathrm{pl}}},\quad
+\widehat\tau^{\mathrm{sdid}}+z_{1-\alpha/2}\sqrt{\widehat V_\tau^{\mathrm{pl}}}\right].\]</span> Here <span class="math inline">\(z_{1-\alpha/2}\)</span> is the standard-normal quantile. The idea of comparing placebo effects is shared with SC. For the variance to represent uncertainty about the actual treatment effect, placebo and treated units must have comparable noise behavior. With several treated units, placebo assignments should reproduce that group size; the ordinary weighted-regression standard error is not a substitute for this inference step.</p>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-24.html">← Chapter 24: The Difference-in-Differences Saga</a><a href="chapter-26.html">Appendix: Debiasing and Prediction →</a></nav><div class="article book-downloads"><a href="../../Brave-and-True-English.pdf">Complete PDF</a> · <a download href="../../Brave-and-True-English.md">Markdown</a> · <a href="https://matheusfacure.github.io/python-causality-handbook/landing-page.html">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal_Inference_for_The_Brave_and_True/Chapter24-25.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"representing-panel-data": "面板数据的表示", "representation-1-synthetic-control.": "表示方法1合成控制", "representation-2-did.": "表示方法2did", "revisiting-did-and-synthetic-controls": "回看did与合成控制", "how-i-picture-the-comparison.": "我的图解", "combining-the-two-synthetic-did": "将两者结合合成did", "time-weights.": "时间权重", "unit-weights.": "单位权重", "time-effect-heterogeneity-and-staggered-adoption": "时间效应异质性与交错采用", "time-effect-heterogeneity.": "时间效应异质性", "staggered-adoption.": "交错采用", "placebo-variance-estimation": "安慰剂方差估计"}</script></body></html>

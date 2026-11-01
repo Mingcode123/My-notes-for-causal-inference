@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 12: Evaluating dynamic policies · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-12.html" aria-current="true">EN</a><a href="../zh/chapter-12.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html" aria-current="page">Lecture 12: Evaluating dynamic policies</a><ul class="section-list"><li><a href="#treatmentconfounder-feedback">Treatment–confounder feedback</a></li><li><a href="#sequential-inference-under-sequential-ignorability">Sequential inference under sequential ignorability</a></li><li><a href="#inverse-propensity-weighting-1">Inverse-propensity weighting</a></li><li><a href="#backward-regression-adjustment">Backward regression adjustment</a></li><li><a href="#a-doubly-robust-estimator">A doubly robust estimator</a></li></ul></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-12-evaluating-dynamic-policies">Lecture 12: Evaluating dynamic policies</h1>
+<p>This topic connects with reinforcement learning. We evaluate a dynamic policy: a policy that changes over time.</p>
+<p>There are <span class="math inline">\(n\)</span> IID individuals <span class="math inline">\(i=1,\ldots,n\)</span> and times <span class="math inline">\(t=1,\ldots,T\)</span>. At each time we observe time-varying covariates <span class="math inline">\(X_{it}\)</span> and a treatment <span class="math inline">\(W_{it}\in\{0,1\}\)</span>. At the final time <span class="math inline">\(T\)</span>, we additionally observe an outcome <span class="math inline">\(Y_i\in\mathbb R\)</span>.</p>
+<p>To reflect the dynamic structure, every time-varying observation may depend on all earlier treatments. For each <span class="math inline">\(X_{it}\in\mathcal X_t\)</span>, define <span class="math inline">\(2^{t-1}\)</span> potential values <span class="math inline">\(X_{it}(w_{1:t-1})\)</span>, with <span class="math display">\[X_{it}=X_{it}(W_{i,1:t-1}).\]</span> The final outcome has <span class="math inline">\(2^T\)</span> potential outcomes <span class="math inline">\(Y_i(w_{1:T})\)</span>, and <span class="math display">\[Y_i=Y_i(W_{i,1:T}).\]</span> Similarly, write <span class="math inline">\(W_{it}=W_{it}(W_{i,1:t-1})\)</span>: treatment at time <span class="math inline">\(t\)</span> depends on observed covariate history <span class="math inline">\(X_{i,1:t}\)</span> and past treatment values.</p>
+<h4 id="my-intuition.">My intuition.</h4>
+<p>Picture one individual observed in successive columns <span class="math inline">\(1,\ldots,T\)</span>, with covariates <span class="math inline">\(X_{i1},X_{i2},\ldots\)</span> and decisions <span class="math inline">\(W_{i1},W_{i2},\ldots\)</span>. Make one decision at each time. The decision at time <span class="math inline">\(t\)</span> depends on what happened through <span class="math inline">\(t-1\)</span>, and there are <span class="math inline">\(2^T\)</span> possible final outcomes.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(X_{i1},W_{i1};\ X_{i2},W_{i2};\ \ldots;\ X_{iT},W_{iT}\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span class="math inline">\(2^T\)</span> potential final outcomes <span class="math inline">\(Y_i(w_{1:T})\)</span></p>
+</div>
+<p>There are two types of estimand:</p>
+<ol>
+<li><p>Evaluate a fixed treatment sequence <span class="math inline">\(w\in\{0,1\}^T\)</span>: <span class="math display">\[V(w)=\mathbb E[Y_i(w)].\]</span></p></li>
+<li><p>Evaluate a policy with decision rules <span class="math inline">\(\pi_t\)</span> mapping the available history to <span class="math inline">\(\{0,1\}\)</span>: <span class="math display">\[\begin{aligned}
+ V(\pi)=\mathbb E\bigl[Y_i\bigl(&amp;\pi_1(X_{i1}),\\
+ &amp;\pi_2(X_{i1},\pi_1(X_{i1}),X_{i2}(\pi_1(X_{i1}))),\ldots\bigr)\bigr].
+\end{aligned}
+\tag{12.2}\]</span></p></li>
+</ol>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">The second decision depends on covariate history and previous treatment values.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The arguments of <span class="math inline">\(\pi_2\)</span> in (12.2).</p>
+</div>
+<p>Both problems use potential treatment sequences to define the estimand, including interventions on the assignment distribution that generated the data.</p>
+<p>Two natural unconfoundedness-type assumptions are considered:</p>
+<ol>
+<li><p><strong>Sequential unconfoundedness / sequential ignorability:</strong> <span class="math display">\[\{\text{potential outcomes after time }t\}\perp W_{it}
+ \mid\{\text{history at time }t\}.\]</span> At each time, treatment is unconfounded given the data collected up to that time.</p></li>
+<li><p><strong>Complete randomization:</strong> <span class="math display">\[\{\text{all potential outcomes}\}\perp W_{i,1:T}.\]</span> This is not reasonable for the adaptive design considered here.</p></li>
+</ol>
+<p>Identification also requires consistency and positive probabilities of the target actions at every history reachable under <span class="math inline">\(\pi\)</span>. Complete randomization of whole sequences is another possible design, but generally does not describe adaptive assignment.</p>
+<h2 id="treatmentconfounder-feedback">Treatment–confounder feedback</h2>
+<p>An example of what can go wrong. All individuals have <span class="math inline">\(X_{i1}=0\)</span>, and <span class="math display">\[\mathbb P(W_{i1}=1)=0.5,\qquad
+ \mathbb P(W_{i2}=1\mid X_{i2}=1)=0.8,\qquad
+ \mathbb P(W_{i2}=1\mid X_{i2}=0)=0.4.\]</span> The target compares always treating with never treating: <span class="math inline">\(\tau=\mathbb E[Y(1,1)-Y(0,0)]\)</span>. Analysis shows <span class="math display">\[\mathbb E[Y_i\mid W_{i1}=0]=\mathbb E[Y_i\mid W_{i1}=1],\]</span> <span class="math display">\[\mathbb E[Y_i\mid W_{i2}=0,W_{i1}=w_1,X_{i2}=x]
+ =\mathbb E[Y_i\mid W_{i2}=1,W_{i1}=w_1,X_{i2}=x]\]</span> for every <span class="math inline">\(w_1,x\)</span>.</p>
+<p>The first mistake is to ignore adaptive sampling and use the ordinary difference in means, <span class="math display">\[\widehat\tau=\widehat{\mathbb E}[Y\mid W_1=W_2=1]
+ -\widehat{\mathbb E}[Y\mid W_1=W_2=0].\]</span> The second mistake is to stratify on <span class="math inline">\(X_{i2}\)</span>: <span class="math display">\[\begin{aligned}
+ \widehat\tau_0&amp;=\mathbb E[Y\mid W_1=W_2=1,X_{i2}=0]
+ -\mathbb E[Y\mid W_1=W_2=0,X_{i2}=0],\\
+ \widehat\tau_1&amp;=\mathbb E[Y\mid W_1=W_2=1,X_{i2}=1]
+ -\mathbb E[Y\mid W_1=W_2=0,X_{i2}=1],\\
+ \widehat\tau&amp;=\frac{n_0\widehat\tau_0+n_1\widehat\tau_1}{n_0+n_1}.
+\end{aligned}\]</span> Why might one try this? We know a statement of the form <span class="math inline">\(Y_i(\cdots)\perp W_{i2}\mid X_{i2}\)</span>. But the stratification would actually need <span class="math display">\[Y_i(\cdots)\perp(W_{i1},W_{i2})\mid X_{i2}.\]</span> Consider three types:</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;"><span class="math inline">\(X_{i2}\)</span> if <span class="math inline">\(W_{i1}=0\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(X_{i2}\)</span> if <span class="math inline">\(W_{i1}=1\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Stable (1)</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">Responder (2)</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">Acute (3)</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>By consistency, the group with <span class="math inline">\(W_1=1,X_{i2}=0\)</span> contains types (1) and (2), whereas <span class="math inline">\(W_1=0,X_{i2}=0\)</span> contains only type (1). The group with <span class="math inline">\(W_1=1,X_{i2}=1\)</span> contains type (3), whereas <span class="math inline">\(W_1=0,X_{i2}=1\)</span> contains types (2) and (3). Thus, even in a sequentially randomized experiment, this stratification does not control confounding.</p>
+<h2 id="sequential-inference-under-sequential-ignorability">Sequential inference under sequential ignorability</h2>
+<p>Since simple stratification does not work, focus directly on estimating <span class="math inline">\(V(\pi)\)</span>. Define the filtration <span class="math display">\[\mathcal F_t=\sigma(X_1,W_1,X_2,W_2,\ldots,W_{t-1},X_t),\]</span> which contains all information available before selecting treatment at time <span class="math inline">\(t\)</span>. Let <span class="math inline">\(\mathbb E_\pi\)</span> denote expectation when treatment is assigned according to <span class="math inline">\(\pi\)</span>. Then (12.2) becomes <span class="math inline">\(V(\pi)=\mathbb E_\pi[Y]\)</span>.</p>
+<p>Define the value function <span class="math display">\[V_{\pi,t}(X_1,W_1,\ldots,W_{t-1},X_t)
+ =\mathbb E_\pi[Y\mid\mathcal F_t].\]</span> It measures the expected return from starting in the state represented by <span class="math inline">\(\mathcal F_t\)</span> and following <span class="math inline">\(\pi\)</span> thereafter. <span style="color: #C92B32">The overall policy value is <span class="math inline">\(V_{\pi,0}\)</span>.</span></p>
+<p>By the tower property, <span class="math display">\[\begin{aligned}
+ &amp;\mathbb E_\pi[V_{\pi,t+1}(X_1,W_1,\ldots,W_t,X_{t+1})\mid\mathcal F_t]\\
+ &amp;\quad=\mathbb E_\pi[\mathbb E_\pi[Y\mid\mathcal F_{t+1}]\mid\mathcal F_t]\\
+ &amp;\quad=\mathbb E_\pi[Y\mid\mathcal F_t]
+ =V_{\pi,t}(X_1,W_1,\ldots,W_{t-1},X_t).
+\end{aligned}
+\tag{12.6}\]</span></p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><strong>My interpretation:</strong> given <span class="math inline">\(\mathcal F_t\)</span>, the expected future return remains the same when we express it through time <span class="math inline">\(t+1\)</span>. This connects with the Bellman equation, <span class="math display">\[V(s)=R(s)+\gamma\sum_{s&#39;}P(s&#39;\mid s,a)V(s&#39;).\]</span></p>
+</div>
+<p>This is a Bellman analogy: for a fixed deterministic policy take <span class="math inline">\(a=\pi(s)\)</span>. The history-based tower identity itself needs no Markov assumption or discount factor.</p>
+<p>If we have a good estimate of <span class="math inline">\(V_{\pi,t+1}\)</span>, seek a good estimate of <span class="math inline">\(V_{\pi,t}\)</span> and continue backward until we recover <span class="math inline">\(V(\pi)\)</span>.</p>
+<p>Write <span class="math inline">\(X_{T+1}=Y\)</span>. The joint distribution factors as <span class="math display">\[P_\pi(X_1,W_1,\ldots,X_T,W_T,Y)
+ =P_\pi(X_1)\prod_{t=1}^T
+ P_\pi(W_t\mid\mathcal F_t)
+ P_\pi(X_{t+1}\mid\mathcal F_t,W_t).\]</span> Unconfoundedness means that the non-treatment factors do not depend on the policy: <span class="math display">\[P_\pi(X_1)=P(X_1),\qquad
+ P_\pi(X_{t+1}\mid\mathcal F_t,W_t)
+ =P(X_{t+1}\mid\mathcal F_t,W_t),\quad\text{for all }\pi.\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">The effect of treatment on the subsequent covariates does not depend on the selecting policy.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The invariant transition factor <span class="math inline">\(P(X_{t+1}\mid\mathcal F_t,W_t)\)</span>.</p>
+</div>
+<h2 id="inverse-propensity-weighting-1">Inverse-propensity weighting</h2>
+<p>To make (12.6) useful with off-policy data, change measure: the actual data were not generated by <span class="math inline">\(\pi(\cdot)\)</span>. <span class="math display">\[\begin{aligned}
+ V_{\pi,t}
+ &amp;=\mathbb E_\pi[V_{\pi,t+1}\mid\mathcal F_t]\\
+ &amp;=\mathbb E\left[\left.
+ \frac{P_\pi(W_t,X_{t+1}\mid\mathcal F_t)}
+ {P(W_t,X_{t+1}\mid\mathcal F_t)}V_{\pi,t+1}
+ \right|\mathcal F_t\right]\\
+ &amp;=\mathbb E\left[\left.
+ \frac{P_\pi(W_t\mid\mathcal F_t)P_\pi(X_{t+1}\mid\mathcal F_t,W_t)}
+ {P(W_t\mid\mathcal F_t)P(X_{t+1}\mid\mathcal F_t,W_t)}
+ V_{\pi,t+1}\right|\mathcal F_t\right]\\
+ &amp;=\mathbb E\left[\left.
+ \frac{\mathbf1\{W_t=\pi_t(\ldots,X_t)\}}
+ {P[W_t=\pi_t(\ldots,X_t)\mid\mathcal F_t]}
+ V_{\pi,t+1}\right|\mathcal F_t\right].
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Change from the observed policy to <span class="math inline">\(\pi\)</span>; cancel the transition factors.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The two transition factors cancel.</p>
+</div>
+<p>Apply the change of measure at every <span class="math inline">\(t=1,\ldots,T\)</span>. Since <span class="math display">\[V(\pi)=\mathbb E[V_{\pi,1}(X_1)],\]</span> <span class="math display">\[V_{\pi,1}(X_1)=\mathbb E\left[\left.
+ \frac{\mathbf1\{W_1=\pi_1(X_1)\}}
+ {P[W_1=\pi_1(X_1)\mid\mathcal F_1]}
+ V_{\pi,2}(X_1,W_1,X_2)\right|\mathcal F_1\right],\]</span></p>
+<p>repeated substitution eventually leaves <span class="math inline">\(V_{\pi,T+1}=\mathbb E_\pi[Y\mid\mathcal F_{T+1}]=Y\)</span> and gives</p>
+<p><span class="math display">\[V(\pi)=\mathbb E\left[
+ \left\{\prod_{t=1}^T
+ \frac{\mathbf1\{W_t=\pi_t(\ldots,X_t)\}}
+ {P[W_t=\pi_t(\ldots,X_t)\mid\mathcal F_t]}\right\}Y\right].\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Should this condition on <span class="math inline">\(\mathcal F_1\)</span>?</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The matching probability <span class="math inline">\(P[W_1=\pi_1(X_1)\mid\mathcal F_1]\)</span>.</p>
+</div>
+<p>Yes: the denominator must condition on <span class="math inline">\(\mathcal F_1\)</span>. Independence of <span class="math inline">\(W_1\)</span> and <span class="math inline">\(X_1\)</span> alone does not make the matching probability constant when <span class="math inline">\(\pi_1(X_1)\)</span> varies.</p>
+<p>An IPW estimator is <span class="math display">\[\widehat V_{\mathrm{IPW}}(\pi)=\frac1n\sum_{i=1}^n\gamma_{iT}(\pi)Y_i,
+ \qquad
+ \gamma_{it}(\pi)=\gamma_{i,t-1}(\pi)
+ \frac{\mathbf1\{W_{it}=\pi_t(\ldots,X_{it})\}}
+ {P[W_{it}=\pi_t(\ldots,X_{it})\mid\mathcal F_{it}]}.\]</span> The recursion starts at <span class="math inline">\(\gamma_{i0}(\pi)=1\)</span>.</p>
+<p><span style="color: #C92B32"><strong>My interpretation:</strong> average outcomes matching <span class="math inline">\(\pi\)</span>, and use IPW to remove the confounding effects of observed time-varying variables. If the weights, that is, each conditional assignment probability, are known, <span class="math inline">\(\widehat V_{\mathrm{IPW}}\)</span> is unbiased.</span></p>
+<h2 id="backward-regression-adjustment">Backward regression adjustment</h2>
+<p>Use (12.6) and sequential unconfoundedness, iterating backward. At <span class="math inline">\(t=T\)</span>, <span class="math display">\[\begin{aligned}
+ V_{\pi,T}(X_1,W_1,\ldots,X_T)
+ &amp;=\mathbb E_\pi[Y\mid\mathcal F_T]\\
+ &amp;=\mathbb E_\pi[Y\mid\mathcal F_T,W_T=\pi_T(X_1,W_1,\ldots,X_T)]\\
+ &amp;=\mathbb E[Y\mid\mathcal F_T,W_T=\pi_T(X_1,W_1,\ldots,X_T)].
+\end{aligned}\]</span> Learn <span class="math inline">\(\widehat V_{\pi,T}\)</span> directly by nonparametric regression. Given a reasonable estimate of the next value function, <span class="math display">\[V_{\pi,t}(X_1,W_1,\ldots,X_t)
+ \approx\mathbb E[\widehat V_{\pi,t+1}(\ldots,X_{t+1})
+ \mid\mathcal F_t,W_t=\pi_t(\ldots,X_t)].\tag{12.12}\]</span> Continue backward until an estimate of <span class="math inline">\(V(\pi)\)</span> is recovered.</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">Unlike IPW, quantify how regression errors propagate through backward iteration.</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(Q\)</span>-learning</p>
+</div>
+<p>The displayed recursion evaluates a fixed policy. Optimal <span class="math inline">\(Q\)</span>-learning additionally maximizes over actions; the error-propagation issue arises in both.</p>
+<h2 id="a-doubly-robust-estimator">A doubly robust estimator</h2>
+<p>We now have both IPW and regression. Equation (12.12) yields a value estimate <span class="math inline">\(\widehat V_{\pi,1}(X_1)\)</span>, and hence <span class="math display">\[\widehat V_{\mathrm{REG}}(\pi)=\frac1n\sum_{i=1}^n\widehat V_{\pi,1}(X_{i1}).\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Backward regression (12.12)</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span class="math inline">\(\widehat V_{\pi,1}\)</span>, then <span class="math inline">\(n^{-1}\sum_i\widehat V_{\pi,1}(X_{i1})\)</span></p>
+</div>
+<p>If we trust <span class="math inline">\(\widehat V_{\pi,2}\)</span> more than <span class="math inline">\(\widehat V_{\pi,1}\)</span>, use it to debias the earlier estimate: <span class="math display">\[\widehat V(\pi)=\frac1n\sum_{i=1}^n\left[
+ \widehat V_{\pi,1}(X_{i1})+
+ \gamma_{i1}(\pi)\{
+ \widehat V_{\pi,2}(X_{i1},W_{i1},X_{i2})
+ -\widehat V_{\pi,1}(X_{i1})\}\right].\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Weight <span class="math inline">\(\gamma_{i1}\)</span>; correction term.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\gamma_{i1}(\widehat V_{\pi,2}-\widehat V_{\pi,1})\)</span></p>
+</div>
+<p><span class="math display">\[\widehat V_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n\left[
+ \gamma_{iT}(\pi)Y_i+
+ \sum_{t=1}^T\{\gamma_{i,t-1}(\pi)-\gamma_{it}(\pi)\}
+ \widehat V_{\pi,t}(X_{i1},\ldots,X_{it})\right].\]</span> This generalizes AIPW from the nondynamic case.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Continue the correction until <span class="math inline">\(V_{\pi,T+1}=Y\)</span>.</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> The full sequential AIPW estimator above.</p>
+</div>
+<p><span style="color: #C92B32">What conditions make the sequential AIPW estimator unbiased?</span></p>
+<details class="technical-note"><summary>Supplementary derivation: sequential double robustness</summary><div class="technical-content">
+<p>Let <span class="math inline">\(q_t\)</span> be fixed or independently trained value functions, <span class="math inline">\(q_{T+1}=Y\)</span>, and <span class="math inline">\(\gamma_0=1\)</span>. The summand equals <span class="math display">\[q_1+\sum_{t=1}^T\gamma_t(q_{t+1}-q_t).\]</span> If every treatment probability is correct, weighted expectations telescope to <span class="math inline">\(E_\pi[Y]\)</span> for arbitrary <span class="math inline">\(q_t\)</span>; unbiased regressions are unnecessary. If every <span class="math inline">\(q_t=V_{\pi,t}\)</span>, each residual has conditional mean zero under the target action, allowing positive predictable propensity models. Marginally unbiased fitted regressions alone do not suffice, especially when the same observations are reused. Estimated nuisances generally require consistency/product-rate conditions for asymptotic claims. See <a href="https://proceedings.mlr.press/v48/jiang16.html">Jiang and Li (2016)</a>.</p>
+</div></details>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-11.html">← Lecture 11: Policy learning</a><a href="chapter-13.html">Lecture 13: Structural equation modeling →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture11-14.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"my-intuition.": "我的直觉", "treatmentconfounder-feedback": "处理与混杂因素之间的反馈", "sequential-inference-under-sequential-ignorability": "序贯可忽略性下的序贯推断", "inverse-propensity-weighting-1": "逆倾向概率加权", "backward-regression-adjustment": "向后递推的回归调整", "a-doubly-robust-estimator": "双重稳健估计量"}</script></body></html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chapter 24: The Difference-in-Differences Saga · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-24.html" aria-current="true">EN</a><a href="../zh/chapter-24.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>Brave and True</h2><ol class="chapter-list"><li><a href="chapter-01.html">Chapter 1. Introduction to causality</a></li><li><a href="chapter-02.html">Chapter 2. Randomized experiments</a></li><li><a href="chapter-03.html">Chapter 3. A review of statistics</a></li><li><a href="chapter-04.html">Chapter 4. Graphical causal models</a></li><li><a href="chapter-05.html">Chapter 5. The usefulness of linear regression</a></li><li><a href="chapter-06.html">Chapter 6. Grouping and dummy regression</a></li><li><a href="chapter-07.html">Chapter 7. Beyond controlling for confounders</a></li><li><a href="chapter-08.html">Chapter 8. Instrumental variables</a></li><li><a href="chapter-09.html">Chapter 9. Noncompliance and local average treatment effects</a></li><li><a href="chapter-10.html">Chapter 10. Matching</a></li><li><a href="chapter-11.html">Chapter 11. Propensity scores</a></li><li><a href="chapter-12.html">Chapter 12. Doubly robust estimation</a></li><li><a href="chapter-13.html">Chapter 13. Difference-in-differences</a></li><li><a href="chapter-14.html">Chapter 14. Panel data and fixed effects</a></li><li><a href="chapter-15.html">Chapter 15. Synthetic control</a></li><li><a href="chapter-16.html">Chapter 16. Regression discontinuity design</a></li><li class="chapter-group">Part II. Applications</li><li><a href="chapter-17.html">Chapter 17. Predictive Models 101</a></li><li><a href="chapter-18.html">Chapter 18. Heterogeneous treatment effects and personalization</a></li><li><a href="chapter-19.html">Chapter 19. Evaluating causal models</a></li><li><a href="chapter-20.html">Chapter 20. Plug-and-play estimators</a></li><li><a href="chapter-21.html">Chapter 21. Meta-learners</a></li><li><a href="chapter-22.html">Chapter 22. Debiased / orthogonal machine learning</a></li><li><a href="chapter-23.html">Chapter 23. Effect heterogeneity and nonlinearity</a></li><li><a href="chapter-24.html" aria-current="page">Chapter 24: The Difference-in-Differences Saga</a><ul class="section-list"><li><a href="#panel-data-and-two-way-fixed-effects">Panel data and two-way fixed effects</a></li><li><a href="#death-failures-over-effect-heterogeneity">Death: Failures over Effect Heterogeneity</a></li><li><a href="#event-study-design">Event-study design</a></li><li><a href="#enlightenment-a-flexible-functional-form">Enlightenment: a flexible functional form</a></li></ul></li><li><a href="chapter-25.html">Chapter 25: Synthetic Difference-in-Differences</a></li><li><a href="chapter-26.html">Appendix: Debiasing and Prediction</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">Brave and True · English</div><h1 id="chapter-24-the-difference-in-differences-saga">Chapter 24: The Difference-in-Differences Saga</h1>
+<h2 id="panel-data-and-two-way-fixed-effects">Panel data and two-way fixed effects</h2>
+<p><strong>Panel data:</strong> repeatedly observing the same unit over time. Here we compare units across time and across regions.</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-English-figure-015.png" alt="image" /></p>
+</div>
+<p>The dashed gray path is the TWFE counterfactual.</p>
+<p>Group units by intervention date <span class="math inline">\(g\)</span>.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Intervention start date</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Cohort label <span class="math inline">\(g\)</span></p>
+</div>
+<p>Taking <span class="math inline">\(t=g\)</span> as the first treated period, the cohort-time target is <span class="math display">\[\operatorname{ATT}(g,t)=E[Y_t(g)-Y_t(\infty)\mid G=g],\qquad t\ge g.\]</span> Here <span class="math inline">\(Y_t(\infty)\)</span> is the outcome without adoption. Averaging cohort-time effects requires specifying the weights.</p>
+<p>The model is <span class="math display">\[\mathrm{Install}_{it}=\tau D_{it}+\gamma_i+\theta_t+e_{it}.\]</span> Here <span class="math inline">\(i\)</span> denotes a unit, <span class="math inline">\(t\)</span> time, and <span class="math inline">\(e_{it}\)</span> noise. <span class="math inline">\(\gamma_i\)</span> captures unit differences and <span class="math inline">\(\theta_t\)</span> common time shocks. <span style="color: #244DA8">Estimating by OLS gives two-way fixed effects (TWFE): jointly absorb time-invariant unit characteristics and common time effects.</span> Unit-specific, time-varying confounding is not absorbed by these two effects alone.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Two groups and two periods</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The TWFE coefficient equals the DiD contrast.</p>
+</div>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">TWFE outcome model</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Residualize outcome and treatment against the same fixed effects.</p>
+</div>
+<p>For a balanced panel, <span class="math inline">\(z\in\{\mathrm{Install},D\}\)</span>: <span class="math display">\[\widetilde{\mathrm{Install}}_{it}=\tau\widetilde D_{it}+e_{it}.\]</span> <span class="math display">\[\begin{aligned}
+\widetilde z_{it}&amp;=z_{it}-\underbrace{\bar z_{i\cdot}}_{\textcolor{red}{\text{time average}}}-\underbrace{\bar z_{\cdot t}}_{\textcolor{red}{\text{unit average}}}+\bar z_{\cdot\cdot},\\
+\bar z_{i\cdot}&amp;=\frac1T\sum_{s=1}^Tz_{is},\qquad
+\bar z_{\cdot t}=\frac1N\sum_{j=1}^Nz_{jt},\qquad
+\bar z_{\cdot\cdot}=\frac1{NT}\sum_{j=1}^N\sum_{s=1}^Tz_{js}.
+\end{aligned}\]</span> Adding the grand mean makes the row and column means zero. If that constant is omitted, an intercept in the final regression absorbs the shift; without an intercept it can affect the slope. For an unbalanced panel, use the fixed-effect projection.</p>
+<h2 id="death-failures-over-effect-heterogeneity">Death: Failures over Effect Heterogeneity</h2>
+<p>With heterogeneous treatment effects, a TWFE coefficient need not equal the ATT we want. Start with the static model <span class="math display">\[y_{it}=\tau D_{it}+\gamma_i+e_{it}.\]</span> <strong>1. Functional form.</strong> A common treatment coefficient, linearity in included covariates, and additive fixed effects. In particular, a single <span class="math inline">\(\tau\)</span> rules out effects that change with time since treatment.</p>
+<p><strong>2. Exogeneity and timing.</strong> The static regression motivates checking strict exogeneity, <span class="math display">\[E[e_{it}\mid D_{i1},\ldots,D_{iT},\gamma_i]=0,\]</span> and the related issues of anticipation, unobserved time-varying confounders, carryover from past treatment, and feedback from past outcomes to current treatment. These checks are connected to, but not interchangeable with, the parallel-trends and no-anticipation restrictions used for DiD. Dynamic treatment effects require an appropriate model and target.</p>
+<p>Suppose the response grows gradually: <span class="math inline">\(0.1,0.2,\ldots\)</span>, day by day. Label the early-treated group <span class="math inline">\(1\)</span>, the late-treated group <span class="math inline">\(2\)</span>, and the never-treated group <span class="math inline">\(3\)</span>. TWFE combines several <span class="math inline">\(2\times2\)</span> DiD comparisons: <span class="math display">\[1-3:\ \checkmark,\quad 2-3:\ \checkmark,\quad
+1-2:\ \checkmark,\quad 2-1:\ \text{??}\]</span> The second group is the control. In <span class="math inline">\(1-2\)</span>, use the window before group <span class="math inline">\(2\)</span> is treated. The questionable comparison is <span class="math inline">\(2-1\)</span>: group <span class="math inline">\(1\)</span> is already treated.</p>
+<p><strong>My intuition:</strong> when the early-treated group is used as the control, its evolving treatment effect is mistaken for part of the untreated trend. The blue curve shows the resulting estimate of <span class="math inline">\(Y_0\)</span> for the late-treated group.</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-English-figure-016.png" alt="image" /></p>
+</div>
+<p>Goodman-Bacon’s decomposition is summarized as <span class="math display">\[\operatorname*{plim}_{n\to\infty}\widehat\tau^{\mathrm{TWFE}}
+=\mathrm{VWATT}-\Delta\mathrm{ATT}.\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">Bias from changes in ATT over time</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(\Delta\mathrm{ATT}\)</span></p>
+</div>
+<p><span style="color: #244DA8">In the comparison drawn above, an increasing effect contaminates the control trend and biases the contrast downward; a decreasing effect reverses this direction. With negative effects that become more negative, even the estimated sign can be wrong!</span> The aggregate TWFE discrepancy also depends on cohort effects and the comparison weights; this picture does not determine its sign in every design.</p>
+<h2 id="event-study-design">Event-study design</h2>
+<p>Replace the single treatment indicator with event-time indicators, omitting <span class="math inline">\(k=-1\)</span> as the reference period: <span class="math display">\[\begin{aligned}
+Y_{it}={}&amp;\alpha_i+\theta_t+\beta_{&lt;-K}\mathbf1\{t-G_i&lt;-K\}\\
+&amp;+\sum_{k=-K}^{-2}\beta_kD_{it}^k+\sum_{k=0}^{L}\beta_kD_{it}^k
++\beta_{&gt;L}\mathbf1\{t-G_i&gt;L\}+e_{it},\\
+D_{it}^k={}&amp;\mathbf1\{t-G_i=k\}.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(D_{it}^{k}=\mathbf1\{t-G_i=k\}\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> One in relative period <span class="math inline">\(k\)</span>, zero otherwise.</p>
+</div>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">Measure how far a unit is from treatment start</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> The event-time indicator <span class="math inline">\(D_{it}^{k}\)</span>.</p>
+</div>
+<p>All event-time indicators are zero for never-treated units. This is only a partial improvement: with staggered adoption and heterogeneous effects, these lead/lag coefficients can still mix effects from other relative periods. Causal interpretation requires valid cohort comparisons.</p>
+<h2 id="enlightenment-a-flexible-functional-form">Enlightenment: a flexible functional form</h2>
+<p>First try a separate treatment effect for every unit and time: <span class="math display">\[Y_{is}=\alpha_i+\theta_s+
+\sum_{j=1}^N\sum_{t=1}^T\tau_{jt}\mathbf1\{i=j\}\mathbf1\{s=t\}D_{is}+e_{is}.\]</span> Too many parameters! Group units by adoption cohort instead: <span class="math display">\[Y_{is}=\alpha_i+\theta_s+
+\sum_{g\in\mathcal G}\sum_{t=1}^T\tau_{gt}\mathbf1\{G_i=g\}\mathbf1\{s=t\}D_{is}+e_{is}.\]</span> This reduces the number of effect parameters from unit-by-time to cohort-by-time. The explicit indicators show which coefficient applies to observation <span class="math inline">\((i,s)\)</span>.</p>
+<p>Remove pre-treatment and control-cohort effect coefficients: <span class="math display">\[Y_{is}=\alpha_i+\theta_s+
+\sum_{g\in\mathcal G_{\mathrm{tr}}}\sum_{t\ge g}\tau_{gt}\mathbf1\{G_i=g\}\mathbf1\{s=t\}+e_{is}.\]</span> Here <span class="math inline">\(\mathcal G_{\mathrm{tr}}\)</span> contains cohorts treated in the observation window. Controls must remain untreated in the comparison window: never-treated units, or appropriately selected not-yet-treated units. An earlier adoption date alone does not make a cohort a control. <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">Manually create cohort dummies: <span class="math inline">\((0,1),(1,0),\ldots\)</span></span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> The cohort-by-time treatment terms.</p>
+</div>
+<p>Two points remain:</p>
+<ol>
+<li><p>Treatment effects may change over time; the earlier constant-effect model ignored this.</p></li>
+<li><p>DiD and TWFE still need the relevant parallel-trends restriction. This is a very strong restriction.</p></li>
+</ol>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>The chapter’s displayed sums and its ordering of control-cohort labels are schematic. Its implemented example uses cohorts untreated during the observed window as controls.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-23.html">← Chapter 23. Effect heterogeneity and nonlinearity</a><a href="chapter-25.html">Chapter 25: Synthetic Difference-in-Differences →</a></nav><div class="article book-downloads"><a href="../../Brave-and-True-English.pdf">Complete PDF</a> · <a download href="../../Brave-and-True-English.md">Markdown</a> · <a href="https://matheusfacure.github.io/python-causality-handbook/landing-page.html">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal_Inference_for_The_Brave_and_True/Chapter24-25.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"panel-data-and-two-way-fixed-effects": "面板数据与双向固定效应", "death-failures-over-effect-heterogeneity": "困境效果异质性下的失效", "event-study-design": "事件研究设计", "enlightenment-a-flexible-functional-form": "改进更灵活的函数形式"}</script></body></html>

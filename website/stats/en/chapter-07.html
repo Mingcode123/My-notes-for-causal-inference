@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 7: Balancing Estimators · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-07.html" aria-current="true">EN</a><a href="../zh/chapter-07.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html" aria-current="page">Lecture 7: Balancing Estimators</a><ul class="section-list"><li><a href="#review-of-ipw">Review of IPW</a></li><li><a href="#population-versus-sample-balance">Population versus sample balance</a></li><li><a href="#a-balancing-loss-for-propensity-estimation">A balancing loss for propensity estimation</a></li><li><a href="#ate-estimation-with-high-dimensional-confounders">ATE estimation with high-dimensional confounders</a></li><li><a href="#approximate-balancing-weights-and-regression-augmentation">Approximate balancing weights and regression augmentation</a></li></ul></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-7-balancing-estimators">Lecture 7: Balancing Estimators</h1>
+<p>Balance guides the construction of <span class="math inline">\(\widehat e(x)\)</span>.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Balance / the design principle for <span class="math inline">\(\widehat e(x)\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Construct a balancing loss for propensity estimation; high-dimensional ATE estimation.</p>
+</div>
+<p>Two aims are constructing a balancing loss for propensity estimation, and estimating ATEs with high-dimensional covariates. IPW and AIPW use propensity scores; this lecture uses convex optimization to derive how to estimate <span class="math inline">\(e(x)\)</span>.</p>
+<h2 id="review-of-ipw">Review of IPW</h2>
+<p>For IID observations <span class="math inline">\((X_i,Y_i,W_i)\in\mathcal X\times\mathbb R\times\{0,1\}\)</span>, the goal is <span class="math inline">\(\tau=\mu_{(1)}-\mu_{(0)}\)</span>, where <span class="math inline">\(\mu_{(w)}=E[Y_i(w)]\)</span>. Assume <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,\qquad
+0&lt;\eta\leq e(X_i)\leq1-\eta&lt;1,\]</span> with <span class="math inline">\(e(x)=P(W_i=1\mid X_i=x)\)</span> and positive constant <span class="math inline">\(\eta\)</span>. Estimate the treated mean using <span class="math display">\[\widehat\mu_{\rm IPW}(1)=\frac1n\sum_i\frac{W_iY_i}{\widehat e(X_i)}.
+\tag{7.3}\]</span> A <span style="color: #244DA8">brief consistency argument</span> has three steps:</p>
+<ol>
+<li><p>Population balance: under unconfoundedness, <span class="math inline">\(\mu_{(1)}=E[W_iY_i/e(X_i)]\)</span>.</p></li>
+<li><p>Oracle estimator: with the true <span class="math inline">\(e(x)\)</span> it is unbiased; overlap and <span class="math inline">\(E[Y(1)^2]&lt;\infty\)</span> give finite variance.</p></li>
+<li><p>Feasible approximation: if the estimated propensities also satisfy overlap, the Cauchy–Schwarz inequality gives <span class="math display">\[\begin{aligned}
+|\widehat\mu_{\rm IPW}(1)-\widehat\mu^*_{\rm IPW}(1)|
+&amp;\leq\left[\frac1n\sum_i\left(\frac1{\widehat e(X_i)}-\frac1{e(X_i)}\right)^2\right]^{1/2}
+\left[\frac1n\sum_i(W_iY_i)^2\right]^{1/2}\\
+&amp;\leq\frac1{\eta^2}\left[\frac1n\sum_i(\widehat e(X_i)-e(X_i))^2\right]^{1/2}
+\left[\frac1n\sum_i(W_iY_i)^2\right]^{1/2}.
+\end{aligned}\]</span> <span style="color: #244DA8">Recall <span class="math inline">\(|a\cdot b|^2\leq\|a\|^2\|b\|^2\)</span>. Under the product-rate condition, the analogous AIPW error is negligible relative to <span class="math inline">\(1/\sqrt n\)</span> as <span class="math inline">\(n\to\infty\)</span>.</span></p></li>
+</ol>
+<h2 id="population-versus-sample-balance">Population versus sample balance</h2>
+<p>Expand the conditional mean in a predefined basis: <span class="math display">\[\mu_{(w)}(x)=\sum_{j=1}^\infty\beta_{j(w)}\psi_j(x).\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Polynomial or Fourier basis</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\psi_j(x)\)</span> in the conditional-mean expansion.</p>
+</div>
+<p>Under reasonable regularity conditions, <span class="math display">\[\mu_{(w)}=\sum_{j=1}^\infty\beta_{j(w)}E[\psi_j(X_i)].\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Take expectations on both sides</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span class="math inline">\(\mu_{(w)}=\sum_j\beta_{j(w)}E[\psi_j(X)]\)</span>.</p>
+</div>
+<p><span style="color: #C92B32">Could these regularity assumptions have a problem?</span></p>
+<h4 id="supplementary-explanation.">Supplementary explanation.</h4>
+<p>A sufficient condition for exchanging sum and expectation is <span class="math inline">\(\sum_j|\beta_{j(w)}|E|\psi_j(X)|&lt;\infty\)</span>. Convergence of partial sums in <span class="math inline">\(L^1\)</span> also suffices; <span class="math inline">\(L^2\)</span> convergence under a probability distribution implies it. Pointwise convergence alone does not. Population balance can also be proved directly by conditioning on <span class="math inline">\(X\)</span>.</p>
+<p>With unconfoundedness, <span class="math inline">\(Y_i=\mu_{(W_i)}(X_i)+\varepsilon_i\)</span> and <span class="math inline">\(E[\varepsilon_i\mid X_i,W_i]=0\)</span>. The population IPW argument is <span class="math display">\[\begin{aligned}
+E\left[\frac{W_iY_i}{e(X_i)}\right]
+&amp;=E\left[\frac{W_i}{e(X_i)}\sum_j\beta_{j(1)}\psi_j(X_i)\right]\\
+&amp;=\sum_j\beta_{j(1)}E\left[\frac{W_i\psi_j(X_i)}{e(X_i)}\right]
+=\sum_j\beta_{j(1)}E[\psi_j(X_i)]=\mu_{(1)}.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">The core: <span class="math inline">\(E[W_i\mid X_i]=e(X_i)\)</span></span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(E[W_i\psi_j(X_i)/e(X_i)]=E[\psi_j(X_i)]\)</span>.</p>
+</div>
+<p>Thus choose weights so that, in the sample, <span class="math display">\[\frac1n\sum_i\frac{W_i\psi_j(X_i)}{\widehat e(X_i)}
+\approx\frac1n\sum_i\psi_j(X_i),\qquad j=1,2,\ldots.
+\tag{7.8}\]</span></p>
+<h2 id="a-balancing-loss-for-propensity-estimation">A balancing loss for propensity estimation</h2>
+<p>Suppose the outcome model is linear, <span class="math inline">\(\mu_{(w)}(x)=x\beta_{(w)}\)</span>, and the propensity model is logistic, <span class="math display">\[e(x)=\frac1{1+\exp(-x\theta)}.\]</span> <span style="color: #244DA8"> sample balance then involves only the covariates <span class="math inline">\(X_i\)</span>, and the targeted balance concerns means.</span> Equation (7.8) becomes <span class="math display">\[\frac1n\sum_i(1+e^{-X_i\widehat\theta})W_iX_i=\frac1n\sum_iX_i.
+\tag{7.9}\]</span> This is the KKT condition of the convex problem <span class="math display">\[\widehat\theta=\arg\min_\theta\frac1n\sum_i\ell_\theta(X_i,Y_i,W_i),\qquad
+\ell_\theta(X_i,Y_i,W_i)=W_ie^{-X_i\theta}+(1-W_i)X_i\theta.
+\tag{7.10}\]</span> It can therefore be solved by Newton descent.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Balance equation (7.9) is the convex loss KKT condition</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Newton descent when the loss has a suitable finite minimizer.</p>
+</div>
+<p>This serves as the balancing loss function. The Hessian <span class="math inline">\(n^{-1}\sum_iW_ie^{-X_i\theta}X_i^\mathsf TX_i\)</span> is positive semidefinite. A unique finite minimizer needs sufficient rank and existence; exact balance may fail if the target mean lies outside the treated covariate convex support. <span style="color: #244DA8">For arm-specific balance, one may fit two calibration losses, one per arm. The true treatment mechanism still has a single propensity <span class="math inline">\(e(x)\)</span> and control probability <span class="math inline">\(1-e(x)\)</span>.</span></p>
+<h2 id="ate-estimation-with-high-dimensional-confounders">ATE estimation with high-dimensional confounders</h2>
+<p>Suppose <span class="math inline">\(X_i\in\mathbb R^p\)</span>, possibly <span class="math inline">\(p\gg n\)</span>, and <span class="math inline">\(\mu_{(w)}(x)=x\beta_{(w)}\)</span>. In high dimensions, it is difficult to estimate <span class="math inline">\(e(x)\)</span> adequately; exact weights are not attainable, so seek approximate balance. By Holder’s inequality, <span class="math display">\[\begin{aligned}
+&amp;\frac1n\sum_i\frac{W_i\mu_{(1)}(X_i)}{\widehat e(X_i)}-\frac1n\sum_i\mu_{(1)}(X_i)\\
+&amp;\quad=\left(\frac1n\sum_i\frac{W_iX_i}{\widehat e(X_i)}-\frac1n\sum_iX_i\right)\beta_{(1)}\\
+&amp;\quad\leq\left\|\frac1n\sum_i\frac{W_iX_i}{\widehat e(X_i)}-\frac1n\sum_iX_i\right\|_\infty\|\beta_{(1)}\|_1.
+\end{aligned}\]</span> <span style="color: #C92B32">The first norm measures imbalance.</span> <span style="color: #244DA8">Holder’s bound is</span> <span style="color: #244DA8"><span class="math inline">\(\sum_i|a_ib_i|\leq(\sum_i|a_i|^p)^{1/p}(\sum_i|b_i|^q)^{1/q}\)</span>.</span></p>
+<h4 id="personal-interpretation-and-questions.">Personal interpretation and questions.</h4>
+<p><span style="color: #244DA8">Good inverse-probability weights make the worst case of imbalance as good as possible.</span> Two problems remain: (1) how to parameterize <span class="math inline">\(\widehat e(X_i)\)</span> to obtain sup-norm approximate balance; (2) the bound is meaningful only if <span class="math inline">\(\|\beta_{(1)}\|_1\)</span> is bounded. <span style="color: #244DA8">High-dimensional statistics usually assumes a sparse coefficient vector rather than constraining its <span class="math inline">\(1\)</span>-norm directly.</span></p>
+<h4 id="supplement-norm-reminders.">Supplement: norm reminders.</h4>
+<p>The zero-count is <span class="math inline">\(\|x\|_0=\sum_i\mathbf1\{x_i\ne0\}\)</span>; it is not a norm. The <span class="math inline">\(1\)</span>-norm is <span class="math inline">\(\sum_i|x_i|\)</span>, the <span class="math inline">\(2\)</span>-norm is <span class="math inline">\((\sum_ix_i^2)^{1/2}\)</span>, and the infinity norm is <span class="math inline">\(\max_i|x_i|\)</span>. For <span class="math inline">\(p\ge1\)</span>, <span class="math inline">\(\|x\|_p=(\sum_i|x_i|^p)^{1/p}\)</span>. Holders inequality requires <span class="math inline">\(p,q\ge1\)</span> and <span class="math inline">\(1/p+1/q=1\)</span>, including <span class="math inline">\((1,\infty)\)</span>. This endpoint bounds the absolute imbalance error above.</p>
+<h2 id="approximate-balancing-weights-and-regression-augmentation">Approximate balancing weights and regression augmentation</h2>
+<p>For a well-chosen tuning parameter <span class="math inline">\(\zeta\)</span>, solve <span class="math display">\[\widehat\gamma=\arg\min_{\gamma_i\geq1}
+\left\{\frac1{n^2}\|\gamma\|_2^2+
+\zeta\left\|\frac1n\sum_i(\gamma_iW_i-1)X_i\right\|_\infty^2\right\}.
+\tag{7.12}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Squared <span class="math inline">\(L_2\)</span> size; imbalance; tuning weight</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(n^{-2}\|\gamma\|_2^2\)</span>; the squared infinity norm; <span class="math inline">\(\zeta\)</span>.</p>
+</div>
+<p>Then use <span class="math inline">\(1/\widehat e(X_i)=\widehat\gamma_i\)</span> as inverse-propensity weights. Sub-Gaussian concentration inequalities verify, for oracle weights, bounds of the form <span class="math display">\[\frac1{n^2}\|1/e(X_i)\|_2^2\leq\frac{\eta^{-2}}n,
+\qquad
+\left\|\frac1n\sum_i(\gamma_iW_i-1)X_i\right\|_\infty^2
+=O_p\left(\frac{\eta^{-2}\log p}{n}\right).\]</span> <span class="math inline">\(\widehat e(X_i)\)</span> need not estimate <span class="math inline">\(e(X_i)\)</span> well; with a suitable <span class="math inline">\(\zeta\)</span>, these inverse weights nonetheless satisfy a bias bound. Next augment the weighted estimator with high-dimensional regression to remove dependence on <span class="math inline">\(\|\beta_{(1)}\|_1\)</span>. The augmented balancing estimator is <span class="math display">\[\widehat\mu_{\rm AB}(1)=\frac1n\sum_i
+\left[\widehat\mu_{(1)}(X_i)+\widehat\gamma_iW_i(Y_i-\widehat\mu_{(1)}(X_i))\right],
+\quad\widehat\mu_{(1)}(X_i)=X_i\widehat\beta_{(1)}.
+\tag{7.14}\]</span> Its decomposition is <span class="math display">\[\begin{aligned}
+\widehat\mu_{\rm AB}(1)={}&amp;\underbrace{\frac1n\sum_iX_i\beta_{(1)}}_{\text{\textcolor{red}{mean of }}\textcolor{red}{\mu_{(1)}(X_i)}}
++\underbrace{\frac1n\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})}_{\text{\textcolor{red}{mean-zero noise}}}\\
+&amp;+\left[\frac1n\sum_i(1-\widehat\gamma_iW_i)X_i\right](\widehat\beta_{(1)}-\beta_{(1)}).
+\end{aligned}\]</span> The last term is bounded in magnitude by</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[\left\|\frac1n\sum_i(1-\widehat\gamma_iW_i)X_i\right\|_\infty
+\|\widehat\beta_{(1)}-\beta_{(1)}\|_1.\]</span></p>
+</div>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Weights need only correct <span class="math inline">\(\beta_{(1)}-\widehat\beta_{(1)}\)</span>, not the whole coefficient vector</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The imbalance times regression-error remainder.</p>
+</div>
+<p>High-dimensional regression supplies a bound on this error: under sparsity <span class="math inline">\(\|\beta_{(1)}\|_0\leq k\)</span> and a restricted-eigenvalue condition, lasso achieves <span class="math display">\[\|\widehat\beta_{(1)}-\beta_{(1)}\|_1
+=O_p\left(k\sqrt{\frac{\log p}{n}}\right).\]</span></p>
+<h4 id="putting-the-steps-together.">Putting the steps together.</h4>
+<p>Suppose the design satisfies the conditions for this bound, <span class="math inline">\(\beta_{(1)}\)</span> is <span class="math inline">\(k\)</span>-sparse, and <span class="math inline">\(k\ll\sqrt n/\log p\)</span>.</p>
+<ol>
+<li><p>Fit lasso on the treated units; the coefficient <span class="math inline">\(1\)</span>-norm error is <span class="math inline">\(o_p(1/\sqrt{\log p})\)</span>.</p></li>
+<li><p>Fit <span class="math inline">\(\widehat\gamma\)</span> using (7.12), giving infinity-norm imbalance <span class="math inline">\(O_p(\sqrt{\log(p)/n})\)</span>.</p></li>
+<li><p>Use (7.14), and insert these bounds into the decomposition: <span class="math display">\[\widehat\mu_{\rm AB}(1)-\frac1n\sum_iX_i\beta_{(1)}
+=\frac1n\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})+o_p(n^{-1/2}).
+\tag{7.17}\]</span> <span style="color: #C92B32">The noise term is <span class="math inline">\(O_p(n^{-1/2})\)</span>.</span> These rates use controlled sub-Gaussian covariates, appropriate lasso tuning, restricted eigenvalues and noise moments. Weights depend on <span class="math inline">\((X,W)\)</span> rather than outcome noise. Studentization needs no dominant weighted residual and justification for substituting estimated coefficients.</p></li>
+</ol>
+<p>A central limit theorem also holds: <span class="math display">\[\frac{\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})}
+{\sqrt{\sum_i\widehat\gamma_i^2W_i^2(Y_i-X_i\beta_{(1)})^2}}
+\Rightarrow N(0,1).\]</span></p>
+<h4 id="personal-caveat.">Personal caveat.</h4>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p>This is weaker than expected: it only gives a confidence interval for the sample average <span class="math inline">\(\overline\mu_{(1)}=n^{-1}\sum_iX_i\beta_{(1)}\)</span>, not for <span class="math inline">\(\mu_{(1)}\)</span> itself. To obtain a result for the population mean, one possible route is to establish convergence of the estimated weights <span class="math inline">\(\widehat\gamma_i\)</span>.</p>
+</div>
+<p>For the population target, also include <span class="math inline">\(n^{-1}\sum_i\mu_{(1)}(X_i)-E[\mu_{(1)}(X)]\)</span> and its joint limit with the weighted noise. Convergence of the weights to a stable function is one sufficient route.</p>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-06.html">← Lecture 6: Finite-Sample Inference in RDDs</a><a href="chapter-08.html">Lecture 8: Methods for Panel Data →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"review-of-ipw": "回顾-ipw", "population-versus-sample-balance": "总体平衡与样本平衡", "supplementary-explanation.": "补充说明", "a-balancing-loss-for-propensity-estimation": "倾向得分估计的平衡损失", "ate-estimation-with-high-dimensional-confounders": "高维混杂变量下的-ate-估计", "personal-interpretation-and-questions.": "个人理解与问题", "supplement-norm-reminders.": "补充范数回顾", "approximate-balancing-weights-and-regression-augmentation": "近似平衡权重与回归增广", "putting-the-steps-together.": "将步骤组合起来", "personal-caveat.": "个人保留意见"}</script></body></html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 5 讲：断点回归设计 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-05.html">EN</a><a href="chapter-05.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html" aria-current="page">第 5 讲：断点回归设计</a><ul class="section-list"><li><a href="#局部线性回归估计">局部线性回归估计</a></li><li><a href="#估计量性质与光滑性">估计量性质与光滑性</a></li><li><a href="#驱动变量中的噪声">驱动变量中的噪声</a></li></ul></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-5-讲断点回归设计">第 5 讲：断点回归设计</h1>
+<p>使用驱动变量 <span class="math inline">\(Z_i\in\mathbb R\)</span> 引入一个阈值： <span class="math display">\[W_i=\mathbf1_{\{Z_i\geq c\}},\qquad c\text{ 为阈值。}\]</span> <span style="color: #244DA8">当 <span class="math inline">\(Z_i\to c\)</span>，靠近 <span class="math inline">\(c\)</span> 的观测特征相似，区别在于是否接受干预。</span>令 <span class="math inline">\(\mu_{(w)}(z)=E[Y_i(w)\mid Z_i=z]\)</span>。若两个条件均值连续，则 <span class="math inline">\(z=c\)</span> 处的 CATE 为 <span class="math display">\[\tau_c=\mu_{(1)}(c)-\mu_{(0)}(c)
+=\lim_{z\to c^+}E[Y_i\mid Z_i=z]-\lim_{z\to c^-}E[Y_i\mid Z_i=z].\]</span></p>
+<h4 id="个人补充普通-ipw-为什么不适用">个人补充：普通 IPW 为什么不适用？</h4>
+<p>此前假设无混杂性 <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid Z_i\)</span> 和重叠性 <span class="math inline">\(\eta\leq P(W_i=1\mid Z_i)\leq1-\eta\)</span>。在 RDD 中，无混杂性成立，但重叠性不成立，因为给定 <span class="math inline">\(Z_i=z\)</span> 后，处理概率不是零就是一。<span style="color: #244DA8">无论如何选择非退化的 <span class="math inline">\(\eta\)</span>，都不成立。</span>必须比较 <span class="math inline">\(c\)</span> 附近的观测，借助相似性而非重叠性。 重叠性不成立意味着不能以 <span class="math inline">\(\sqrt n\)</span> 速度估计 <span class="math inline">\(\tau_c\)</span>。其极小极大误差以非参数速度收敛，取决于 <span class="math inline">\(\mu_{(w)}(z)\)</span> 的光滑性。例如，<span class="math inline">\(c\)</span> 处二阶导数一致有界时，可以得到 <span class="math inline">\(n^{-2/5}\)</span> 的估计误差速度。 该速率使用独立观测、截点两侧正且连续的设计密度、截点邻域内有界二阶导数，以及有界条件方差。更强的参数限制可能带来不同速率。</p>
+<h2 id="局部线性回归估计">局部线性回归估计</h2>
+<p>选择小带宽 <span class="math inline">\(h_n\to0\)</span> 和对称权函数 <span class="math inline">\(K\)</span>，在局部拟合两个条件均值。下式中 <span class="math inline">\(W_i\)</span> 的系数 <span class="math display">\[\arg\min_{a,\tau,\beta_{(0)},\beta_{(1)}}\sum_i
+K\left(\frac{|Z_i-c|}{h_n}\right)
+[Y_i-a-\tau W_i-\beta_{(0)}(Z_i-c)_--\beta_{(1)}(Z_i-c)_+]^2\]</span> 就是 <span class="math inline">\(\widehat\tau_c\)</span>。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">权重；负侧；正侧</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(K(|Z_i-c|/h_n)\)</span>；<span class="math inline">\((Z_i-c)_-\)</span>；<span class="math inline">\((Z_i-c)_+\)</span>。</p>
+</div>
+<p>截距 <span class="math inline">\(a\)</span> 和斜率 <span class="math inline">\(\beta_{(w)}\)</span> 是辅助参数；常见核函数包括窗口函数 <span class="math inline">\(K(x)=\mathbf1_{\{|x|\leq1\}}\)</span> 和三角核 <span class="math inline">\(K(x)=(1-|x|)_+\)</span>。</p>
+<h2 id="估计量性质与光滑性">估计量性质与光滑性</h2>
+<p>通过以下假设量化连续性：<span class="math inline">\(\mu_{(w)}\)</span> 二次可微，且二阶导数一致有界： <span class="math display">\[\left|\frac{d^2}{dz^2}\mu_{(w)}(z)\right|\leq B,
+\qquad z\in\mathbb R,\quad w\in\{0,1\}.\]</span> 若仅有 Lipschitz 光滑性，即 <span class="math inline">\(|f(x)-f(y)|\le L|x-y|\)</span>，函数可以存在尖角；局部线性趋势不明显时，局部平均可能更合适。若光滑性更强，<span class="math inline">\(k\geq3\)</span> 阶导数有界，则更高阶的局部回归可能改善收敛速度。</p>
+<p><span style="color: #C92B32">在 <span class="math inline">\(c\)</span> 处做 Taylor 展开：</span> <span class="math display">\[\mu_{(w)}(z)=a_{(w)}+\beta_{(w)}(z-c)+\tfrac12\rho_{(w)}(z-c),
+\qquad |\rho_{(w)}(u)|\leq Bu^2.\]</span> <span style="color: #C92B32">最后一项为余项，</span>且 <span class="math inline">\(\tau_c=a_{(1)}-a_{(0)}\)</span>。分别拟合两侧： <span class="math display">\[(\widehat a_{(1)},\widehat\beta_{(1)})=\arg\min_{a,\beta}
+\sum_{Z_i\geq c}K\left(\frac{|Z_i-c|}{h_n}\right)[Y_i-a-\beta(Z_i-c)]^2,\]</span> 对照侧同理；然后 <span class="math inline">\(\widehat\tau_c=\widehat a_{(1)}-\widehat a_{(0)}\)</span>。</p>
+<h4 id="窗口核的闭式权重">窗口核的闭式权重。</h4>
+<p>在 <span class="math inline">\(c\leq Z_i\leq c+h_n\)</span> 上，设 <span class="math display">\[\widehat a_{(1)}=\sum_i\gamma_iY_i,\qquad
+\gamma_i=\frac{m_2-m_1(Z_i-c)}{N_+(m_2-m_1^2)},\]</span> 其中 <span class="math inline">\(N_+=|\{i:c\le Z_i\le c+h_n\}|\)</span>，<span class="math inline">\(m_j=N_+^{-1}\sum_{c\le Z_i\le c+h_n}(Z_i-c)^j\)</span>。 假设 <span class="math inline">\(m_2-m_1^2&gt;0\)</span>。因子 <span class="math inline">\(N_+\)</span> 使权重归一化，因此</p>
+<p><span class="math display">\[\sum_i\gamma_i=1,\qquad \sum_i\gamma_i(Z_i-c)=0.\]</span></p>
+<p>分解为 <span class="math display">\[\widehat a_{(1)}=a_{(1)}+\underbrace{\tfrac12\sum_i\gamma_i\rho_{(1)}(Z_i-c)}_{\text{\textcolor{red}{曲率偏差}}}
++\underbrace{\sum_i\gamma_i(Y_i-\mu_{(1)}(Z_i))}_{\text{\textcolor{red}{抽样噪声}}}.\]</span> 对照侧的截距也有相同形式的分解。 局部线性权重可能为负，因此曲率偏差绝对值的上界为 <span class="math inline">\(\frac B2\sum_i|\gamma_i|(Z_i-c)^2\)</span>；规则局部设计下它是 <span class="math inline">\(O(h_n^2)\)</span>。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">曲率偏差与抽样噪声</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span style="color: #C92B32">这两项都需要上界。</span></p>
+</div>
+<p>曲率偏差的阶为 <span class="math inline">\(Bh_n^2\)</span>，其中 <span class="math inline">\(B\)</span> 是二阶导数的界，<span class="math inline">\(h_n\)</span> 是带宽。抽样噪声均值为零；若 <span class="math inline">\(\operatorname{Var}[Y_i\mid Z_i]\leq b^2\)</span>，则其方差不超过 <span class="math inline">\(b^2\sum_i\gamma_i^2\)</span>。 若 <span class="math inline">\(Z_i\)</span> 在 <span class="math inline">\(c\)</span> 附近具有连续且非零的密度 <span class="math inline">\(f\)</span>， <span class="math display">\[b^2\sum_i\gamma_i^2\approx\frac{4b^2}{|\{i:c\leq Z_i\leq c+h_n\}|}
+\approx\frac{4b^2}{f(c)nh_n}.\]</span> 因此平方偏差为 <span class="math inline">\(h_n^4\)</span> 阶，方差为 <span class="math inline">\((nh_n)^{-1}\)</span> 阶，从而 <span class="math display">\[\widehat\tau_c=\tau_c+O_p(n^{-2/5}),\qquad h_n\asymp n^{-1/5}.\]</span> <span style="color: #C92B32">这里 <span class="math inline">\(n^{-2/5}\)</span> 是估计误差；在 <span class="math inline">\(k\)</span> 阶光滑性下，<span class="math inline">\(h_n\asymp n^{-1/(2k+1)}\)</span>。</span></p>
+<h2 id="驱动变量中的噪声">驱动变量中的噪声</h2>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">可能有噪声</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 驱动变量 <span class="math inline">\(Z_i\)</span>。</p>
+</div>
+<p>引入潜在变量 <span class="math inline">\(U_i\sim G\)</span>，并给出两个条件：</p>
+<ol>
+<li><p>含噪声的驱动变量：设 <span class="math inline">\(Z_i\mid U_i\sim N(U_i,\nu^2)\)</span>，其中 <span class="math inline">\(\nu&gt;0\)</span>。</p></li>
+<li><p>驱动变量的无混杂性：<span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp Z_i\mid U_i\)</span>。</p></li>
+</ol>
+<p>由 <span class="math inline">\(Y_i=Y_i(W_i)\)</span> 以及 <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid U_i\)</span>， <span class="math display">\[e(u)=P(W_i=1\mid U_i=u)=P(Z_i\geq c\mid U_i=u)
+=1-\Phi\left(\frac{c-u}{\nu}\right),\]</span> <span class="math display">\[\alpha_{(w)}(u)=E[Y_i(w)\mid U_i=u],\qquad
+\tau(u)=E[Y_i(1)-Y_i(0)\mid U_i=u].\]</span> 定义标准正态分布函数： 倾向得分表达式来自 <span class="math inline">\(Z=U+\nu\xi\)</span>，其中 <span class="math inline">\(\xi\sim N(0,1)\)</span> 与 <span class="math inline">\(U\)</span> 独立。仅归一化权重并不消除混杂：当 <span class="math inline">\(h_+=h_-\)</span>，或另有条件使第二个积分为零时，混杂项才消失。</p>
+<p><span style="color: #C92B32"><span class="math inline">\(\Phi(x)=(2\pi)^{-1/2}\int_{-\infty}^x e^{-t^2/2}\,dt\)</span>.</span></p>
+<p><span class="math inline">\(U_i\)</span> 无法观测，因此不能直接使用其倾向得分。考虑反卷积型估计量：</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(U_i\)</span> 未观测：不能直接使用其倾向得分</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 反卷积权重 <span class="math inline">\(\gamma_+(z),\gamma_-(z)\)</span>。</p>
+</div>
+<p><span class="math display">\[\widehat\tau_\gamma=\frac1n\sum_{Z_i\geq c}\gamma_+(Z_i)Y_i
+-\frac1n\sum_{Z_i&lt;c}\gamma_-(Z_i)Y_i.\]</span> 选择权重，使 <span class="math display">\[E[\mathbf1_{\{Z_i\geq c\}}\gamma_+(Z_i)]
+=E[\mathbf1_{\{Z_i&lt;c\}}\gamma_-(Z_i)]=1.\]</span> 则 <span class="math display">\[E[\widehat\tau_\gamma]
+=\underbrace{\int h_+(u)\tau(u)\,dG(u)}_{\text{\textcolor{red}{加权处理效应}}}
++\underbrace{\int(h_+(u)-h_-(u))\alpha_{(0)}(u)\,dG(u)}_{\text{\textcolor{red}{混杂偏差}}},\]</span> 其中权函数为 <span class="math display">\[h_+(u)=\int_c^\infty\gamma_+(z)\varphi_\nu(z-u)\,dz,\qquad
+h_-(u)=\int_{-\infty}^c\gamma_-(z)\varphi_\nu(z-u)\,dz,\]</span></p>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p><span class="math display">\[\varphi_\nu(z-u)=\frac1{\sqrt{2\pi\nu^2}}\exp\left[-\frac12\left(\frac{z-u}{\nu}\right)^2\right].\]</span></p>
+</div>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-04.html">← 第 4 讲：估计处理效应的异质性</a><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"个人补充普通-ipw-为什么不适用": "personal-supplement-why-does-ordinary-ipw-not-apply", "局部线性回归估计": "estimation-via-local-linear-regression", "估计量性质与光滑性": "estimator-properties-and-smoothness", "窗口核的闭式权重": "closed-form-weights-for-the-window-kernel.", "驱动变量中的噪声": "noise-in-the-running-variable"}</script></body></html>

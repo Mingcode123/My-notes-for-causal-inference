@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 2 讲：无混杂性与倾向得分 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-02.html">EN</a><a href="chapter-02.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html" aria-current="page">第 2 讲：无混杂性与倾向得分</a><ul class="section-list"><li><a href="#汇总各组的均值差估计">汇总各组的均值差估计</a></li><li><a href="#连续协变量与倾向得分">连续协变量与倾向得分</a></li><li><a href="#按倾向得分分层">按倾向得分分层</a></li><li><a href="#逆倾向得分加权">逆倾向得分加权</a></li></ul></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-2-讲无混杂性与倾向得分">第 2 讲：无混杂性与倾向得分</h1>
+<p>无混杂性：目的是消除混杂因素的影响。倾向得分：给定协变量后接受处理的概率。</p>
+<h2 id="汇总各组的均值差估计">汇总各组的均值差估计</h2>
+<p><span style="color: #C92B32">直接按照概率加权。</span>对离散且取数值的 <span class="math inline">\(X_i\)</span>，假设 <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i=x,\qquad x\in\mathcal X.\]</span> <span style="color: #244DA8">这里 <span class="math inline">\(x\)</span> 是分组变量。</span>定义各组的 ATE： <span class="math display">\[\tau(x)=E[Y_i(1)-Y_i(0)\mid X_i=x].\]</span> 则 <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AGG}&amp;=\sum_{x\in\mathcal X}\frac{n_x}{n}\widehat\tau(x),\\
+\widehat\tau(x)&amp;=\frac1{n_{x1}}\sum_{X_i=x,W_i=1}Y_i
+-\frac1{n_{x0}}\sum_{X_i=x,W_i=0}Y_i,\\
+n_x&amp;=|\{i:X_i=x\}|,\qquad
+n_{xw}=|\{i:X_i=x,W_i=w\}|.
+\end{aligned}\]</span> 令 <span class="math inline">\(e(x)=P(W_i=1\mid X_i=x)\)</span>。组内的极限分布为 <span class="math display">\[\begin{aligned}
+\sqrt{n_x}(\widehat\tau(x)-\tau(x))
+&amp;\Rightarrow N\left(0,
+\frac{\operatorname{Var}[Y_i(0)\mid X_i=x]}{1-e(x)}
++\frac{\operatorname{Var}[Y_i(1)\mid X_i=x]}{e(x)}\right)\\
+&amp;=N\left(0,\frac{b^2(x)}{e(x)(1-e(x))}\right),
+\end{aligned}\]</span> 第二个等号使用了两种处理状态具有相同条件方差的假设。定义 <span class="math inline">\(\pi(x)=P(X_i=x),\quad\widehat\pi(x)=n_x/n\)</span>。 固定分层数下的极限需要层数有限、各层总体概率为正、层内处理重叠，以及有限条件二阶矩。 于是 <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AGG}={}&amp;\sum_x\pi(x)\tau(x)
++\sum_x\pi(x)(\widehat\tau(x)-\tau(x))\\
+&amp;+\sum_x(\widehat\pi(x)-\pi(x))\tau(x)
++\sum_x(\widehat\pi(x)-\pi(x))(\widehat\tau(x)-\tau(x)).
+\end{aligned}\]</span> <span style="color: #244DA8">第一项是 <span class="math inline">\(\tau\)</span>。</span><span style="color: #244DA8">第二项渐近正态，其方差为</span></p>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p><span class="math display">\[\sum_x\pi^2(x)\operatorname{Var}[\widehat\tau(x)].\]</span></p>
+</div>
+<p><span style="color: #244DA8">第三项的方差是 <span class="math inline">\(n^{-1}\operatorname{Var}[\tau(X_i)]\)</span>，最后一项为 <span class="math inline">\(O_p(1/n)\)</span>。</span>合并这些项，</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">汇总估计量的四项展开</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 汇总估计量的方差 <span class="math inline">\(V_{\rm AGG}\)</span>。</p>
+</div>
+<p><span class="math display">\[\sqrt n(\widehat\tau_{\rm AGG}-\tau)\Rightarrow N(0,V_{\rm AGG}),\]</span> <span class="math display">\[\begin{aligned}
+V_{\rm AGG}&amp;=\operatorname{Var}[\tau(X_i)]
++\sum_{x\in\mathcal X}\pi^2(x)\frac1{\pi(x)}
+\frac{b^2(x)}{e(x)(1-e(x))}\\
+&amp;=\operatorname{Var}[\tau(X_i)]
++E\left[\frac{b^2(X_i)}{e(X_i)(1-e(X_i))}\right].
+\end{aligned}\]</span></p>
+<h2 id="连续协变量与倾向得分">连续协变量与倾向得分</h2>
+<p>给定 <span class="math inline">\(X_i\)</span> 后，<span class="math inline">\(W_i\)</span> 不能“偷看”<span class="math inline">\(Y_i\)</span>：这是我对无混杂性的直觉理解。若 <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,
+\quad e(x)=P(W_i=1\mid X_i=x),\]</span> 则 <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid e(X_i).\]</span></p>
+<h4 id="补充图示与计算">补充图示与计算。</h4>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-001.png" alt="image" /></p>
+</div>
+<p>条件化后积分可得 <span class="math display">\[\begin{aligned}
+&amp;P(W_i=w\mid\{Y_i(0),Y_i(1)\},e(X_i))\\
+&amp;\quad=\int_{\mathcal X}P(W_i=w\mid\{Y_i(0),Y_i(1)\},X_i=x)
+ dP(X_i=x\mid Y_i(0),Y_i(1),e(X_i))\\
+&amp;\quad=\int_{\mathcal X}P(W_i=w\mid X_i=x)dP(X_i=x\mid Y_i(0),Y_i(1),e(X_i))\\
+&amp;\quad=e(X_i)\mathbf1_{\{w=1\}}+(1-e(X_i))\mathbf1_{\{w=0\}}.
+\end{aligned}\]</span> <span style="color: #244DA8">这里是对条件概率测度积分。</span></p>
+<h2 id="按倾向得分分层">按倾向得分分层</h2>
+<ol>
+<li><p>排序，使 <span class="math inline">\(\widehat e(X_{i_1})\leq\widehat e(X_{i_2})\leq\cdots\leq\widehat e(X_{i_n})\)</span>。</p></li>
+<li><p>将样本分为 <span class="math inline">\(J\)</span> 层，在每一层内估计均值差。若 <span class="math inline">\(I_j\)</span> 包含排序后第 <span class="math inline">\(\lfloor(j-1)n/J\rfloor+1\)</span> 到第 <span class="math inline">\(\lfloor jn/J\rfloor\)</span> 个样本，则的简写公式可表示为 <span class="math display">\[\widehat\tau_j=\frac{\sum_{i\in I_j}W_iY_i}{\sum_{i\in I_j}W_i}
+-\frac{\sum_{i\in I_j}(1-W_i)Y_i}{\sum_{i\in I_j}(1-W_i)}.\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">使处理组与对照组更相似</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 按 <span class="math inline">\(\widehat e(X_i)\)</span> 排序，并按倾向得分分层。</p>
+</div></li>
+<li><p>对各层估计取平均：<span class="math inline">\(\widehat\tau_{\rm STRAT}=J^{-1}\sum_{j=1}^J\widehat\tau_j\)</span>。<span style="color: #244DA8">当分层越来越细且每层样本充足时，它具有一致性。</span> 要得到一致性，应让 <span class="math inline">\(J\)</span> 随 <span class="math inline">\(n\)</span> 适当增加，使分层越来越细，同时每层仍有足够的处理与对照样本，并满足重叠性及 <span class="math inline">\(\widehat e\)</span> 的一致收敛。固定的宽分层可能留下混杂。</p></li>
+</ol>
+<h2 id="逆倾向得分加权">逆倾向得分加权</h2>
+<p><span class="math display">\[\widehat\tau_{\rm IPW}=\frac1n\sum_{i=1}^n
+\left\{\frac{W_iY_i}{\widehat e(X_i)}-\frac{(1-W_i)Y_i}{1-\widehat e(X_i)}\right\}.\]</span> 理想的 IPW（oracle IPW）假定完全知道 <span class="math inline">\(e(x)\)</span>： <span class="math display">\[\widehat\tau^*_{\rm IPW}=\frac1n\sum_i
+\left\{\frac{W_iY_i}{e(X_i)}-\frac{(1-W_i)Y_i}{1-e(X_i)}\right\}.\]</span> 假设满足重叠性：所有 <span class="math inline">\(x\in\mathcal X\)</span> 上均有 <span class="math inline">\(\eta\leq e(x)\leq1-\eta\)</span>，且 <span class="math inline">\(|Y_i|&lt;M\)</span>。若 <span class="math display">\[\sup_{x\in\mathcal X}|e(x)-\widehat e(x)|=O_p(a_n)\longrightarrow0,\]</span> 可得 <span class="math display">\[|\widehat\tau_{\rm IPW}-\widehat\tau^*_{\rm IPW}|=O_p(a_nM/\eta).\]</span> <span style="color: #244DA8">因此，理想估计量的一致性可以传递给使用估计倾向得分的 IPW。</span>另外， <span class="math display">\[E[\widehat\tau^*_{\rm IPW}]=E[Y_i(1)-Y_i(0)]=\tau.\]</span> <span style="color: #244DA8">满足重叠性时，理想 IPW 的收敛尺度是 <span class="math inline">\(1/\sqrt n\)</span>。</span></p>
+<h4 id="方差计算结果模型">方差计算：结果模型。</h4>
+<p>使用模型 <span class="math display">\[\begin{aligned}
+Y_i(0)&amp;=c(X_i)-(1-e(X_i))\tau(X_i)+\varepsilon_i(0),\\
+Y_i(1)&amp;=c(X_i)+e(X_i)\tau(X_i)+\varepsilon_i(1),\\
+E[\varepsilon_i(w)\mid X_i]&amp;=0,\qquad
+\operatorname{Var}[\varepsilon_i(w)\mid X_i=x]=b^2(x).
+\end{aligned}\]</span> 随后可得</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">补充的结果模型</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 理想 IPW 的方差 <span class="math inline">\(V_{\rm IPW^*}\)</span>。</p>
+</div>
+<p><span class="math display">\[\begin{aligned}
+n\operatorname{Var}[\widehat\tau^*_{\rm IPW}]
+=V_{\rm IPW^*}
+={}&amp;E\left[\frac{c^2(X_i)}{e(X_i)(1-e(X_i))}\right]
++\operatorname{Var}[\tau(X_i)]\\
+&amp;+E\left[\frac{b^2(X_i)}{e(X_i)(1-e(X_i))}\right],\\
+\sqrt n(\widehat\tau^*_{\rm IPW}-\tau)&amp;\Rightarrow N(0,V_{\rm IPW^*}).
+\end{aligned}\]</span></p>
+<h4 id="个人比较">个人比较。</h4>
+<p><span class="math inline">\(c(x)\)</span> 描述的是 <span class="math inline">\(X\)</span> 与 <span class="math inline">\(Y\)</span> 的关系，而不是 <span class="math inline">\(X\)</span> 与 <span class="math inline">\(\Delta Y\)</span> 的关系。与分组汇总相比， <span class="math display">\[V_{\rm IPW^*}=V_{\rm AGG}+E\left[\frac{c^2(X_i)}{e(X_i)(1-e(X_i))}\right].\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8"><span class="math inline">\(V_{\rm IPW^*}-V_{\rm AGG}\)</span></span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span style="color: #244DA8">额外方差恰好在 <span class="math inline">\(c(X)=0\)</span> 几乎处处成立时消失。</span></p>
+</div>
+<p>与线性模型相比：IPW 基于 <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i\)</span>，线性模型则依赖线性关系。 线性结果模型同样需要无混杂性等因果识别依据；线性本身只是对估计模型的限制。</p>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-01.html">← 第 1 讲：随机对照试验</a><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"汇总各组的均值差估计": "aggregating-difference-in-means-estimators", "连续协变量与倾向得分": "continuous-covariates-and-propensity-scores", "补充图示与计算": "supplementary-sketches-and-calculation.", "按倾向得分分层": "propensity-stratification", "逆倾向得分加权": "inverse-propensity-weighting", "方差计算结果模型": "variance-calculation-supplementary-model.", "个人比较": "personal-comparison."}</script></body></html>

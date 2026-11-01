@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 4 讲：估计处理效应的异质性 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-04.html">EN</a><a href="chapter-04.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html" aria-current="page">第 4 讲：估计处理效应的异质性</a><ul class="section-list"><li><a href="#正则化偏差">正则化偏差</a></li><li><a href="#半参数建模">半参数建模</a></li><li><a href="#用于处理效应异质性的损失函数">用于处理效应异质性的损失函数</a></li></ul></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-4-讲估计处理效应的异质性">第 4 讲：估计处理效应的异质性</h1>
+<p>对于观测 <span class="math inline">\((X_i,Y_i,W_i)\)</span>，其中 <span class="math inline">\(X_i\in\mathcal X\)</span>，之前关注的是 ATE <span class="math inline">\(E[Y_i(1)-Y_i(0)]\)</span>。异质性分析转而考虑条件平均处理效应（CATE）： <span class="math display">\[\tau(x)=E[Y_i(1)-Y_i(0)\mid X_i=x].\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8"><span class="math inline">\(X_i\)</span> 某一类中的平均效应</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(\tau(x)=E[Y_i(1)-Y_i(0)\mid X_i=x]\)</span>。</p>
+</div>
+<h2 id="正则化偏差">正则化偏差</h2>
+<p>在 <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i\)</span> 下， <span class="math display">\[\tau(x)=\mu_{(1)}(x)-\mu_{(0)}(x),\qquad
+\mu_{(w)}(x)=E[Y_i\mid X_i=x,W_i=w].\]</span> 一个直接的 CATE 估计量为 <span class="math inline">\(\widehat\tau_T(x)=\widehat\mu_{(1)}(x)-\widehat\mu_{(0)}(x)\)</span>。</p>
+<h4 id="个人疑虑">个人疑虑。</h4>
+<p><span style="color: #244DA8">如果 <span class="math inline">\(\widehat\mu_{(1)}\)</span> 的样本太少，就可能受到很强的正则化，向一条直线收缩。而 <span class="math inline">\(\widehat\mu_{(0)}\)</span> 样本很多时可能拟合得很好；这样，两者之差 <span class="math inline">\(\widehat\tau_T(x)\)</span> 就会因为前者拟合不准而出问题。</span></p>
+<h2 id="半参数建模">半参数建模</h2>
+<p><span class="math display">\[Y_i(w)=f(X_i)+w\tau(X_i)+\varepsilon_i(w),\qquad
+P(W_i=1\mid X_i)=e(X_i),\qquad \tau(x)=\psi(x)\beta.\]</span> <span style="color: #244DA8"><span class="math inline">\(f\)</span> 是 <span class="math inline">\(X_i\)</span> 的函数，<span class="math inline">\(\psi(x)\)</span> 是 <span class="math inline">\(X\)</span> 的非参数表示；<span class="math inline">\(\beta\)</span> 是处理效应的系数。</span>在无混杂性下，Robinson 变换为</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(Y_i(w)=f(X_i)+w\tau(X_i)+\varepsilon_i(w)\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span style="color: #C92B32">Robinson</span>：减去 <span class="math inline">\(m(X_i)\)</span>，并用 <span class="math inline">\(e(X_i)\)</span> 对 <span class="math inline">\(W_i\)</span> 残差化。</p>
+</div>
+<p><span class="math display">\[Y_i-m(X_i)=(W_i-e(X_i))\psi(X_i)\beta+\varepsilon_i,
+\quad m(x)=E[Y_i\mid X_i=x]=f(x)+e(x)\tau(x),\]</span> 其中 <span class="math inline">\(\varepsilon_i=\varepsilon_i(W_i)\)</span>。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8"><span class="math inline">\(\varepsilon_i=\varepsilon_i(W_i)\)</span></span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(Y_i-m(X_i)=(W_i-e(X_i))\psi(X_i)\beta+\varepsilon_i\)</span> 中的误差。</p>
+</div>
+<p>构造残差对残差的 OLS 回归，令 <span class="math display">\[\widetilde Y_i^*=Y_i-m(X_i),\qquad
+\widetilde Z_i^*=(W_i-e(X_i))\psi(X_i).\]</span> 将 <span class="math inline">\(\widetilde Y_i^*\)</span> 对 <span class="math inline">\(\widetilde Z_i^*\)</span> 回归，得到 <span class="math inline">\(\widehat\beta_R^*\)</span>。<span style="color: #244DA8">这些变换只用到已观测数据和辅助函数；这就是数据预处理。</span>可得 <span class="math display">\[\sqrt n(\widehat\beta_R^*-\beta)\Rightarrow N(0,V_R),\]</span> <span class="math display">\[V_R=Q^{-1}E[ZZ^\mathsf T\varepsilon^2]Q^{-1}.\]</span> 同方差时，<span class="math inline">\(\operatorname{Var}(\varepsilon_i\mid X_i,W_i)=b^2\)</span> 为常数，<span class="math inline">\(V_R\)</span> 是 <span class="math inline">\(\beta\)</span> 的半参数有效方差。异方差时，三明治方差仍适用，但未必达到效率界。 这里 <span class="math inline">\(Z=(\widetilde Z_i^*)^\mathsf T\)</span>，<span class="math inline">\(Q=E[ZZ^\mathsf T]\)</span> 非奇异，<span class="math inline">\(\varepsilon=\widetilde Y_i^*-Z^\mathsf T\beta\)</span>。正规方程给出影响函数 <span class="math inline">\(Q^{-1}Z\varepsilon\)</span>，所以中间项使用回归残差；条件同方差下为 <span class="math inline">\(b^2Q^{-1}\)</span>。<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<h4 id="可实施的交叉拟合版本">可实施的交叉拟合版本。</h4>
+<p>前面的回归是理想形式，因为 <span class="math inline">\(m(X_i)\)</span>、<span class="math inline">\(e(X_i)\)</span> 未知。拟合非参数回归 <span class="math inline">\(Y\sim X\)</span> 和 <span class="math inline">\(W\sim X\)</span>；构造下式时，<span style="color: #244DA8">排除第 <span class="math inline">\(i\)</span> 个观测所在的折</span>： <span class="math display">\[\widetilde Y_i=Y_i-\widehat m^{(-k(i))}(X_i),\qquad
+\widetilde Z_i=(W_i-\widehat e^{(-k(i))}(X_i))\psi(X_i).\]</span> 将 <span class="math inline">\(\widetilde Y_i\)</span> 对 <span class="math inline">\(\widetilde Z_i\)</span> 回归得到 <span class="math inline">\(\widehat\beta_R\)</span>。若两个辅助函数估计的 RMSE 均为 <span class="math inline">\(o_p(n^{-1/4})\)</span>，可得 <span class="math display">\[\sqrt n(\widehat\beta_R^*-\widehat\beta_R)\longrightarrow_p0.\]</span></p>
+<h2 id="用于处理效应异质性的损失函数">用于处理效应异质性的损失函数</h2>
+<p>前面的估计量假设 <span class="math inline">\(\tau(x)=\psi(x)\beta\)</span>。实际关系往往不是线性的，因此使用机器学习。令 <span class="math display">\[\mu_{(w)}(x)=E[Y(w)\mid X=x],\quad
+\varepsilon_i(w)=Y_i(w)-[\mu_{(0)}(X_i)+w\tau(X_i)],\]</span> 由无混杂性得到 <span class="math inline">\(E[\varepsilon_i(w)\mid X_i,W_i]=0\)</span>。<span style="color: #244DA8">这里 <span class="math inline">\(\mu_{(0)}\)</span> 起到前面 <span class="math inline">\(f\)</span> 的作用。</span>仍有 <span class="math display">\[Y_i-m(X_i)=(W_i-e(X_i))\tau(X_i)+\varepsilon_i,
+\quad m(x)=\mu_{(0)}(x)+e(x)\tau(x),\quad \varepsilon_i=\varepsilon_i(W_i).\]</span> 等价地， <span class="math display">\[\tau(\cdot)=\arg\min_{t}E[((Y_i-m(X_i))-(W_i-e(X_i))t(X_i))^2].\]</span> <span style="color: #244DA8">若 <span class="math inline">\(m\)</span> 和 <span class="math inline">\(e\)</span> 已知，最小化该式即可得到 <span class="math inline">\(\tau(\cdot)\)</span>。</span> 事实上，<span class="math inline">\(L(t)-L(\tau)=E[e(X)(1-e(X))(t(X)-\tau(X))^2]\)</span>，所以在 <span class="math inline">\(0&lt;e(X)&lt;1\)</span> 的区域，最小化目标识别 <span class="math inline">\(\tau\)</span>（忽略零测集）。 理想的惩罚估计量为 <span class="math display">\[\widehat\tau_R^*(\cdot)=\arg\min_t\left\{
+\frac1n\sum_i[(Y_i-m(X_i))-(W_i-e(X_i))t(X_i)]^2+\Lambda_n(t)\right\}.\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">对 <span class="math inline">\(\tau(\cdot)\)</span> 的复杂度进行正则化</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(\Lambda_n(\tau)\)</span>：例如 lasso／岭回归及神经网络。</p>
+</div>
+<p><span style="color: #244DA8">通常 <span class="math inline">\(m\)</span> 和 <span class="math inline">\(e\)</span> 未知，因此进行交叉拟合；RCT 中 <span class="math inline">\(e\)</span> 由设计已知，但 <span class="math inline">\(m\)</span> 一般仍需估计：</span></p>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p><span class="math display">\[\begin{aligned}
+\widehat L_n(t)&amp;=\frac1n\sum_i
+[(Y_i-\widehat m^{(-k(i))}(X_i))-(W_i-\widehat e^{(-k(i))}(X_i))t(X_i)]^2,\\
+\widehat\tau_R&amp;=\arg\min_t\{\widehat L_n(t)+\Lambda_n(t)\}.
+\end{aligned}\]</span> 对于 lasso，<span class="math inline">\(\widehat\tau(x)=x\widehat\beta\)</span>，其中 <span class="math display">\[\widehat\beta=\arg\min_\beta\left\{\frac1n\sum_i
+[(Y_i-\widehat m^{(-k(i))}(X_i))-(W_i-\widehat e^{(-k(i))}(X_i))X_i\beta]^2
++\lambda\|\beta\|_1\right\}.\]</span></p>
+</div>
+<h4 id="个人补充理解">个人补充理解。</h4>
+<p>处理效应为常数时， <span class="math inline">\(Y_i(w)=f(X_i)+\tau w+\varepsilon_i\)</span>，且 <span class="math inline">\(E[\varepsilon_i\mid X_i,W_i]=0\)</span>；残差估计量为 <span class="math display">\[\widehat\tau_R=\frac{\sum_i(Y_i-\widehat m^{(-k(i))}(X_i))(W_i-\widehat e^{(-k(i))}(X_i))}
+{\sum_i(W_i-\widehat e^{(-k(i))}(X_i))^2}.
+\tag{ 4.5}\]</span> 前提是辅助部分收敛足够快。即使 <span class="math inline">\(\tau\)</span> 不为常数，该估计量也会收敛到 <span class="math inline">\(\tau(x)\)</span> 的某个非负加权平均。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8"><span class="math inline">\(\overline Y_{(1)}-\overline Y_{(0)}\)</span></span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 前述 <span class="math inline">\(\tau(x)\)</span> 的非负加权平均。</p>
+</div>
+<p>异质性较小而重叠性存在困难时，可用式 (4.5) 替代。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">常系数残差回归及其加权效应解释</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 用于灵活处理效应函数的 R 损失。</p>
+</div>
+<p>其总体目标为<span class="math display">\[\frac{E[e(X)(1-e(X))\tau(X)]}{E[e(X)(1-e(X))]},\]</span> 分母须为正。它强调重叠较好的区域；效应为常数，或重叠权重与 <span class="math inline">\(\tau(X)\)</span> 不相关时才等于 ATE。处理完全确定的区域仍不能由此识别效应。</p>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>讲义式 (4.6) 的这一项也需要使用残差。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-03.html">← 第 3 讲：通过增广 IPW 高效估计处理效应</a><a href="chapter-05.html">第 5 讲：断点回归设计 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"正则化偏差": "regularization-bias", "个人疑虑": "personal-concern.", "半参数建模": "semiparametric-modeling", "可实施的交叉拟合版本": "feasible-cross-fitted-version.", "用于处理效应异质性的损失函数": "a-loss-function-for-treatment-heterogeneity", "个人补充理解": "personal-supplementary-observation."}</script></body></html>

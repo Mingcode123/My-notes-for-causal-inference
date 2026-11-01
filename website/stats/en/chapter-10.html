@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 10: Local average treatment effects · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-10.html" aria-current="true">EN</a><a href="../zh/chapter-10.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html" aria-current="page">Lecture 10: Local average treatment effects</a><ul class="section-list"><li><a href="#treatment-effects-under-noncompliance">Treatment effects under noncompliance</a></li><li><a href="#supply-and-demand">Supply and demand</a></li><li><a href="#threshold-crossing-and-willingness-to-pay">Threshold crossing and willingness to pay</a></li><li><a href="#single-jumps-multiple-jumps-and-continuous-cutoffs">Single jumps, multiple jumps, and continuous cutoffs</a></li><li><a href="#estimating-the-marginal-treatment-effect">Estimating the marginal treatment effect</a></li></ul></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-10-local-average-treatment-effects">Lecture 10: Local average treatment effects</h1>
+<p>Recall the Lecture 9 IV model: <span class="math display">\[Y_i=\alpha+W_i\tau+\varepsilon_i,\quad\varepsilon_i\perp Z_i,
+ \qquad W_i=Z_i\gamma+\eta_i.\tag{10.1}\]</span> When <span class="math inline">\(Z_i\)</span> is binary, <span class="math display">\[\begin{aligned}
+ \tau&amp;=\frac{\operatorname{Cov}(Y_i,Z_i)}{\operatorname{Cov}(W_i,Z_i)}\\
+ &amp;=\frac{\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]}
+ {\mathbb E[W_i\mid Z_i=1]-\mathbb E[W_i\mid Z_i=0]}.
+\end{aligned}
+\tag{10.2}\]</span></p>
+<h2 id="treatment-effects-under-noncompliance">Treatment effects under noncompliance</h2>
+<p>In an RCT with noncompliance, <span class="math inline">\(Y_i\in\mathbb R\)</span> is the ordinary outcome; <span style="color: #C92B32"><span class="math inline">\(W_i\in\{0,1\}\)</span> is the treatment actually received</span> and is not randomized; <span style="color: #C92B32"><span class="math inline">\(Z_i\in\{0,1\}\)</span> is randomized treatment assignment.</span></p>
+<p>The constant <span class="math inline">\(\tau\)</span> in (10.1) may not be appropriate, and treatment receipt may be related to the treatment effect. Define potential treatment receipt <span class="math inline">\(W_i(0),W_i(1)\)</span>, with <span class="math inline">\(W_i=W_i(Z_i)\)</span> and <span class="math inline">\(Y_i=Y_i(W_i(Z_i))\)</span>.</p>
+<p>The IV validity assumptions are:</p>
+<ul>
+<li><p><strong>Exclusion restriction:</strong> <span class="math inline">\(Y_i(w,z)=Y_i(w)\)</span>. Assignment affects the outcome only through treatment receipt.</p></li>
+<li><p><strong>Exogeneity:</strong> <span class="math inline">\(\{Y_i(0),Y_i(1),W_i(0),W_i(1)\}\perp Z_i\)</span>. Assignment is randomized.</p></li>
+<li><p><strong>Relevance:</strong> <span class="math inline">\(\mathbb E[W_i(1)-W_i(0)]\ne0\)</span>. Assignment affects treatment receipt.</p></li>
+</ul>
+<p>There are four compliance types:</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: center;"><span class="math inline">\(W_i(1)=0\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(W_i(1)=1\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><span class="math inline">\(W_i(0)=0\)</span></td>
+<td style="text-align: center;">Never-taker</td>
+<td style="text-align: center;">Complier</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math inline">\(W_i(0)=1\)</span></td>
+<td style="text-align: center;">Defier</td>
+<td style="text-align: center;">Always-taker</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Assume there are no defiers, that is, <strong>monotonicity</strong>:</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[W_i(1)\ge W_i(0)\quad\text{for every }i.\]</span></p>
+</div>
+<p>Then <span class="math display">\[\begin{aligned}
+ &amp;\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]\\
+ &amp;\quad=\mathbb E[Y_i(W_i(1))\mid Z_i=1]
+ -\mathbb E[Y_i(W_i(0))\mid Z_i=0]\\
+ &amp;\quad=\mathbb E[Y_i(W_i(1))-Y_i(W_i(0))]\\
+ &amp;\quad=\mathbb E[\mathbf1\{C_i=\mathrm{complier}\}
+ (Y_i(1)-Y_i(0))].
+\end{aligned}\]</span> If compliers exist, applying Bayes’ rule gives <span class="math display">\[\begin{aligned}
+ \tau_{\mathrm{LATE}}
+ &amp;=\frac{\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]}
+ {\mathbb E[W_i\mid Z_i=1]-\mathbb E[W_i\mid Z_i=0]}\\
+ &amp;=\mathbb E[Y_i(1)-Y_i(0)\mid C_i=\mathrm{complier}].
+\end{aligned}
+\tag{10.3}\]</span> <span style="color: #244DA8">This is the complier average treatment effect.</span> Assume <span class="math inline">\(0&lt;P(Z=1)&lt;1\)</span> and a positive complier share. This identifies the complier average effect, not the population ATE in general.</p>
+<h4 id="my-comparison-with-the-ate.">My comparison with the ATE.</h4>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p>When the constant-effect model (10.1) fails and there are never-takers, always-takers, defiers, and so on, the individual contrast <span class="math inline">\(Y_i(1)-Y_i(0)\)</span> is not generally observable. In particular, a never-taker is never observed with <span class="math inline">\(W_i=1\)</span>. The population ATE is <span class="math inline">\(\mathbb E[Y_i(1)-Y_i(0)]\)</span>; the complier outcomes alone do not identify it.</p>
+</div>
+<h2 id="supply-and-demand">Supply and demand</h2>
+<p>For each market <span class="math inline">\(i=1,\ldots,n\)</span>, let <span class="math inline">\(S_i(p,z)\)</span> be its supply curve and <span class="math inline">\(Q_i(p,z)\)</span> its demand curve, where price <span class="math inline">\(p\in\mathbb R\)</span> and the instrument <span class="math inline">\(z\in\{0,1\}\)</span>. Assume supply is continuous and strictly increasing in price, demand is continuous and strictly decreasing, and the curves cross. The equilibrium price <span class="math inline">\(P_i\)</span> is the unique solution to <span class="math display">\[S_i(P_i,Z_i)=Q_i(P_i,Z_i).\]</span> Thus <span class="math inline">\(Z_i\)</span> is the IV, <span class="math inline">\(P_i\)</span> is treatment, and <span class="math inline">\(Q_i(P_i,Z_i)\)</span> is the outcome <span class="math inline">\(Y_i\)</span>.</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[Z_i\longrightarrow S_i\longrightarrow P_i\longrightarrow Q_i(P_i).\]</span></p>
+</div>
+<p>Conditions:</p>
+<ul>
+<li><p>Exclusion: <span class="math inline">\(Q_i(p,z)=Q_i(p)\)</span> for every <span class="math inline">\(p,z\)</span>.</p></li>
+<li><p>Exogeneity: <span class="math inline">\(\{Q_i(p),S_i(p,z)\}\perp Z_i\)</span>.</p></li>
+<li><p>Relevance: <span class="math inline">\(\operatorname{Cov}(P_i,Z_i)\ne0\)</span>.</p></li>
+<li><p>Monotonicity: <span class="math inline">\(S_i(p,1)\le S_i(p,0)\)</span> for all relevant <span class="math inline">\(p\)</span>.</p></li>
+</ul>
+<p>For the ordinary-integral formula below, assume demand is absolutely continuous on the affected price intervals, with enough integrability for Fubini. My broader thought is that monotone demand has a distributional derivative even without ordinary differentiability. <span class="math display">\[\begin{aligned}
+ \tau_{\mathrm{LATE}}
+ &amp;=\frac{\mathbb E[Q_i\mid Z_i=1]-\mathbb E[Q_i\mid Z_i=0]}
+ {\mathbb E[P_i\mid Z_i=1]-\mathbb E[P_i\mid Z_i=0]}\\
+ &amp;=\frac{\displaystyle\int
+ \mathbb E[Q_i&#39;(p)\mid P_i(0)\le p\le P_i(1)]
+ P[P_i(0)\le p\le P_i(1)]\,dp}
+ {\displaystyle\int P[P_i(0)\le p\le P_i(1)]\,dp}.
+\end{aligned}\]</span> <span style="color: #C92B32">The denominator is the total weight.</span></p>
+<details class="technical-note"><summary>Supplementary explanation: distributional derivatives</summary><div class="technical-content">
+<p>For merely monotone demand the derivative is a signed measure <span class="math inline">\(dQ_i\)</span>, and <span class="math inline">\(Q_i(P_i(1))-Q_i(P_i(0))=\int_{(P_i(0),P_i(1)]}dQ_i\)</span>. This includes singular continuous changes that an ordinary derivative density need not capture.</p>
+</div></details>
+<h4 id="derivation.">Derivation.</h4>
+<p><span class="math display">\[\begin{aligned}
+ &amp;\mathbb E[Q_i\mid Z_i=1]-\mathbb E[Q_i\mid Z_i=0]\\
+ &amp;\quad=\mathbb E[Q_i(P_i(1))\mid Z_i=1]
+ -\mathbb E[Q_i(P_i(0))\mid Z_i=0]\\
+ &amp;\quad=\mathbb E[Q_i(P_i(1))-Q_i(P_i(0))]\\
+ &amp;\quad=\mathbb E\left[\int_{P_i(0)}^{P_i(1)}Q_i&#39;(p)\,dp\right]\\
+ &amp;\quad=\int\mathbb E[Q_i&#39;(p)\mid P_i(0)\le p\le P_i(1)]
+ P[P_i(0)\le p\le P_i(1)]\,dp.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Fubini: interchange integration order</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(E[\int Q_i&#39;(p)\,dp]\)</span> becomes an integral of the expectation.</p>
+</div>
+<h2 id="threshold-crossing-and-willingness-to-pay">Threshold crossing and willingness to pay</h2>
+<p>Suppose each subject has an unobserved endogenous variable <span class="math inline">\(U_i\)</span> such that <span class="math display">\[W_i=\mathbf1\{U_i\ge c(Z_i)\},\]</span> where <span class="math inline">\(c(z)\)</span> is a cutoff function depending on the instrument. Normalize the latent rank as <span class="math inline">\(U_i\sim\operatorname{Unif}[0,1]\)</span>, giving <span class="math display">\[c(z)=1-P(W_i=1\mid Z_i=z).\]</span> Use <span class="math inline">\(U\perp Z\)</span> and effective cutoffs <span class="math inline">\(c(z)\in[0,1]\)</span>. The uniform rank normalization is direct for a continuous latent distribution; atoms require a separate argument.</p>
+<p>The IV setup imposes:</p>
+<ol>
+<li><p>Potential outcomes <span class="math inline">\(Y_i(0),Y_i(1)\)</span> with <span class="math inline">\(Y_i=Y_i(W_i)\)</span>: <span style="color: #244DA8">the instrument has no direct route to the outcome.</span></p></li>
+<li><p><span class="math inline">\(\{Y_i(0),Y_i(1),U_i\}\perp Z_i\)</span>: <span style="color: #244DA8">exogeneity.</span></p></li>
+<li><p><span class="math inline">\(c(Z_i)\)</span> has a nontrivial distribution: <span style="color: #244DA8">relevance.</span></p></li>
+<li><p><span class="math inline">\(c(z)\)</span> is càdlàg (right-continuous with left limits) and nondecreasing. <span style="color: #244DA8">Then <span class="math inline">\(W_i\)</span> is nonincreasing in <span class="math inline">\(Z_i\)</span>.</span> Reversing the instrument orientation gives the earlier complier interpretation. Both IV covariances reverse sign together, leaving the ratio unchanged.</p></li>
+</ol>
+<p>Define the marginal treatment effect (MTE) <span class="math display">\[\tau(u)=\mathbb E[Y_i(1)-Y_i(0)\mid U_i=u].\tag{10.6}\]</span> The IV estimand is a weighted average of <span class="math inline">\(\tau(u)\)</span>. Let <span class="math inline">\(Z_i\sim\mathcal N(0,1)\)</span>, with density <span class="math inline">\(\varphi\)</span>. Let <span class="math inline">\(S\subset\mathbb R\)</span> be the discontinuity set of <span class="math inline">\(c\)</span>, and <span class="math display">\[c_-(z)=\lim_{a\uparrow z}c(a).\]</span> If <span class="math inline">\(c\)</span> has only absolutely continuous variation and jumps, the representation is <span class="math display">\[\tau_{\mathrm{LATE}}=
+ \frac{\displaystyle\sum_{z\in S}
+ \left\{\int_{c_-(z)}^{c(z)}\tau(u)\,du\right\}\varphi(z)
+ +\int_{\mathbb R\setminus S}\tau(c(z))c&#39;(z)\varphi(z)\,dz}
+ {\displaystyle\sum_{z\in S}(c(z)-c_-(z))\varphi(z)
+ +\int_{\mathbb R\setminus S}c&#39;(z)\varphi(z)\,dz}.\]</span> This displays the IV estimand as a convex average of marginal treatment effects.</p>
+<h4 id="my-explanation-of-the-weights.">My explanation of the weights.</h4>
+<p>The drawing plots <span class="math inline">\(c(z)\)</span> against <span class="math inline">\(z\)</span> with an open dot at the left limit and a filled dot at the value after a jump. The jump location belongs to <span class="math inline">\(S\)</span>.</p>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-007.png" alt="image" /></p>
+</div>
+<p><span style="color: #C92B32">At a jump, integrate <span class="math inline">\(\tau(u)\)</span> over the strip from <span class="math inline">\(c_-(z)\)</span> to <span class="math inline">\(c(z)\)</span> and multiply by <span class="math inline">\(\varphi(z)\)</span>.</span> <span style="color: #C92B32">On the continuous part, evaluate the treatment effect at <span class="math inline">\(u=c(z)\)</span> and weight it by <span class="math inline">\(c&#39;(z)\varphi(z)\)</span>.</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Gaussian density factor</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\varphi(z)\)</span>.</p>
+</div>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Treatment effect at <span class="math inline">\(u=c(z)\)</span></span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\tau(c(z))\)</span>.</p>
+</div>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Weight</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(c&#39;(z)\varphi(z)\)</span>.</p>
+</div>
+<p><span style="color: #C92B32">The denominator adds the total weight.</span> The factor <span class="math inline">\(\varphi(z)\)</span> is a density value, not <span class="math inline">\(P(Z=z)\)</span>. A jump receives weight <span class="math inline">\((c(z)-c_-(z))\varphi(z)\)</span> before normalization. The second sketch marks a thin <span class="math inline">\(du\)</span> strip within the jump interval, making its contribution explicit.</p>
+<h4 id="a-thought-about-monotonicity.">A thought about monotonicity.</h4>
+<p>A bounded monotone cutoff has bounded variation, represented by its Stieltjes measure <span class="math inline">\(dc\)</span>. If it is also absolutely continuous, <span class="math display">\[c(z)=c_0+\int_{-\infty}^z c&#39;(a)\,da,\]</span> with <span class="math inline">\(c&#39;\ge0\)</span>. Monotonicity alone does not make the ordinary derivative integral capture jumps or singular continuous variation.</p>
+<h2 id="single-jumps-multiple-jumps-and-continuous-cutoffs">Single jumps, multiple jumps, and continuous cutoffs</h2>
+<h4 id="example-1-one-jump.">Example 1: one jump.</h4>
+<p>For a cutoff otherwise constant with a single jump, <span class="math display">\[c(z)=c_0+\delta_1\mathbf1\{z\ge z_1\},\]</span> the groups are (the middle group is a complier group after reversing instrument orientation) <span class="math display">\[\begin{array}{ll}
+ \text{Never-taker:}&amp;U_i&lt;c_0,\\
+ \text{Switcher:}&amp;c_0\le U_i&lt;c_0+\delta_1,\\
+ \text{Always-taker:}&amp;U_i\ge c_0+\delta_1.
+ \end{array}\]</span></p>
+<p>For <span class="math inline">\(K\)</span> jumps, <span class="math display">\[c(z)=c_0+\sum_{k=1}^K\delta_k\mathbf1\{z\ge z_k\},\]</span> and <span class="math display">\[\tau_{\mathrm{LATE}}=
+ \frac{\displaystyle\sum_{k=1}^K
+ \mathbb E[\tau(U_i)\mid c_-(z_k)\le U_i&lt;c(z_k)]
+ (c(z_k)-c_-(z_k))\varphi(z_k)}
+ {\displaystyle\sum_{k=1}^K(c(z_k)-c_-(z_k))\varphi(z_k)}.\]</span> It is a convex combination of the average effects in the switching strata. The weights depend on the size of each stratum in <span class="math inline">\(U\)</span> space and on <span class="math inline">\(\varphi(z_k)\)</span>.</p>
+<h4 id="example-2-a-continuous-cutoff.">Example 2: a continuous cutoff.</h4>
+<p>If <span class="math inline">\(c(z)\)</span> is absolutely continuous, the formula becomes <span class="math display">\[\tau_{\mathrm{LATE}}=
+ \frac{\displaystyle\int_{\mathbb R}\tau(c(z))c&#39;(z)\varphi(z)\,dz}
+ {\displaystyle\int_{\mathbb R}c&#39;(z)\varphi(z)\,dz}.\]</span> The covariance derivation is <span class="math display">\[\begin{aligned}
+ \operatorname{Cov}(Y_i,Z_i)
+ &amp;=\operatorname{Cov}(Y_i(0)+(Y_i(1)-Y_i(0))W_i,Z_i)\\
+ &amp;=\operatorname{Cov}((Y_i(1)-Y_i(0))W_i,Z_i)\\
+ &amp;=\operatorname{Cov}((Y_i(1)-Y_i(0))\mathbf1\{U_i\ge c(Z_i)\},Z_i)\\
+ &amp;=\operatorname{Cov}(\tau(U_i)\mathbf1\{U_i\ge c(Z_i)\},Z_i).
+\end{aligned}\]</span> Define <span class="math display">\[H(z)=\mathbb E[\tau(U_i)\mathbf1\{U_i\ge c(z)\}].\]</span> For standard Gaussian <span class="math inline">\(Z_i\)</span> and absolutely continuous <span class="math inline">\(H\)</span> with the required integrability, Gaussian integration by parts gives <span class="math display">\[\operatorname{Cov}(H(Z_i),Z_i)=\mathbb E[H&#39;(Z_i)].\]</span></p>
+<h4 id="my-question-distributional-derivatives.">My question: distributional derivatives.</h4>
+<p>Does <span class="math inline">\(H&#39;(z)\)</span> denote the distributional derivative of <span class="math inline">\(H(\cdot)\)</span>? My attempt is to combine the jump and continuous contributions: <span class="math display">\[-H&#39;\;\stackrel{?}{=}\;
+\begin{cases}
+\left\{\displaystyle\int_{c_-(z)}^{c(z)}\tau(u)\,du\right\}\delta_z,&amp;z\in S,\\
+\tau(c(z))c&#39;(z),&amp;\text{elsewhere}.
+\end{cases}\]</span> I am thinking of a Dirac delta at <span class="math inline">\(z\)</span>: its mass is concentrated at one point and its total mass is <span class="math inline">\(1\)</span>. This piecewise expression is my tentative shorthand mixing a measure with a density.</p>
+<details class="technical-note"><summary>Supplementary derivation: write the derivative as a measure</summary><div class="technical-content">
+<p>Let <span class="math inline">\(F(u)=\int_0^u\tau(v)\,dv\)</span>. Since <span class="math inline">\(H=F(1)-F\circ c\)</span>, the complete expression is <span class="math inline">\(-dH=d(F\circ c)\)</span>. At a jump <span class="math inline">\(z\)</span>, its mass is <span class="math inline">\(\int_{c_-(z)}^{c(z)}\tau(u)\,du\)</span>; on an absolutely continuous part its density is <span class="math inline">\(\tau(c(z))c&#39;(z)\)</span>. A singular continuous part may also be present. A Dirac delta is a measure or distribution, not an ordinary function. For a nonconstant, right-continuous, nondecreasing <span class="math inline">\([0,1]\)</span>-valued cutoff, integrable <span class="math inline">\(\tau\)</span> and the required covariance moments, Gaussian integration by parts gives <span class="math display">\[\tau_{\rm IV}=\frac{\int_{\mathbb R}\varphi(z)\,d[F(c(z))]}{\int_{\mathbb R}\varphi(z)\,dc(z)}.\]</span> Both covariances carry a minus sign, which cancels in the ratio. This retains my jump-strip interpretation while including variation that an ordinary integral can miss.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+</div></details>
+<h2 id="estimating-the-marginal-treatment-effect">Estimating the marginal treatment effect</h2>
+<p>At a smooth point of <span class="math inline">\(c(z)\)</span>, <span class="math display">\[\tau(c(z))=
+ \frac{\displaystyle\frac d{dz}\mathbb E[Y_i\mid Z_i=z]}
+ {\displaystyle\frac d{dz}P(W_i=1\mid Z_i=z)}.\tag{10.12}\]</span> Assume the derivatives are well behaved, the numerator and denominator can be estimated, and the denominator is nonzero. This identifies latent ranks reached by the instrument propensity support. At the target require <span class="math inline">\(c&#39;(z)\ne0\)</span> and <span class="math inline">\(F&#39;(c(z))=\tau(c(z))\)</span> for <span class="math inline">\(F(u)=\int_0^u\tau(v)\,dv\)</span>; continuity of <span class="math inline">\(\tau\)</span> there is sufficient.</p>
+<h4 id="proof.-1">Proof.</h4>
+<p><span class="math display">\[\begin{aligned}
+ \mathbb E[Y_i\mid c(Z_i)=c]
+ &amp;=\mathbb E[Y_i(0)+\mathbf1\{U_i\ge c\}(Y_i(1)-Y_i(0))
+ \mid c(Z_i)=c]\\
+ &amp;=\mathbb E[Y_i(0)+\mathbf1\{U_i\ge c\}(Y_i(1)-Y_i(0))]\\
+ &amp;=\mathbb E[Y_i(0)]+\int_c^1\tau(u)\,du.
+\end{aligned}\]</span> The last step is marked “Fubini.” Therefore <span class="math display">\[\tau(c)=-\frac d{dc}\mathbb E[Y_i\mid c(Z_i)=c].\]</span> By the chain rule, <span class="math display">\[\frac d{dz}\mathbb E[Y_i\mid Z_i=z]
+ =\left.\frac d{dc}\mathbb E[Y_i\mid c(Z_i)=c]\right|_{c=c(z)}c&#39;(z).\]</span> Since <span class="math inline">\(U_i\sim\operatorname{Unif}(0,1)\)</span> independently of <span class="math inline">\(Z_i\)</span>, <span class="math display">\[c&#39;(z)=-\frac d{dz}P(W_i=1\mid Z_i=z).\]</span> Combining these identities gives (10.12), as required.</p>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>The bounded-variation discussion in Lecture 10, footnote 4, also needs this measure interpretation.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-09.html">← Lecture 9: Instrumental variables regression</a><a href="chapter-11.html">Lecture 11: Policy learning →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"treatment-effects-under-noncompliance": "不依从情形下的处理效应", "my-comparison-with-the-ate.": "我的蓝色补记", "supply-and-demand": "供给与需求", "derivation.": "推导", "threshold-crossing-and-willingness-to-pay": "阈值跨越与支付意愿", "my-explanation-of-the-weights.": "我对权重的解释", "a-thought-about-monotonicity.": "关于单调性", "single-jumps-multiple-jumps-and-continuous-cutoffs": "单次跳跃多次跳跃与连续阈值", "example-1-one-jump.": "例-1一次跳跃", "example-2-a-continuous-cutoff.": "例-2连续阈值", "my-question-distributional-derivatives.": "我的疑问分布导数", "estimating-the-marginal-treatment-effect": "估计边际处理效应", "proof.-1": "证明-1"}</script></body></html>

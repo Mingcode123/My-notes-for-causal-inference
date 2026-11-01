@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 11 讲：策略学习 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-11.html">EN</a><a href="chapter-11.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html" aria-current="page">第 11 讲：策略学习</a><ul class="section-list"><li><a href="#通过经验最大化学习策略">通过经验最大化学习策略</a></li><li><a href="#将策略学习转化为加权分类">将策略学习转化为加权分类</a></li><li><a href="#策略学习的有效得分">策略学习的有效得分</a></li><li><a href="#策略类的作用">策略类的作用</a></li></ul></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-11-讲策略学习">第 11 讲：策略学习</h1>
+<p>研究如何分配处理，使收益最大。决策就是让一个人进入哪一组：处理组还是对照组。</p>
+<p>处理策略是一个映射 <span class="math display">\[\pi:\mathcal X\longrightarrow\{0,1\}.\]</span> 特征为 <span class="math inline">\(X_i=x\)</span> 的个体，当且仅当 <span class="math inline">\(\pi(x)=1\)</span> 时接受处理。目标是找到使期望效用最大的策略： <span class="math display">\[V(\pi)=\mathbb E[Y_i(\pi(X_i))].\]</span> （把 <span class="math inline">\(Y_i=1\)</span> 视为好的结果。）对于策略类 <span class="math inline">\(\Pi\)</span>，定义 <span class="math display">\[\pi^*=\operatorname*{arg\,max}_{\pi&#39;\in\Pi}V(\pi&#39;).\]</span> 另一个策略的遗憾（regret）为 <span class="math display">\[R(\pi)=\sup_{\pi&#39;\in\Pi}V(\pi&#39;)-V(\pi).\]</span> <span style="color: #C92B32">这里的损失是 regret，而不是平方误差损失。</span>目标是学到一个策略，并保证其最坏情况下的 regret 有上界，即 minimax regret 准则。</p>
+<p>假设观测 <span class="math inline">\((X_i,Y_i,W_i)\in\mathcal X\times\mathbb R\times\{0,1\}\)</span>，<span class="math inline">\(i=1,\ldots,n\)</span>，独立同分布（IID），且满足 <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,\qquad Y_i=Y_i(W_i),\]</span> <span class="math display">\[0&lt;\eta\le e(X_i)\le1-\eta&lt;1,\qquad e(x)=\mathbb P(W_i=1\mid X_i=x).\]</span> 学到 <span class="math inline">\(\widehat\pi\)</span> 后，令 <span class="math inline">\(W_i=\widehat\pi(X_i)\)</span>，希望 <span class="math inline">\(Y_i=Y_i(\widehat\pi(X_i))\)</span> 尽可能大。<strong>我的观察：</strong>这样分配处理后，处理分配就没有随机性了，不能再用同样的方法从中学习因果效应。</p>
+<p>仅凭实施确定性策略得到的数据会失去重叠性：<span class="math inline">\(e(x)\in\{0,1\}\)</span>。此前的随机实验数据或额外假设仍可能支持因果学习。</p>
+<h2 id="通过经验最大化学习策略">通过经验最大化学习策略</h2>
+<p>一般地， <span class="math display">\[\widehat\pi=\operatorname*{arg\,max}_{\pi\in\Pi}\widehat V(\pi).\]</span> 如果 <span class="math inline">\(e(x)\)</span> 已知，可以使用无偏的 IPW 估计： <span class="math display">\[\widehat V_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n
+ \frac{\mathbf1\{W_i=\pi(X_i)\}Y_i}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]},
+ \qquad
+ \widehat\pi_{\mathrm{IPW}}
+ =\operatorname*{arg\,max}_{\pi\in\Pi}\widehat V_{\mathrm{IPW}}(\pi).\]</span> 直观地说，保留实际处理 <span class="math inline">\(W_i\)</span> 与策略 <span class="math inline">\(\pi(X_i)\)</span> 一致的观测，再用分配概率的倒数对其结果加权。由无混杂性， <span class="math display">\[\begin{aligned}
+ \mathbb E[\widehat V_{\mathrm{IPW}}(\pi)]
+ &amp;=\mathbb E\left[
+ \frac{\mathbf1\{W_i=\pi(X_i)\}Y_i(\pi(X_i))}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]}\right]\\
+ &amp;=\mathbb E\left[
+ \mathbb E\left[\left.
+ \frac{\mathbf1\{W_i=\pi(X_i)\}}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]}\right|X_i\right]
+ \mathbb E[Y_i(\pi(X_i))\mid X_i]\right]\\
+ &amp;=\mathbb E[Y_i(\pi(X_i))]=V(\pi).
+\end{aligned}\]</span> <span style="color: #C92B32">指示变量除以其概率，条件期望等于 <span class="math inline">\(1\)</span>。</span> <span class="math display">\[\textcolor{red}{\boxed{\textcolor{black}{E\left[\left.
+ \frac{\mathbf1\{W_i=\pi(X_i)\}}{P[W_i=\pi(X_i)\mid X_i]}
+ \right|X_i\right]}}}=\textcolor{red}{1}.\]</span></p>
+<h4 id="类比ate-的-ipw-估计量为何无偏">类比：ATE 的 IPW 估计量为何无偏。</h4>
+<p><span class="math display">\[\begin{aligned}
+ \mathbb E[\widehat\tau^*_{\mathrm{IPW}}]
+ &amp;=\mathbb E\left[\frac{W_iY_i}{e(X_i)}-
+ \frac{(1-W_i)Y_i}{1-e(X_i)}\right]\\
+ &amp;=\mathbb E\left[\frac{W_iY_i(1)}{e(X_i)}-
+ \frac{(1-W_i)Y_i(0)}{1-e(X_i)}\right]\\
+ &amp;=\mathbb E\left[
+ \mathbb E\left[\left.\frac{W_iY_i(1)}{e(X_i)}\right|e(X_i)\right]
+ -\mathbb E\left[\left.\frac{(1-W_i)Y_i(0)}{1-e(X_i)}\right|e(X_i)\right]
+ \right]\\
+ &amp;=\mathbb E[Y_i(1)-Y_i(0)].
+\end{aligned}\]</span> 因此它是 <span class="math inline">\(\tau\)</span> 的无偏估计。</p>
+<h2 id="将策略学习转化为加权分类">将策略学习转化为加权分类</h2>
+<p>分解价值函数： <span class="math display">\[V(\pi)=\underbrace{\mathbb E[Y_i(0)]}_{\textcolor{red}{E_0}}+
+ \mathbb E[(Y_i(1)-Y_i(0))\pi(X_i)].\]</span> <strong>我的理解：</strong>这里展示了基线结果 <span class="math inline">\(E_0\)</span>，以及策略 <span class="math inline">\(\pi(\cdot)\)</span> 选择接受处理的那些人的处理效应所作的贡献。</p>
+<p>用 <span class="math inline">\(\tau(x)\)</span> 表示 CATE，策略的优势为 <span class="math display">\[\begin{aligned}
+ A(\pi)&amp;=2\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(0)+Y_i(1)]\\
+ &amp;=\mathbb E[(2\pi(X_i)-1)\tau(X_i)].
+\end{aligned}\]</span> <span class="math inline">\(A(\pi)\)</span> 是策略 <span class="math inline">\(\pi(\cdot)\)</span> 的 advantage。同一个 <span class="math inline">\(\pi^*\)</span> 也使 <span class="math inline">\(A(\pi)\)</span> 在 <span class="math inline">\(\Pi\)</span> 中最大。</p>
+<p>改写 IPW：<span class="math inline">\(\widehat\pi_{\mathrm{IPW}}\)</span> 使下式最大， <span class="math display">\[\begin{aligned}
+ \widehat A_{\mathrm{IPW}}(\pi)
+ &amp;=2\widehat V_{\mathrm{IPW}}(\pi)
+ -\frac1n\sum_{i=1}^n\left\{
+ \frac{W_iY_i}{e(X_i)}+\frac{(1-W_i)Y_i}{1-e(X_i)}\right\}\\
+ &amp;=\frac1n\sum_{i=1}^n(2\pi(X_i)-1)
+ \left\{\frac{W_iY_i}{e(X_i)}-
+ \frac{(1-W_i)Y_i}{1-e(X_i)}\right\}.
+\end{aligned}
+\tag{11.10}\]</span> 对固定 <span class="math inline">\(\pi\)</span>，这是优势的无偏估计。</p>
+<p>这个无偏性结论针对固定策略，或由独立数据学得的策略；在同一样本上将估计值最大化后，无偏性未必保留。</p>
+<p>记 <span class="math display">\[\widehat A_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\Gamma_i^{\mathrm{IPW}},
+ \qquad
+ \Gamma_i^{\mathrm{IPW}}=
+ \frac{W_iY_i}{e(X_i)}-\frac{(1-W_i)Y_i}{1-e(X_i)}.\tag{11.11}\]</span> 其中 <span class="math inline">\(\Gamma_i^{\mathrm{IPW}}\)</span> 就是 ATE 估计中使用的 IPW 得分： <span class="math inline">\(\widehat\tau_{\mathrm{IPW}}=n^{-1}\sum_i\Gamma_i^{\mathrm{IPW}}\)</span>. <strong>我的理解：</strong><span class="math inline">\(\widehat A_{\mathrm{IPW}}(\pi)\)</span> 与 ATE 的 IPW 估计量很像。当 <span class="math inline">\(\pi(X_i)=1\)</span> 时，我们“赚取”这个人的处理效应；当 <span class="math inline">\(\pi(X_i)=0\)</span> 时，我们“支付”这个人的处理效应。</p>
+<p>为进行优化，写成 <span class="math display">\[\widehat A_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n
+ \underbrace{(2\pi(X_i)-1)\operatorname{sign}(\Gamma_i)}_{\textcolor{red}{\text{分类目标}}}
+ \underbrace{|\Gamma_i|}_{\textcolor{red}{\text{权重 }\star}}.\tag{11.12}\]</span> <span style="color: #C92B32">符号决定分类目标，<span class="math inline">\(|\Gamma_i|\)</span> 是权重。</span>最大化优势等价于优化一个加权分类目标。<span style="color: #244DA8">实践中，常常通过最小化加权替代损失来学习。但估计可能不对。</span> 参见 Wager（2020），<em>On regression tables for policy learning: Comment on a paper by Jiang, Song, Li and Zeng</em>。</p>
+<p>精确得分等价于最小化加权分类错误率，因为 <span class="math inline">\((2\pi(X_i)-1)\Gamma_i=|\Gamma_i|[1-2\mathbf1\{\pi(X_i)\ne\mathbf1\{\Gamma_i&gt;0\}\}]\)</span>。在受限策略类内，替代损失未必保持同一个最优解。</p>
+<h4 id="补充复杂度与-regret-的收敛速度">补充：复杂度与 regret 的收敛速度。</h4>
+<p><span style="color: #C92B32">VC 维衡量 <span class="math inline">\(\Pi\)</span> 的复杂度；查一下它的精确定义。</span>若 <span class="math inline">\(|Y_i|\le M\)</span>，<span class="math inline">\(\eta\le e(X_i)\le1-\eta\)</span>（于是得分有界），且 <span class="math inline">\(\Pi\)</span> 的 Vapnik–Chervonenkis 维有限，则 <span class="math display">\[R(\widehat\pi_{\mathrm{IPW}})
+ =O_P\left(\frac M\eta\sqrt{\frac{\operatorname{VC}(\Pi)}n}\right),
+ \quad
+ \widehat\pi_{\mathrm{IPW}}=
+ \operatorname*{arg\,max}_{\pi\in\Pi}\widehat A_{\mathrm{IPW}}(\pi).\]</span> <span style="color: #C92B32">这是最优收敛速度。但是否也有超效率：固定 <span class="math inline">\(\pi(x)\)</span> 后，有 <span class="math inline">\(n\)</span> 个观测时，收敛速度能否快于 <span class="math inline">\(\sqrt{\operatorname{VC}(\Pi)/n}\)</span>？</span></p>
+<p>这里是最坏情况下的学习速度。在较容易的分布下 regret 可以更快；估计固定策略的价值则是另一个问题。</p>
+<h2 id="策略学习的有效得分">策略学习的有效得分</h2>
+<p>有没有更好的学习方法？注意到 <span class="math display">\[\begin{aligned}
+ A(\pi)&amp;=2\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(0)+Y_i(1)]\\
+ &amp;=\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(1-\pi(X_i))].
+\end{aligned}\]</span> 因此，<span class="math inline">\(A(\pi)\)</span> 就是在一个实验中，比较实施 <span class="math inline">\(\pi(\cdot)\)</span> 与实施其相反策略所得的 ATE。</p>
+<p>Oracle IPW 可以使用，但并不有效。Oracle AIPW 估计量使用有效得分，达到半参数效率界： <span class="math display">\[\widehat A^*_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\Gamma_i^*,\]</span> <span class="math display">\[\Gamma_i^*=\mu_1(X_i)-\mu_0(X_i)
+ +W_i\frac{Y_i-\mu_1(X_i)}{e(X_i)}
+ -(1-W_i)\frac{Y_i-\mu_0(X_i)}{1-e(X_i)}.\]</span> 进一步假设回归调整 <span class="math inline">\(\widehat\mu_w(x)\)</span> 和 <span class="math inline">\(\widehat e(x)\)</span> 都以 <span class="math inline">\(o_P(n^{-1/4})\)</span> 的速度一致。<span style="color: #C92B32">当 <span class="math inline">\(n\to\infty\)</span> 时，两个 nuisance 估计误差都是 <span class="math inline">\(o_P(n^{-1/4})\)</span>。</span>构造一个接近有效 oracle 的双重稳健估计量： <span class="math display">\[\widehat A_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\widehat\Gamma_i,\]</span> <span class="math display">\[\begin{aligned}
+ \widehat\Gamma_i={}&amp;\widehat\mu_1^{(-k(i))}(X_i)
+ -\widehat\mu_0^{(-k(i))}(X_i)\\
+ &amp;+W_i\frac{Y_i-\widehat\mu_1^{(-k(i))}(X_i)}
+ {\widehat e^{(-k(i))}(X_i)}
+ -(1-W_i)\frac{Y_i-\widehat\mu_0^{(-k(i))}(X_i)}
+ {1-\widehat e^{(-k(i))}(X_i)}.
+\end{aligned}\]</span> 这同样是加权分类目标。若 <span class="math inline">\(\Pi\)</span> 是 VC 类，则可行目标与 oracle 目标一致地渐近等价，差异比 <span class="math inline">\(1/\sqrt n\)</span> 更快趋于零： <span class="math display">\[\sqrt n\sup_{\pi\in\Pi}
+ \left|\widehat A_{\mathrm{AIPW}}(\pi)
+ -\widehat A^*_{\mathrm{AIPW}}(\pi)\right|
+ \xrightarrow{P}0.\tag{11.17}\]</span></p>
+<p>这里使用 <span class="math inline">\(L_2(P_X)\)</span> 收敛速度、交叉拟合、固定且有限的 VC 维、有界结果，以及远离 <span class="math inline">\(0\)</span> 和 <span class="math inline">\(1\)</span> 的估计倾向概率。特别地，<span class="math inline">\(\|\widehat e-e\|_2\max_w\|\widehat\mu_w-\mu_w\|_2=o_P(n^{-1/2})\)</span>。</p>
+<h4 id="续记regret-与效率">续记：regret 与效率。</h4>
+<p>结合前面的结果与经验过程集中性质，可得 <span class="math display">\[R(\widehat\pi_{\mathrm{AIPW}})
+ =O_P\left(\sqrt{\frac{V^*\operatorname{VC}(\Pi)}n}\right),
+ \quad
+ \widehat\pi_{\mathrm{AIPW}}
+ =\operatorname*{arg\,max}_{\pi\in\Pi}\widehat A_{\mathrm{AIPW}}(\pi),\]</span> <span class="math display">\[V^*=\mathbb E[\tau^2(X_i)]
+ +\mathbb E\left[\frac{\operatorname{Var}(Y_i(0)\mid X_i)}{1-e(X_i)}\right]
+ +\mathbb E\left[\frac{\operatorname{Var}(Y_i(1)\mid X_i)}{e(X_i)}\right].\]</span> Athey 和 Wager（2017 年预印本），<em>Policy learning with observational data</em>。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">上式的 <span class="math inline">\(V^*\)</span> 分解。</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 当处理效应刚刚从噪声中显现出来时，这个界是最优的。</p>
+</div>
+<p><span style="color: #C92B32">不太对……</span> 这里 <span class="math inline">\(V^*=E[(\Gamma_i^*)^2]\)</span>，且 <span class="math inline">\(\operatorname{Var}((2\pi(X)-1)\Gamma_i^*)=V^*-A(\pi)^2\)</span>。最优性针对模型内的最坏情况，并不是对每个分布都成立的逐点结论。</p>
+<h2 id="策略类的作用">策略类的作用</h2>
+<p>从非参数模型出发：<span class="math inline">\(\mu_w(x)\)</span> 和 <span class="math inline">\(e(x)\)</span> 可以是任意函数。此时 Bayes 最优处理分配规则是 <span class="math display">\[\pi_{\mathrm{Bayes}}(x)=\mathbf1\{\tau(x)&gt;0\}.\]</span> 不过，我们的目标是在给定的策略类 <span class="math inline">\(\Pi\)</span> 中求解，不一定要逼近这个 Bayes 规则。例如，<span class="math inline">\(\Pi\)</span> 可以包含线性决策规则、<span class="math inline">\(k\)</span>-稀疏决策规则，或深度为 <span class="math inline">\(\ell\)</span> 的决策树。不要求 <span class="math inline">\(\pi_{\mathrm{Bayes}}\in\Pi\)</span>。</p>
+<p>原因：</p>
+<ol>
+<li><p>使用 <span class="math inline">\(X_i\)</span> 是为了使无混杂性假设合理： <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i\)</span>。掌握更丰富且合适的处理前混杂变量，可以让这个假设更可信；任意增加变量，例如 collider，则未必如此。为了可靠建模，最好使用更丰富的特征，以及灵活的非参数模型来估计 <span class="math inline">\(e(x)\)</span> 和 <span class="math inline">\(\mu_w(x)\)</span>。</p></li>
+<li><p>策略有具体形式，也受现实限制：某些特征可能不能用于决策；资源或处理预算可能有限；<span class="math inline">\(\pi(\cdot)\)</span> 的函数形式也可能受限。</p></li>
+</ol>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-10.html">← 第 10 讲：局部平均处理效应</a><a href="chapter-12.html">第 12 讲：动态策略评估 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture11-14.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"通过经验最大化学习策略": "policy-learning-by-empirical-maximization", "类比ate-的-ipw-估计量为何无偏": "analogy-unbiasedness-of-the-ate-ipw-estimator.", "将策略学习转化为加权分类": "policy-learning-as-weighted-classification", "补充复杂度与-regret-的收敛速度": "supplement-complexity-and-a-regret-rate.", "策略学习的有效得分": "efficient-scoring-rules-for-policy-learning", "续记regret-与效率": "continuation-regret-and-efficiency.", "策略类的作用": "the-role-of-the-policy-class"}</script></body></html>

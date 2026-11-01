@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 3 讲：通过增广 IPW 高效估计处理效应 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-03.html">EN</a><a href="chapter-03.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html" aria-current="page">第 3 讲：通过增广 IPW 高效估计处理效应</a><ul class="section-list"><li><a href="#ate-的两种表征">ATE 的两种表征</a></li><li><a href="#增广-ipw-估计量">增广 IPW 估计量</a></li><li><a href="#双重稳健性">双重稳健性</a></li><li><a href="#半参数效率">半参数效率</a></li><li><a href="#aipw-与交叉拟合">AIPW 与交叉拟合</a></li><li><a href="#置信区间">置信区间</a></li></ul></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-3-讲通过增广-ipw-高效估计处理效应">第 3 讲：通过增广 IPW 高效估计处理效应</h1>
+<p>普通 IPW 的大样本性质较差。例如，<span class="math inline">\(X\)</span> 离散时，它不如汇总估计量 <span class="math inline">\(\widehat\tau\)</span>。</p>
+<h2 id="ate-的两种表征">ATE 的两种表征</h2>
+<ol>
+<li><p>利用 <span class="math inline">\(e(x)=P(W_i=1\mid X_i=x)\)</span>，有 <span class="math inline">\(\tau=E[\widehat\tau^*_{\rm IPW}]\)</span>；理想估计量定义如上。</p></li>
+<li><p>利用 <span class="math inline">\(\mu_{(w)}(x)=E[Y_i(w)\mid X_i=x]\)</span>， <span class="math display">\[\tau(x)=\mu_{(1)}(x)-\mu_{(0)}(x),\quad
+\tau=E[\mu_{(1)}(X_i)-\mu_{(0)}(X_i)],\]</span> 由此得到 <span class="math display">\[\widehat\tau_{\rm REG}=\frac1n\sum_i[\widehat\mu_{(1)}(X_i)-\widehat\mu_{(0)}(X_i)].\]</span></p></li>
+</ol>
+<h2 id="增广-ipw-估计量">增广 IPW 估计量</h2>
+<p><span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AIPW}=\frac1n\sum_i\bigg[&amp;\widehat\mu_{(1)}(X_i)-\widehat\mu_{(0)}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}(X_i)}{\widehat e(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}(X_i)}{1-\widehat e(X_i)}\bigg].
+\end{aligned}\]</span></p>
+<h4 id="个人直觉">个人直觉。</h4>
+<p><span style="color: #244DA8">先用 <span class="math inline">\(\mu(x)\)</span> 估计结果，再对回归残差做 IPW。IPW 让数据的协变量构成变得“公平”。</span></p>
+<h2 id="双重稳健性">双重稳健性</h2>
+<p>只要结果回归 <span class="math inline">\(\widehat\mu_{(w)}(x)\)</span> 或倾向得分 <span class="math inline">\(\widehat e(x)\)</span> 中有一方一致，AIPW 就一致。 这里假设重叠性与可积性成立，另一类干扰函数估计也须保持良好行为。对于拟合函数，下方的期望论证还要条件于独立训练折；交叉拟合提供这种分离。</p>
+<p>当 <span class="math inline">\(\widehat\mu_{(w)}(x)\approx\mu_{(w)}(x)\)</span> 时，回归均值是一致的，加权残差项的均值近似为零，因为 <span class="math display">\[E[Y_i-\widehat\mu_{(W_i)}(X_i)\mid X_i,W_i]\approx0.\]</span> 这里通过条件化把倾向得分项固定下来。若是 <span class="math inline">\(\widehat e(x)\approx e(x)\)</span>，则改写为 <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AIPW}={}&amp;\frac1n\sum_i\left[\frac{W_iY_i}{\widehat e(X_i)}
+-\frac{(1-W_i)Y_i}{1-\widehat e(X_i)}\right]\\
+&amp;+\frac1n\sum_i\left[\widehat\mu_{(1)}(X_i)\left(1-\frac{W_i}{\widehat e(X_i)}\right)
+-\widehat\mu_{(0)}(X_i)\left(1-\frac{1-W_i}{1-\widehat e(X_i)}\right)\right].
+\end{aligned}\]</span> <span style="color: #244DA8">第一部分是 IPW。</span><span style="color: #244DA8">第二部分均值近似为零，因为</span> <span class="math inline">\(E[1-W_i/\widehat e(X_i)\mid X_i]\approx0\)</span>；条件化后把拟合的结果回归视为固定。</p>
+<h2 id="半参数效率">半参数效率</h2>
+<p>AIPW 在该非参数模型的正则估计量中达到半参数效率界。当辅助函数估计足够准确时， <span class="math display">\[\sqrt n(\widehat\tau_{\rm AIPW}-\widehat\tau^*_{\rm AIPW})\longrightarrow_p0,\]</span> 星号表示理想 AIPW。该理想估计量只是独立同分布变量的均值，因此其中心极限定理可以传递给使用估计函数的版本：</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8"><span class="math inline">\(\sqrt n(\widehat\tau_{\rm AIPW}-\widehat\tau^*_{\rm AIPW})\to_p0\)</span></span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 理想估计量的独立同分布中心极限定理可用于估计得到的 AIPW。</p>
+</div>
+<p><span class="math display">\[\sqrt n(\widehat\tau_{\rm AIPW}-\tau)\Rightarrow N(0,V^*),\]</span> <span class="math display">\[V^*=\operatorname{Var}[\tau(X_i)]
++E\left[\frac{b_0^2(X_i)}{1-e(X_i)}\right]
++E\left[\frac{b_1^2(X_i)}{e(X_i)}\right].\]</span> <span style="color: #244DA8">这类似 Cramér–Rao 约束：它是正则估计量可达到的方差下界。</span></p>
+<h2 id="aipw-与交叉拟合">AIPW 与交叉拟合</h2>
+<p>将数据随机分成两半 <span class="math inline">\(I_1\)</span> 和 <span class="math inline">\(I_2\)</span>。<span style="color: #244DA8">把数据随机分开。</span>令 <span class="math display">\[\widehat\tau_{\rm AIPW}=\frac{|I_1|}{n}\widehat\tau^{I_1}
++\frac{|I_2|}{n}\widehat\tau^{I_2},\]</span> <span class="math display">\[\begin{aligned}
+\widehat\tau^{I_1}=\frac1{|I_1|}\sum_{i\in I_1}\bigg[&amp;\widehat\mu_{(1)}^{I_2}(X_i)-\widehat\mu_{(0)}^{I_2}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}^{I_2}(X_i)}{\widehat e^{I_2}(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}^{I_2}(X_i)}{1-\widehat e^{I_2}(X_i)}\bigg].
+\end{aligned}\]</span> 渐近分析可以不依赖所选机器学习调整方法的具体形式，而依赖以下条件：</p>
+<ol>
+<li><p>重叠性：对所有 <span class="math inline">\(x\in\mathcal X\)</span>，有 <span class="math inline">\(\eta&lt;e(x)&lt;1-\eta\)</span>，其中 <span class="math inline">\(\eta&gt;0\)</span>。</p></li>
+<li><p>辅助函数估计的一致性： <span class="math display">\[\sup_x|\widehat\mu_{(w)}^{I_2}(x)-\mu_{(w)}(x)|\longrightarrow_p0,
+\quad \sup_x|\widehat e^{I_2}(x)-e(x)|\longrightarrow_p0.\]</span> <span style="color: #244DA8">这里要求所选机器学习方法满足一致性，不能自动假设所有方法都满足。</span></p></li>
+<li><p>结果模型与倾向得分模型的风险衰减： <span class="math display">\[E[(\widehat\mu_{(w)}^{I_2}(X_i)-\mu_{(w)}(X_i))^2]\,
+E[(\widehat e^{I_2}(X_i)-e(X_i))^2]=o(1/n).\]</span> <span style="color: #244DA8">若两者均以 <span class="math inline">\(\sqrt n\)</span> 速度一致收敛，则乘积为 <span class="math inline">\(1/n^2\)</span> 阶。一个简单的充分条件是，两种回归调整的均方根误差（RMSE）都以 <span class="math inline">\(o(n^{-1/4})\)</span> 收敛。</span></p></li>
+</ol>
+<h4 id="证明">证明。</h4>
+<p>把理想估计量写作 <span class="math inline">\(\widehat\tau^*=|I_1|\widehat\tau^{I_1,*}/n+|I_2|\widehat\tau^{I_2,*}/n\)</span>. 要证明 <span class="math inline">\(\sqrt n(\widehat\tau_{\rm AIPW}-\widehat\tau^*)\to_p0\)</span>，只需对处理状态下的均值证明相应结果；其余部分类似。定义 <span class="math display">\[\widehat\tau^{I_1}=\widehat\mu^{I_1}_{(1)}-\widehat\mu^{I_1}_{(0)},\qquad
+\widehat\mu^{I_1}_{(1)}=\frac1{|I_1|}\sum_{i\in I_1}
+\left[\widehat\mu^{I_2}_{(1)}(X_i)+W_i\frac{Y_i-\widehat\mu^{I_2}_{(1)}(X_i)}{\widehat e^{I_2}(X_i)}\right].\]</span> 减去对应的理想估计量，得到 <span class="math display">\[\begin{aligned}
+\widehat\mu^{I_1}_{(1)}-\widehat\mu^{I_1,*}_{(1)}
+={}&amp;\frac1{|I_1|}\sum_{i\in I_1}
+(\widehat\mu^{I_2}_{(1)}(X_i)-\mu_{(1)}(X_i))\left(1-\frac{W_i}{e(X_i)}\right)\\
+&amp;+\frac1{|I_1|}\sum_{i\in I_1}W_i(Y_i-\mu_{(1)}(X_i))
+\left(\frac1{\widehat e^{I_2}(X_i)}-\frac1{e(X_i)}\right)\\
+&amp;-\frac1{|I_1|}\sum_{i\in I_1}W_i(\widehat\mu^{I_2}_{(1)}(X_i)-\mu_{(1)}(X_i))
+\left(\frac1{\widehat e^{I_2}(X_i)}-\frac1{e(X_i)}\right).
+\end{aligned}\]</span> <span style="color: #244DA8">第一项的条件方差为 <span class="math inline">\(o_p(1)/n\)</span>；最后一项为 <span class="math inline">\(o_p(1/\sqrt n)\)</span>。</span> 将第一项平均记为 <span class="math inline">\(T_1\)</span>、训练数据记为 <span class="math inline">\(\mathcal D_2\)</span>，则<span class="math display">\[E[T_1\mid\mathcal D_2]=0,\qquad E[T_1^2\mid\mathcal D_2]\le\frac{E[(\widehat\mu_1(X)-\mu_1(X))^2\mid\mathcal D_2]}{\eta|I_1|}=o_p(n^{-1}).\]</span> 因此 <span class="math inline">\(T_1=o_p(n^{-1/2})\)</span>。第二项同理，最后一项由 Cauchy–Schwarz 不等式和乘积风险条件控制。</p>
+<p>对 <span class="math inline">\(K\)</span> 折交叉拟合，在构造第 <span class="math inline">\(i\)</span> 个观测的辅助估计时，排除其所在的第 <span class="math inline">\(k(i)\)</span> 折： <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AIPW}=\frac1n\sum_i\bigg[&amp;\widehat\mu_{(1)}^{(-k(i))}(X_i)-\widehat\mu_{(0)}^{(-k(i))}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}^{(-k(i))}(X_i)}{\widehat e^{(-k(i))}(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}^{(-k(i))}(X_i)}{1-\widehat e^{(-k(i))}(X_i)}\bigg].
+\end{aligned}\]</span></p>
+<h2 id="置信区间">置信区间</h2>
+<h4 id="补充术语">补充：术语。</h4>
+<p>普通似然得分是 <span class="math display">\[S(\theta)=\frac{d\log L(\theta)}{d\theta},\]</span> 其中 <span class="math inline">\(L(\theta)\)</span> 为似然函数。<span class="math inline">\(n\)</span> 个样本得分的经验方差为 <span class="math display">\[\frac1{n-1}\sum_i(S_\theta(O_i)-\overline S_\theta)^2.\]</span> 存在干扰参数时，有效得分还要扣除干扰得分分量。对 ATE，下方中心化 AIPW 单项 <span class="math inline">\(\psi_i^*-\tau\)</span> 是有效影响函数，其方差是效率界；它不同于原始似然得分，后者的方差是 Fisher 信息。</p>
+<h4 id="方差估计">方差估计。</h4>
+<p>定义理想估计量中的单项 <span class="math display">\[\psi_i^*=\mu_{(1)}(X_i)-\mu_{(0)}(X_i)
++\frac{W_i(Y_i-\mu_{(1)}(X_i))}{e(X_i)}
+-\frac{(1-W_i)(Y_i-\mu_{(0)}(X_i))}{1-e(X_i)}.\]</span> 它的经验方差收敛到有效方差： <span class="math display">\[\frac1{n-1}\sum_i(\psi_i^*-\widehat\tau^*)^2\longrightarrow_p V^*.\]</span> 这里 <span class="math inline">\(\widehat\tau^*\)</span> 是理想 AIPW 估计量。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">未交叉拟合的理想 AIPW 估计</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(\sum_i(\psi_i^*-\widehat\tau^*)^2/(n-1)\)</span> 中的 <span class="math inline">\(\widehat\tau^*\)</span>。</p>
+</div>
+<p>将每个辅助函数替换为排除第 <span class="math inline">\(k(i)\)</span> 折后训练的估计，得到交叉拟合单项 <span class="math inline">\(\widehat\psi_i\)</span>，以及 <span class="math display">\[\widehat V_{\rm AIPW}=\frac1{n-1}\sum_i(\widehat\psi_i-\widehat\tau_{\rm AIPW})^2\longrightarrow_p V^*.\]</span> 正态分布中央概率区域下画出的置信区间为</p>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-002.png" alt="image" /></p>
+</div>
+<p>该区间的渐近覆盖率为 <span class="math inline">\(1-\alpha\)</span>：</p>
+<p><span class="math display">\[\widehat\tau_{\rm AIPW}\ \pm\ \frac1{\sqrt n}\Phi^{-1}(1-\alpha/2)\sqrt{\widehat V_{\rm AIPW}}.\]</span></p>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-02.html">← 第 2 讲：无混杂性与倾向得分</a><a href="chapter-04.html">第 4 讲：估计处理效应的异质性 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"ate-的两种表征": "two-characterizations-of-the-ate", "增广-ipw-估计量": "the-augmented-ipw-estimator", "个人直觉": "personal-intuition.", "双重稳健性": "double-robustness", "半参数效率": "semiparametric-efficiency", "aipw-与交叉拟合": "aipw-and-cross-fitting", "证明": "proof.", "置信区间": "confidence-intervals", "补充术语": "supplement-terminology.", "方差估计": "variance-estimation."}</script></body></html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第22章：去偏／正交机器学习 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-22.html">EN</a><a href="chapter-22.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>Brave and True</h2><ol class="chapter-list"><li><a href="chapter-01.html">第1章：因果推断入门</a></li><li><a href="chapter-02.html">第2章：随机实验</a></li><li><a href="chapter-03.html">第3章：统计学回顾</a></li><li><a href="chapter-04.html">第4章：图模型</a></li><li><a href="chapter-05.html">第5章：线性回归的作用</a></li><li><a href="chapter-06.html">第6章：分组与虚拟变量回归</a></li><li><a href="chapter-07.html">第7章：控制混杂因素之外</a></li><li><a href="chapter-08.html">第8章：工具变量</a></li><li><a href="chapter-09.html">第9章：不依从与局部平均处理效应</a></li><li><a href="chapter-10.html">第10章：匹配</a></li><li><a href="chapter-11.html">第11章：倾向得分</a></li><li><a href="chapter-12.html">第12章：双重稳健估计</a></li><li><a href="chapter-13.html">第13章：双重差分</a></li><li><a href="chapter-14.html">第14章：面板数据与固定效应</a></li><li><a href="chapter-15.html">第15章：合成控制</a></li><li><a href="chapter-16.html">第16章：断点回归设计</a></li><li class="chapter-group">第二部分：应用</li><li><a href="chapter-17.html">第17章：预测模型基础</a></li><li><a href="chapter-18.html">第18章：异质处理效应与个性化</a></li><li><a href="chapter-19.html">第19章：评价因果模型</a></li><li><a href="chapter-20.html">第20章：即插即用估计量</a></li><li><a href="chapter-21.html">第21章：元学习器</a></li><li><a href="chapter-22.html" aria-current="page">第22章：去偏／正交机器学习</a><ul class="section-list"><li><a href="#non-scientific-doubledebiased-ml未完成">Non-Scientific Double/Debiased ML：未完成</a></li></ul></li><li><a href="chapter-23.html">第23章：效应异质性与非线性</a></li><li><a href="chapter-24.html">第24章：双重差分的发展与问题</a></li><li><a href="chapter-25.html">第25章：合成双重差分</a></li><li><a href="chapter-26.html">附录：去偏与预测</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">Brave and True · 中文</div><h1 id="第22章去偏正交机器学习">第22章：去偏／正交机器学习</h1>
+<p>参考“Double Machine Learning for Treatment and Causal Parameters”（2016）。ML 用于估计干扰函数。销量例子中，价格以及温度、成本、星期几等特征可能有复杂联系；混杂使朴素价格回归不可靠。</p>
+<h4 id="frischwaughlovell.">Frisch–Waugh–Lovell.</h4>
+<p>对 <span class="math inline">\(\hat Y=X_1\hat\beta_1+X_2\hat\beta_2\)</span>，<span class="math inline">\(X_1,X_2\)</span> 为特征矩阵（每列一个特征，每行一个观测），<span class="math inline">\(\hat\beta_1,\hat\beta_2\)</span> 取列系数向量。按下列步骤可得到相同的 <span class="math inline">\(X_1\)</span> 系数：</p>
+<ol>
+<li><p>将 <span class="math inline">\(Y\)</span> 对 <span class="math inline">\(X_2\)</span> 回归，得到 <span class="math inline">\(\hat Y^*=P_{X_2}Y\)</span>。</p></li>
+<li><p>将 <span class="math inline">\(X_1\)</span> 对 <span class="math inline">\(X_2\)</span> 回归，得到 <span class="math inline">\(\hat X_1=P_{X_2}X_1\)</span>。</p></li>
+<li><p>取 <span class="math inline">\(\widetilde X_1=X_1-\hat X_1\)</span> 和 <span class="math inline">\(\widetilde Y=Y-\hat Y^*\)</span>。</p></li>
+<li><p>将 <span class="math inline">\(\widetilde Y\)</span> 对 <span class="math inline">\(\widetilde X_1\)</span> 回归，恢复 <span class="math inline">\(\hat\beta_1\)</span>。</p></li>
+</ol>
+<p>所以 <span class="math inline">\((Y-\widehat{Y\sim X})\sim(T-\widehat{T\sim X})\)</span> 可以估计下式中的 <span class="math inline">\(\tau\)</span>： <span class="math display">\[Y_i-E[Y_i\mid X_i]=\tau\{T_i-E[T_i\mid X_i]\}+\varepsilon_i.\]</span></p>
+<h4 id="加强版-fwl用-ml-估计-ate">加强版 FWL：用 ML 估计 ATE。</h4>
+<p><span class="math display">\[Y_i-\hat M_Y(X_i)=\tau\{T_i-\hat M_T(X_i)\}+\varepsilon_i.\]</span> <span style="color: #C92B32"><span class="math inline">\(\hat M_Y\)</span> 估计 <span class="math inline">\(E[Y\mid X]\)</span>，是去噪模型，解释 <span class="math inline">\(X\)</span> 带来的 <span class="math inline">\(Y\)</span> 变异。</span><span style="color: #C92B32"><span class="math inline">\(\hat M_T\)</span> 估计 <span class="math inline">\(E[T\mid X]\)</span>，是去偏模型，去除与 <span class="math inline">\(X\)</span> 相关的处理分配偏差。</span></p>
+<ol>
+<li><p>用灵活的 ML 回归 <span class="math inline">\(M_Y\)</span>，从特征 <span class="math inline">\(X\)</span> 估计结果 <span class="math inline">\(Y\)</span>。</p></li>
+<li><p>用 <span class="math inline">\(M_T\)</span> 从 <span class="math inline">\(X\)</span> 估计处理 <span class="math inline">\(T\)</span>。</p></li>
+<li><p>得到残差 <span class="math inline">\(\widetilde Y=Y-M_Y(X)\)</span> 和 <span class="math inline">\(\widetilde T=T-M_T(X)\)</span>。</p></li>
+<li><p>将结果残差对处理残差回归：<span class="math inline">\(\widetilde Y=\alpha+\tau\widetilde T\)</span>。</p></li>
+</ol>
+<p>我的理解是“两次预测，一次回归”。在常效应部分线性模型 <span class="math inline">\(Y=\tau T+g(X)+\varepsilon\)</span>、<span class="math inline">\(E[\varepsilon\mid T,X]=0\)</span> 下，<span class="math inline">\(\tau\)</span> 是因果斜率（二元处理时为 ATE）。二元效应异质时，合并残差回归针对的是 <span class="math inline">\(E[e(X)(1-e(X))\tau(X)]/E[e(X)(1-e(X))]\)</span>。</p>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p><strong>我对过拟合的解释。</strong> 若 <span class="math inline">\(M_Y\)</span> 过拟合，它不只拟合了 <span class="math inline">\(Y\)</span> 与 <span class="math inline">\(X\)</span> 的关系，还吞掉了一部分 <span class="math inline">\(Y\)</span> 与 <span class="math inline">\(T\)</span> 的关系。因果关系被结果模型吸收，没有留给残差回归，因此最后的效应可能偏向零。若 <span class="math inline">\(M_T\)</span> 过拟合，它解释了过多 <span class="math inline">\(T\)</span> 的变异，剩下的处理残差方差很小，最后效应估计的方差就很大。我把这与拟合倾向得分过于极端联系起来。但残差接近零也可能来自过拟合，并不能单凭它就判定真实倾向得分违反正值性。</p>
+</div>
+<p>为解决过拟合，把数据分成 <span class="math inline">\(K\)</span> 折。每次用其余 <span class="math inline">\(K-1\)</span> 折训练 ML 模型，在留出的一折上计算残差。合并所有折的预测／残差，再拟合 <span class="math inline">\(\widetilde Y=\alpha+\tau\widetilde T\)</span>。</p>
+<h4 id="cate-与-r-learner">CATE 与 R-learner。</h4>
+<p>让斜率随 <span class="math inline">\(X\)</span> 变化： <span class="math display">\[Y_i-M_Y(X_i)=\tau(X_i)\{T_i-M_T(X_i)\}+\varepsilon_i.\]</span> 最后一层回归可为 <span class="math inline">\(\widetilde Y_i=\alpha+\beta_1\widetilde T_i+\beta_2X_i\widetilde T_i+\varepsilon_i\)</span>。最终模型用 <span class="math inline">\(M(\mathrm{Price}=1,X_i)-M(\mathrm{Price}=0,X_i)\)</span> 估计销量效应。<span style="color: #C92B32">R-learner。</span></p>
+<h4 id="非参数双重去偏-ml">非参数双重／去偏 ML。</h4>
+<p>对于价格与销量这样的连续关系，写作 <span class="math display">\[Y_i=\hat M_Y(X_i)+\tau(X_i)\{T_i-\hat M_T(X_i)\}+\hat\varepsilon_i.\]</span> 整理残差： <span class="math display">\[\hat\varepsilon_i=\{Y_i-\hat M_Y(X_i)\}-\tau(X_i)\{T_i-\hat M_T(X_i)\}.\]</span> 最小化残差平方得到 R-loss。在所述识别条件下，它估计二元处理 CATE；若响应对连续处理线性，则估计条件斜率： <span class="math display">\[\begin{aligned}
+\hat L_n(\tau)&amp;=\frac1n\sum_{i=1}^n\left[\{Y_i-\hat M_Y(X_i)\}-\tau(X_i)\{T_i-\hat M_T(X_i)\}\right]^2\\
+&amp;=\frac1n\sum_{i=1}^n(\widetilde Y_i-\tau(X_i)\widetilde T_i)^2\\
+&amp;=\frac1n\sum_{i=1}^n\widetilde T_i^2\left(\frac{\widetilde Y_i}{\widetilde T_i}-\tau(X_i)\right)^2.
+\end{aligned}\]</span></p>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p><strong>我的理解。</strong> 这就是用任意预测模型预测 <span class="math inline">\(\widetilde Y_i/\widetilde T_i\)</span>，权重为 <span class="math inline">\(\widetilde T_i^2\)</span>。残差为零时使用未除开的平方损失，不计算这个比值。</p>
+</div>
+<p><strong>哪里是非参数？</strong> 方程 <span class="math inline">\(\widetilde Y_i=\tau(X_i)\widetilde T_i+e_i\)</span> 对残差处理仍然线性，但 <span class="math inline">\(\tau\)</span> 可以灵活地随 <span class="math inline">\(X\)</span> 变化。对于真正非线性的处理响应，条件 R-loss 的最小化解为 <span class="math display">\[\tau^*(x)=\frac{\operatorname{Cov}(T,Y\mid X=x)}{\operatorname{Var}(T\mid X=x)}.\]</span> 这是条件投影斜率，并不自动等于某一处理值处的导数。这一区别引出下一步尝试。</p>
+<h2 id="non-scientific-doubledebiased-ml未完成">Non-Scientific Double/Debiased ML：未完成</h2>
+<p><strong>未完成。</strong> 沿着教材的非线性构造，我想理清如何从个体数据点得到反事实预测——“CATE？”——乃至整条结果曲线。把 <span class="math display">\[\widetilde Y_i=\tau(X_i)\widetilde T_i+e_i\]</span> 换成对处理残差非线性的函数： <span class="math display">\[\widetilde Y_i=g(X_i,\widetilde T_i)+e_i.\]</span> 先用 <span class="math inline">\(X\)</span> 预测处理并取残差，再用 <span class="math inline">\((X,\widetilde T)\)</span> 拟合结果残差。可以尝试合适的 ML 模型，例子使用 LGBM；拟合输出为 <span class="math inline">\(\widehat{\widetilde Y}\)</span>。</p>
+<h4 id="我的逐步理解">我的逐步理解。</h4>
+<p>设 <span class="math inline">\(Y\)</span> 为销量，<span class="math inline">\(T\)</span> 为价格，<span class="math inline">\(X\)</span> 为协变量。</p>
+<ol>
+<li><p>用五折 LGBM 交叉预测得到 <span class="math inline">\(\hat Y=\hat M_Y(X)\)</span>、<span class="math inline">\(\hat T=\hat M_T(X)\)</span>，每折都由其他折训练的模型预测。</p></li>
+<li><p>计算 <span class="math inline">\(\widetilde Y=Y-\hat Y\)</span>、<span class="math inline">\(\widetilde T=T-\hat T\)</span>。</p></li>
+<li><p>用 <span class="math inline">\((\widetilde T,X)\)</span> 拟合 <span class="math inline">\(\widetilde Y\)</span>，将最终模型记为 <code>finalM</code>，或 <span class="math inline">\(\hat g\)</span>。</p></li>
+<li><p>对新的 <span class="math inline">\(X\)</span>，平均五个处理模型的预测，得到 <span class="math inline">\(\hat T&#39;\)</span>。对每个假想反事实价格 <span class="math inline">\(T_{\rm new}\)</span>，使用 <span class="math display">\[\widetilde T&#39;=T_{\rm new}-\hat T&#39;,\qquad \widetilde Y&#39;=\hat g(X,\widetilde T&#39;).\]</span> 训练与预测必须使用同一残差方向。<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p></li>
+<li><p>加回基线预测：<span class="math inline">\(\hat Y(T_{\rm new},X)=\hat M_Y(X)+\widetilde Y&#39;\)</span>。结果残差以零为中心；加回基线恢复结果水平。</p></li>
+</ol>
+<p>这里得到的是结果曲线；效应还要通过两点比较或求导得到。我还没有完成这个非线性构造的因果论证。</p>
+<p>下面用两折画出两类干扰模型共同的交叉预测关系；五折时重复同一原则。</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-Chinese-figure-013.png" alt="image" /></p>
+</div>
+<p>我想记住的缺点：正则化可能使因果估计收缩，具体 ML 算法也很重要。提升树给出阶梯式而非光滑曲线，也不擅长外推到未见价格，预测可能很奇怪。</p>
+<details class="technical-note"><summary>补充说明：非线性拟合识别什么</summary><div class="technical-content">
+<p>固定 <span class="math inline">\(m,\ell\)</span> 后，<span class="math inline">\(r=t-m(x)\)</span> 在给定 <span class="math inline">\(x\)</span> 时可逆。若一致拟合 <span class="math inline">\(g(x,r)=E[Y-\ell(X)\mid X=x,T-m(X)=r]\)</span>，可重建 <span class="math inline">\(E[Y\mid x,t]=\ell(x)+g(x,t-m(x))\)</span>。因果响应还需要可交换性与支持条件。这个灵活残差学习器不会自动继承 R-loss 的正交性或收敛率保证。交叉拟合控制使用自身观测造成的过拟合，识别假设和足够准确的干扰函数估计仍然必要。</p>
+</div></details>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>教材第22章文字把减法方向写反，并把结果残差预测标为“Price”；其代码采用反事实价格减预测价格。这里按代码与训练残差定义统一。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-21.html">← 第21章：元学习器</a><a href="chapter-23.html">第23章：效应异质性与非线性 →</a></nav><div class="article book-downloads"><a href="../../Brave-and-True-Chinese.pdf">完整 PDF</a> · <a download href="../../Brave-and-True-Chinese.md">Markdown</a> · <a href="https://matheusfacure.github.io/python-causality-handbook/landing-page.html">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"frischwaughlovell.": "frischwaughlovell.", "加强版-fwl用-ml-估计-ate": "fwl-on-steroids-ml-for-ate.", "cate-与-r-learner": "cate-and-the-r-learner.", "非参数双重去偏-ml": "nonparametric-doubledebiased-ml.", "non-scientific-doubledebiased-ml未完成": "non-scientific-doubledebiased-ml-unfinished", "我的逐步理解": "my-step-by-step-interpretation."}</script></body></html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 1 讲：随机对照试验 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-01.html">EN</a><a href="chapter-01.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html" aria-current="page">第 1 讲：随机对照试验</a><ul class="section-list"><li><a href="#线性结果模型与方差缩减">线性结果模型与方差缩减</a></li><li><a href="#一般结果回归下的-ols">一般结果回归下的 OLS</a></li></ul></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-1-讲随机对照试验">第 1 讲：随机对照试验</h1>
+<p>在随机对照试验（RCT）中，用回归分析平均处理效应，是为了减小方差；ATE 的识别并不依赖回归。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">RCT 中的回归</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 减小方差；ATE 的识别来自随机分配。</p>
+</div>
+<p><span class="math display">\[\Delta_i=Y_i(1)-Y_i(0),\qquad \tau=E[Y_i(1)-Y_i(0)].\]</span> 用均值差估计量估计 <span class="math inline">\(\tau\)</span>，并进行统计推断： <span class="math display">\[\widehat\tau_{\rm DM}=\frac1{n_1}\sum_{W_i=1}Y_i-\frac1{n_0}\sum_{W_i=0}Y_i,
+\qquad n_w=|\{i:W_i=w\}|.\]</span> 在随机分配下，该估计量是一致且无偏的。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">均值差</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(\widehat\tau_{\rm DM}\)</span></p>
+</div>
+<p>本讲假设独立同分布抽样、有限二阶矩且两组均非空，并采用平衡分配 <span class="math inline">\(P(W=1)=1/2\)</span> 及中心化协变量 <span class="math inline">\(E[X]=0\)</span>；正态分布表示渐近近似。</p>
+<h4 id="补充假设">补充：假设。</h4>
+<p><span class="math display">\[Y_i=Y_i(W_i),\qquad W_i\perp\{Y_i(0),Y_i(1)\}.\]</span> 第二式表示随机分配。SUTVA 要求单位之间没有干扰，且每一种指定处理都有定义明确的版本；加上一致性，就有 <span class="math inline">\(Y_i=Y_i(W_i)\)</span>。独立抽样是另外的假设。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(Y_i=Y_i(W_i)\)</span>；SUTVA</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 无干扰和定义明确的处理。</p>
+</div>
+<h2 id="线性结果模型与方差缩减">线性结果模型与方差缩减</h2>
+<p><span class="math display">\[Y_i(w)=c_{(w)}+X_i\beta_{(w)}+\varepsilon_i(w),\quad
+E[\varepsilon_i(w)\mid X_i]=0,\quad
+\operatorname{Var}[\varepsilon_i(w)\mid X_i]=b^2.\]</span> <span style="color: #244DA8">两种处理状态分别拟合各自的系数。</span>记 <span class="math inline">\(A=\operatorname{Var}[X]\)</span>，<span style="color: #244DA8"><span class="math inline">\(\|v\|_A^2=v&#39;Av\)</span></span>。渐近方差为 <span class="math display">\[V_{\rm DM}=4b^2+\|\beta_{(0)}+\beta_{(1)}\|_A^2
+ +\|\beta_{(0)}-\beta_{(1)}\|_A^2.\]</span> 另有 <span class="math display">\[\tau=c_{(1)}-c_{(0)}+E[X](\beta_{(1)}-\beta_{(0)}),\qquad
+\widehat\tau_{\rm OLS}=\widehat c_{(1)}-\widehat c_{(0)}
+ +\overline X(\widehat\beta_{(1)}-\widehat\beta_{(0)}).\]</span> 误差分解为 <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm OLS}-\tau={}&amp;(\widehat c_{(1)}-c_{(1)})-(\widehat c_{(0)}-c_{(0)})
+ +\overline X(\beta_{(1)}-\beta_{(0)})\\
+&amp;+\overline X(\widehat\beta_{(1)}-\widehat\beta_{(0)}-\beta_{(1)}+\beta_{(0)}).
+\end{aligned}\]</span> 前两项的渐近近似分别为 <span class="math inline">\(N(0,b^2/n_1)\)</span>、<span class="math inline">\(N(0,b^2/n_0)\)</span>；第三项的渐近近似为 <span class="math inline">\(N(0,\|\beta_{(1)}-\beta_{(0)}\|_A^2/n)\)</span>；最后一项是 <span class="math inline">\(O_p(1/n)\)</span>。<span style="color: #244DA8">斜率估计带来的不确定性在一阶渐近中消失。</span>因此 <span class="math display">\[\sqrt n(\widehat\tau_{\rm OLS}-\tau)\Rightarrow N(0,V_{\rm OLS}),\qquad
+V_{\rm OLS}=4b^2+\|\beta_{(0)}-\beta_{(1)}\|_A^2,\]</span> <span class="math display">\[V_{\rm DM}=V_{\rm OLS}+\|\beta_{(0)}+\beta_{(1)}\|_A^2.\]</span></p>
+<h2 id="一般结果回归下的-ols">一般结果回归下的 OLS</h2>
+<p>即使结果回归并非线性，OLS 也可以减小渐近方差。设 <span class="math display">\[Y_i(w)=\mu_{(w)}(X_i)+\varepsilon_i(w),\quad
+E[\varepsilon_i(w)\mid X_i]=0,\quad
+\operatorname{Var}[\varepsilon_i(w)\mid X_i]=b^2.\]</span> 对于均值差估计量， <span class="math display">\[\sqrt n(\widehat\tau_{\rm DM}-\tau)\Rightarrow N(0,V_{\rm DM}),\quad
+V_{\rm DM}=4b^2+2\operatorname{Var}[\mu_{(0)}(X_i)]
++2\operatorname{Var}[\mu_{(1)}(X_i)].\]</span> 对于 OLS，Huber–White 方差计算从总体投影出发： <span class="math display">\[(c^*_{(w)},\beta^*_{(w)})=\arg\min_{c,\beta}
+ E[(Y_i(w)-X_i\beta-c)^2].\]</span> 可得 <span class="math display">\[\sqrt{n_w}\left\{\begin{pmatrix}\widehat c_{(w)}\\\widehat\beta_{(w)}\end{pmatrix}
+-\begin{pmatrix}c^*_{(w)}\\\beta^*_{(w)}\end{pmatrix}\right\}
+\Rightarrow N\left(0,Q^{-1}E[r_w^2qq^\mathsf T]Q^{-1}\right),\]</span> 其中 <span class="math inline">\(c^*_{(w)}=E[Y_i(w)]\)</span>。令 <span class="math inline">\(q=(1,X^\mathsf T)^\mathsf T\)</span>，<span class="math inline">\(Q=E[qq^\mathsf T]\)</span> 非奇异，<span class="math inline">\(r_w=Y(w)-c_w^*-X\beta_w^*\)</span>。三明治协方差不必为分块对角阵：<span class="math inline">\(E[r_wX]=0\)</span> 并不蕴含 <span class="math inline">\(E[r_w^2X]=0\)</span>。在 <span class="math inline">\(E[X]=0\)</span> 下，截距方差是 <span class="math inline">\(E[r_w^2]\)</span>。<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p><span class="math display">\[\operatorname{MSE}^*_{(w)}=E[(Y_i(w)-X_i\beta^*_{(w)}-c^*_{(w)})^2].\]</span> 由此得到 <span class="math display">\[\sqrt n(\widehat\tau_{\rm OLS}-\tau)\Rightarrow N(0,V_{\rm OLS}),\qquad
+V_{\rm OLS}=V_{\rm DM}-\|\beta^*_{(0)}+\beta^*_{(1)}\|_A^2.\]</span> <span style="color: #C92B32"><span class="math inline">\(V_{\rm OLS}\le V_{\rm DM}\)</span> 在本节平衡试验设定下成立。</span> 当 <span class="math inline">\(\|\beta^*_{(0)}+\beta^*_{(1)}\|_A^2&gt;0\)</span> 时方差严格下降；该平方范数为零时取等号。若 <span class="math inline">\(A\)</span> 非奇异，等号条件就是 <span class="math inline">\(\beta^*_{(0)}+\beta^*_{(1)}=0\)</span>。</p>
+<h4 id="个人理解">个人理解。</h4>
+<p>OLS 可以看作 <span class="math display">\[\widehat\tau_{\rm OLS}=\frac1n\sum_{i=1}^n
+\{(\widehat c_{(1)}+X_i\widehat\beta_{(1)})
+ -(\widehat c_{(0)}+X_i\widehat\beta_{(0)})\}
+=\frac1n\sum_i[\widehat\mu_{(1)}(X_i)-\widehat\mu_{(0)}(X_i)].\]</span> <span style="color: #244DA8">这里 <span class="math inline">\(\widehat\mu_{(w)}(x)\)</span> 是 OLS 在 <span class="math inline">\(x\)</span> 处的拟合值，也可以换成其他方法。</span></p>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>讲义式 (1.16) 中的非对角块不一定为零。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</article><nav class="page-nav" aria-label="前后章节"><span></span><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"补充假设": "supplement-assumptions.", "线性结果模型与方差缩减": "linear-outcome-model-and-variance-reduction", "一般结果回归下的-ols": "ols-under-a-general-outcome-regression", "个人理解": "personal-observation."}</script></body></html>

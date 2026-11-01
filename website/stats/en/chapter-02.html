@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 2: Unconfoundedness and the Propensity Score · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-02.html" aria-current="true">EN</a><a href="../zh/chapter-02.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html" aria-current="page">Lecture 2: Unconfoundedness and the Propensity Score</a><ul class="section-list"><li><a href="#aggregating-difference-in-means-estimators">Aggregating difference-in-means estimators</a></li><li><a href="#continuous-covariates-and-propensity-scores">Continuous covariates and propensity scores</a></li><li><a href="#propensity-stratification">Propensity stratification</a></li><li><a href="#inverse-propensity-weighting">Inverse-propensity weighting</a></li></ul></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-2-unconfoundedness-and-the-propensity-score">Lecture 2: Unconfoundedness and the Propensity Score</h1>
+<p>Unconfoundedness: the aim is to remove the influence of confounding factors. Propensity score: the probability of treatment given the covariates.</p>
+<h2 id="aggregating-difference-in-means-estimators">Aggregating difference-in-means estimators</h2>
+<p><span style="color: #C92B32">Simply weight by probability.</span> With discrete, numerically valued <span class="math inline">\(X_i\)</span>, assume <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i=x,\qquad x\in\mathcal X.\]</span> <span style="color: #244DA8">Here <span class="math inline">\(x\)</span> is the grouping variable.</span> Define the group-wise ATE <span class="math display">\[\tau(x)=E[Y_i(1)-Y_i(0)\mid X_i=x].\]</span> Then <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AGG}&amp;=\sum_{x\in\mathcal X}\frac{n_x}{n}\widehat\tau(x),\\
+\widehat\tau(x)&amp;=\frac1{n_{x1}}\sum_{X_i=x,W_i=1}Y_i
+-\frac1{n_{x0}}\sum_{X_i=x,W_i=0}Y_i,\\
+n_x&amp;=|\{i:X_i=x\}|,\qquad
+n_{xw}=|\{i:X_i=x,W_i=w\}|.
+\end{aligned}\]</span> Let <span class="math inline">\(e(x)=P(W_i=1\mid X_i=x)\)</span>. The within-group limit is <span class="math display">\[\begin{aligned}
+\sqrt{n_x}(\widehat\tau(x)-\tau(x))
+&amp;\Rightarrow N\left(0,
+\frac{\operatorname{Var}[Y_i(0)\mid X_i=x]}{1-e(x)}
++\frac{\operatorname{Var}[Y_i(1)\mid X_i=x]}{e(x)}\right)\\
+&amp;=N\left(0,\frac{b^2(x)}{e(x)(1-e(x))}\right),
+\end{aligned}\]</span> where the second equality uses the common conditional variance assumption. Define <span class="math inline">\(\pi(x)=P(X_i=x),\quad\widehat\pi(x)=n_x/n\)</span>. This fixed-stratum limit uses finitely many strata, positive population masses, treatment overlap within each stratum, and finite conditional second moments. Then <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AGG}={}&amp;\sum_x\pi(x)\tau(x)
++\sum_x\pi(x)(\widehat\tau(x)-\tau(x))\\
+&amp;+\sum_x(\widehat\pi(x)-\pi(x))\tau(x)
++\sum_x(\widehat\pi(x)-\pi(x))(\widehat\tau(x)-\tau(x)).
+\end{aligned}\]</span> <span style="color: #244DA8">The first term is <span class="math inline">\(\tau\)</span>.</span> <span style="color: #244DA8">The second is annotated as asymptotically normal, with variance</span></p>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p><span class="math display">\[\sum_x\pi^2(x)\operatorname{Var}[\widehat\tau(x)].\]</span></p>
+</div>
+<p><span style="color: #244DA8">The third has variance <span class="math inline">\(n^{-1}\operatorname{Var}[\tau(X_i)]\)</span>; the last is <span class="math inline">\(O_p(1/n)\)</span>.</span> Combining these terms gives</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Four-term aggregate-estimator expansion</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Aggregate variance <span class="math inline">\(V_{\rm AGG}\)</span>.</p>
+</div>
+<p><span class="math display">\[\sqrt n(\widehat\tau_{\rm AGG}-\tau)\Rightarrow N(0,V_{\rm AGG}),\]</span> <span class="math display">\[\begin{aligned}
+V_{\rm AGG}&amp;=\operatorname{Var}[\tau(X_i)]
++\sum_{x\in\mathcal X}\pi^2(x)\frac1{\pi(x)}
+\frac{b^2(x)}{e(x)(1-e(x))}\\
+&amp;=\operatorname{Var}[\tau(X_i)]
++E\left[\frac{b^2(X_i)}{e(X_i)(1-e(X_i))}\right].
+\end{aligned}\]</span></p>
+<h2 id="continuous-covariates-and-propensity-scores">Continuous covariates and propensity scores</h2>
+<p>My intuition for unconfoundedness: given <span class="math inline">\(X_i\)</span>, <span class="math inline">\(W_i\)</span> cannot “peek” at the potential outcomes. If <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,
+\quad e(x)=P(W_i=1\mid X_i=x),\]</span> then <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid e(X_i).\]</span></p>
+<h4 id="supplementary-sketches-and-calculation.">Supplementary sketches and calculation.</h4>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-001.png" alt="image" /></p>
+</div>
+<p>Conditioning and integrating gives <span class="math display">\[\begin{aligned}
+&amp;P(W_i=w\mid\{Y_i(0),Y_i(1)\},e(X_i))\\
+&amp;\quad=\int_{\mathcal X}P(W_i=w\mid\{Y_i(0),Y_i(1)\},X_i=x)
+ dP(X_i=x\mid Y_i(0),Y_i(1),e(X_i))\\
+&amp;\quad=\int_{\mathcal X}P(W_i=w\mid X_i=x)dP(X_i=x\mid Y_i(0),Y_i(1),e(X_i))\\
+&amp;\quad=e(X_i)\mathbf1_{\{w=1\}}+(1-e(X_i))\mathbf1_{\{w=0\}}.
+\end{aligned}\]</span> <span style="color: #244DA8">This is integration with respect to a conditional probability measure.</span></p>
+<h2 id="propensity-stratification">Propensity stratification</h2>
+<ol>
+<li><p>Sort the observations so that <span class="math inline">\(\widehat e(X_{i_1})\leq\widehat e(X_{i_2})\leq\cdots\leq\widehat e(X_{i_n})\)</span>.</p></li>
+<li><p>Split them into <span class="math inline">\(J\)</span> strata and estimate a difference in means within each stratum. If <span class="math inline">\(I_j\)</span> contains ranks <span class="math inline">\(\lfloor(j-1)n/J\rfloor+1\)</span> through <span class="math inline">\(\lfloor jn/J\rfloor\)</span>, write <span class="math display">\[\widehat\tau_j=\frac{\sum_{i\in I_j}W_iY_i}{\sum_{i\in I_j}W_i}
+-\frac{\sum_{i\in I_j}(1-W_i)Y_i}{\sum_{i\in I_j}(1-W_i)}.\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">Make treatment and control groups more similar</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> Sort by <span class="math inline">\(\widehat e(X_i)\)</span> and form propensity-score strata.</p>
+</div></li>
+<li><p>Average the stratum estimates: <span class="math inline">\(\widehat\tau_{\rm STRAT}=J^{-1}\sum_{j=1}^J\widehat\tau_j\)</span>. <span style="color: #244DA8">With increasingly fine strata and adequate within-stratum sample sizes, this is consistent.</span> For consistency, let <span class="math inline">\(J\)</span> grow with <span class="math inline">\(n\)</span> so strata become finer while retaining enough treated and control observations, under overlap and uniform consistency of <span class="math inline">\(\widehat e\)</span>. Fixed broad strata can leave residual confounding.</p></li>
+</ol>
+<h2 id="inverse-propensity-weighting">Inverse-propensity weighting</h2>
+<p><span class="math display">\[\widehat\tau_{\rm IPW}=\frac1n\sum_{i=1}^n
+\left\{\frac{W_iY_i}{\widehat e(X_i)}-\frac{(1-W_i)Y_i}{1-\widehat e(X_i)}\right\}.\]</span> Oracle IPW assumes <span class="math inline">\(e(x)\)</span> is perfectly known: <span class="math display">\[\widehat\tau^*_{\rm IPW}=\frac1n\sum_i
+\left\{\frac{W_iY_i}{e(X_i)}-\frac{(1-W_i)Y_i}{1-e(X_i)}\right\}.\]</span> Suppose overlap holds, <span class="math inline">\(\eta\leq e(x)\leq1-\eta\)</span> for all <span class="math inline">\(x\in\mathcal X\)</span>, and <span class="math inline">\(|Y_i|&lt;M\)</span>. If <span class="math display">\[\sup_{x\in\mathcal X}|e(x)-\widehat e(x)|=O_p(a_n)\longrightarrow0,\]</span> we obtain <span class="math display">\[|\widehat\tau_{\rm IPW}-\widehat\tau^*_{\rm IPW}|=O_p(a_nM/\eta).\]</span> <span style="color: #244DA8">Thus consistency of the oracle estimator transfers to estimated-propensity IPW.</span> Moreover, <span class="math display">\[E[\widehat\tau^*_{\rm IPW}]=E[Y_i(1)-Y_i(0)]=\tau.\]</span> <span style="color: #244DA8">With overlap, oracle IPW converges at the <span class="math inline">\(1/\sqrt n\)</span> scale.</span></p>
+<h4 id="variance-calculation-supplementary-model.">Variance calculation: supplementary model.</h4>
+<p>Use the model <span class="math display">\[\begin{aligned}
+Y_i(0)&amp;=c(X_i)-(1-e(X_i))\tau(X_i)+\varepsilon_i(0),\\
+Y_i(1)&amp;=c(X_i)+e(X_i)\tau(X_i)+\varepsilon_i(1),\\
+E[\varepsilon_i(w)\mid X_i]&amp;=0,\qquad
+\operatorname{Var}[\varepsilon_i(w)\mid X_i=x]=b^2(x).
+\end{aligned}\]</span> Then</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Outcome model</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Oracle-IPW variance <span class="math inline">\(V_{\rm IPW^*}\)</span>.</p>
+</div>
+<p><span class="math display">\[\begin{aligned}
+n\operatorname{Var}[\widehat\tau^*_{\rm IPW}]
+=V_{\rm IPW^*}
+={}&amp;E\left[\frac{c^2(X_i)}{e(X_i)(1-e(X_i))}\right]
++\operatorname{Var}[\tau(X_i)]\\
+&amp;+E\left[\frac{b^2(X_i)}{e(X_i)(1-e(X_i))}\right],\\
+\sqrt n(\widehat\tau^*_{\rm IPW}-\tau)&amp;\Rightarrow N(0,V_{\rm IPW^*}).
+\end{aligned}\]</span></p>
+<h4 id="personal-comparison.">Personal comparison.</h4>
+<p><span class="math inline">\(c(x)\)</span> describes the relationship between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, rather than the relationship between <span class="math inline">\(X\)</span> and <span class="math inline">\(\Delta Y\)</span>. Compared with aggregation, <span class="math display">\[V_{\rm IPW^*}=V_{\rm AGG}+E\left[\frac{c^2(X_i)}{e(X_i)(1-e(X_i))}\right].\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8"><span class="math inline">\(V_{\rm IPW^*}-V_{\rm AGG}\)</span></span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span style="color: #244DA8">The excess variance vanishes exactly when <span class="math inline">\(c(X)=0\)</span> almost surely.</span></p>
+</div>
+<p>Compared with linear modeling: IPW is based on <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i\)</span>, while the linear model relies on linearity. A linear outcome model also needs a causal identification argument, such as unconfoundedness; linearity alone is an estimation restriction.</p>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-01.html">← Lecture 1: Randomized Controlled Trials</a><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"aggregating-difference-in-means-estimators": "汇总各组的均值差估计", "continuous-covariates-and-propensity-scores": "连续协变量与倾向得分", "supplementary-sketches-and-calculation.": "补充图示与计算", "propensity-stratification": "按倾向得分分层", "inverse-propensity-weighting": "逆倾向得分加权", "variance-calculation-supplementary-model.": "方差计算结果模型", "personal-comparison.": "个人比较"}</script></body></html>

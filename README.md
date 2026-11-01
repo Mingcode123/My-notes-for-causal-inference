@@ -8,6 +8,8 @@ These links contain my personal notes on studying causal inference, and I’m de
 
 ## Read and download
 
+[Open the local reading site](website/index.html).
+
 | Textbook | English PDF | English Markdown | Chinese PDF | Chinese Markdown |
 |---|---|---|---|---|
 | STATS 361 | [PDF](STATS361-English.pdf) | [Markdown](STATS361-English.md) | [PDF](STATS361-Chinese.pdf) | [Markdown](STATS361-Chinese.md) |
@@ -106,6 +108,8 @@ Expand a textbook to browse its chapters. Each link opens the corresponding sect
 [阅读与下载](#阅读与下载) · [内容目录](#内容目录) · [主题索引](#主题索引) · [参考教材](#参考教材)
 
 ## 阅读与下载
+
+[打开本地阅读网站](website/index.html)。
 
 | 教材 | 英文 PDF | 英文 Markdown | 中文 PDF | 中文 Markdown |
 |---|---|---|---|---|

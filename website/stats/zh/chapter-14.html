@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 14 讲：自适应实验 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-14.html">EN</a><a href="chapter-14.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html" aria-current="page">第 14 讲：自适应实验</a><ul class="section-list"><li><a href="#设定与记号">设定与记号</a></li><li><a href="#面对不确定性时保持乐观">面对不确定性时保持乐观</a></li><li><a href="#ucb-的-regret-上界">UCB 的 regret 上界</a></li><li><a href="#自适应随机化方案">自适应随机化方案</a></li><li><a href="#自适应实验中的统计推断">自适应实验中的统计推断</a></li></ul></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-14-讲自适应实验">第 14 讲：自适应实验</h1>
+<p>自适应实验动态调整实验设计。此前的固定实验在 IID 框架下进行，而这一假设有时过于严格。</p>
+<h2 id="设定与记号">设定与记号</h2>
+<p>有动作 <span class="math inline">\(k=1,\ldots,K\)</span> 和受试者 <span class="math inline">\(t=1,\ldots,T\)</span>。不同受试者的潜在结果独立同分布。记 <span class="math display">\[Y_t(k)\sim F_k,\qquad Y_t=Y_t(W_t),\qquad
+ \mu_k=\mathbb E[Y_t(k)].\]</span> <span class="math inline">\(W_t\)</span> 是为第 <span class="math inline">\(t\)</span> 个受试者选择的动作，<span class="math inline">\(F_k\)</span> 是臂 <span class="math inline">\(k\)</span> 的潜在结果分布，<span class="math inline">\(\mu_k\)</span> 是其均值。定义 regret： <span class="math display">\[R_T=\sum_{t=1}^T(\mu^*-\mu_{W_t}),\qquad
+ \mu^*=\sup_{1\le k\le K}\mu_k.\]</span> <span class="math inline">\(\mu^*\)</span> 是所有可用动作中最大的期望奖励。Regret 衡量：相较于始终选择最优动作，选择当前动作序列损失了多少期望奖励。</p>
+<p>定义 <span class="math display">\[n_{kt}=\sum_{j=1}^t\mathbf1\{W_j=k\},\qquad
+ \widehat\mu_{kt}=\frac1{n_{kt}}\sum_{j=1}^t\mathbf1\{W_j=k\}Y_j.\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(n_{kt}\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 截至时点 <span class="math inline">\(t\)</span>，选择臂 <span class="math inline">\(k\)</span> 的次数。</p>
+</div>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(\widehat\mu_{kt}\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 臂 <span class="math inline">\(k\)</span> 的平均奖励。</p>
+</div>
+<p><span style="color: #C92B32">使用的是从第 <span class="math inline">\(1\)</span> 期到第 <span class="math inline">\(t\)</span> 期收集的信息。</span></p>
+<h4 id="我的重新表述">我的重新表述。</h4>
+<p>可以想象有 <span class="math inline">\(T\)</span> 个相似、独立的个体。每个人都有 <span class="math inline">\(K\)</span> 种处理选择，因而有 <span class="math inline">\(K\)</span> 个潜在结果，各臂对应的分布 <span class="math inline">\(F_k\)</span> 对所有人相同。对每个人，只能观测被选择处理的结果 <span class="math inline">\(Y_t=Y_t(W_t)\)</span>。向量 <span class="math inline">\(\mu\)</span> 收集了各臂的期望奖励。总 regret 就是对 <span class="math inline">\(T\)</span> 个人累加：所选处理与最优处理之间的差距；在这个设定中，最优臂始终是同一个。</p>
+<p>在普通随机实验中，<span class="math inline">\(W_t\)</span> 在 <span class="math inline">\(1,\ldots,K\)</span> 上均匀且非自适应地选择，因此 regret 随 <span class="math inline">\(T\)</span> 线性增长： <span class="math display">\[R_T\sim T\sum_{k=1}^K\frac{\mu^*-\mu_k}{K}.\]</span> <span style="color: #244DA8">求和项的平均是每个个体的期望损失。</span>自适应实验的首要目标是使 regret 次线性增长。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Regret 不应随实验次数或时间线性增长；选择要逐渐接近最优。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 次线性 regret。</p>
+</div>
+<p>这需要平衡<em>探索</em>（尝试）与<em>利用</em>（使用已有知识）。</p>
+<h2 id="面对不确定性时保持乐观">面对不确定性时保持乐观</h2>
+<p>置信上界（UCB）方法平衡探索与利用：</p>
+<ol>
+<li><p>对每个臂抽样 <span class="math inline">\(t_0\)</span> 次进行初始化：<span style="color: #C92B32">选择并观测 <span class="math inline">\(t_0\)</span> 次，一共 <span class="math inline">\(Kt_0\)</span> 次初始抽样。</span></p></li>
+<li><p>对每个 <span class="math inline">\(t=Kt_0+1,Kt_0+2,\ldots\)</span>，基于截至 <span class="math inline">\(t-1\)</span> 收集的数据，为每个 <span class="math inline">\(\mu_k\)</span> 构造置信区间 <span class="math inline">\(\widehat U_{kt}\)</span>。</p></li>
+<li><p>选择置信区间上端点最大的动作 <span class="math inline">\(W_t\)</span>，观测 <span class="math inline">\(Y_t=Y_t(W_t)\)</span>。</p></li>
+</ol>
+<p><span style="color: #C92B32">每过一个 <span class="math inline">\(t\)</span>，只多了一个数据点。</span></p>
+<p>为理解 UCB 控制 regret 的原理，将奖励简化为高斯分布： <span class="math display">\[Y_t(k)\sim\mathcal N(\mu_k,b^2),\tag{14.4}\]</span> 其中 <span class="math inline">\(b^2\)</span> 已知。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">这里已知是为了简化计算。</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 高斯 UCB 半径中的 <span class="math inline">\(b^2\)</span>。</p>
+</div>
+<p>使用 <span class="math display">\[\widehat U_{kt}=\widehat\mu_{k,t-1}
+ \ \pm\ b\sqrt{\frac{4\log T}{n_{k,t-1}}}.\tag{14.5}\]</span> 当 <span class="math inline">\(t_0=1\)</span> 且 <span class="math inline">\(T\ge\max\{K,2\}\)</span> 时，regret 的上界为 <span class="math display">\[R_T\le\sum_{k:\mu_k&lt;\mu_{k^*}}
+ \left\{\frac{16b^2\log T}{\mu_{k^*}-\mu_k}
+ +(\mu_{k^*}-\mu_k)\right\},\tag{14.6}\]</span> 以至少 <span class="math inline">\(1-K/T\)</span> 的概率成立，其中 <span class="math inline">\(k^*\)</span> 表示最优臂。</p>
+<p><strong>我对这个界的直觉。</strong></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">分母中的差距 <span class="math inline">\(\mu_{k^*}-\mu_k\)</span>。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span style="color: #C92B32">臂与最优臂越接近，UCB 越需要更长的时间分辨；很差的臂可快速丢弃。</span></p>
+</div>
+<p><span style="color: #C92B32">UCB 的 regret 只以对数增长。<span class="math inline">\(\mu_{k^*}-\mu_k\)</span> 很小时，看起来会使上面的界趋向无穷。实际上有两个相互竞争的界：effect 强时，UCB 在置信区间分离后丢弃该臂；effect 弱时，总 regret 至多为 <span class="math inline">\(T(\mu_{k^*}-\mu_k)\)</span>。结合两者就得到有限上界；当均值差一致有界时，可得到 <span class="math inline">\(K\sqrt{T\log T}\)</span> 阶的上界。</span></p>
+<p>在置信事件上，每只臂的贡献至多为 <span class="math inline">\(\min\{T\Delta_k,16b^2\log T/\Delta_k+\Delta_k\}\)</span>。一致的 <span class="math inline">\(O(K\sqrt{T\log T})\)</span> 比较需要固定 <span class="math inline">\(b\)</span> 且差距一致有界；仅初始化就有 <span class="math inline">\(\sum_k\Delta_k\)</span> 的代价。</p>
+<h2 id="ucb-的-regret-上界">UCB 的 regret 上界</h2>
+<p>将 regret 写成 <span class="math display">\[R_T=\sum_{k:\Delta_k&gt;0}n_{kT}\Delta_k,\qquad \Delta_k=\mu^*-\mu_k.\]</span> 主要任务是控制 UCB 选择次优臂的次数。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">我也用这一点理解 UCB 的设计。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 控制选择次数 <span class="math inline">\(n_{kT}\)</span>。</p>
+</div>
+<p>设 <span class="math inline">\(\zeta_{kj}\)</span> 是臂 <span class="math inline">\(k\)</span> 第 <span class="math inline">\(j\)</span> 次被选择的时间。对每个臂，设想有一列 IID 奖励 <span class="math inline">\(Y&#39;_\ell(k)\sim\mathcal N(\mu_k,b^2)\)</span>，每次选择该臂时揭示下一个观测。于是 <span class="math display">\[\begin{aligned}
+ &amp;P\left[\sup_{K&lt;t\le T}\left\{
+ \mu_k-\widehat\mu_{k,t-1}-b\sqrt{\frac{4\log T}{n_{k,t-1}}}\right\}\ge0\right]\\
+ &amp;\quad\le P\left[\sup_{1\le j\le n_{kT}}\left\{
+ \mu_k-\widehat\mu_{k,\zeta_{kj}}-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]\\
+ &amp;\quad=P\left[\sup_{1\le j\le n_{kT}}\left\{
+ \mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]\\
+ &amp;\quad\le P\left[\sup_{1\le j\le T}\left\{
+ \mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]
+ \le\frac1T.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">扩大索引集合，上确界及相应事件只会变大。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(K&lt;t\le T\ \leadsto\ 1\le j\le n_{kT}\ \leadsto\ 1\le j\le T\)</span></p>
+</div>
+<p>这里把日历时间改为同一只臂的观测次数。最后的集中不等式是我想进一步检查的一步。</p>
+<h4 id="我对-hoeffding-不等式的疑问">我对 Hoeffding 不等式的疑问。</h4>
+<p>对相互独立的随机变量 <span class="math inline">\(Z_1,\ldots,Z_n\)</span>，若几乎必然有 <span class="math inline">\(Z_i\in[a,b]\)</span>，且 <span class="math inline">\(s&gt;0\)</span>，则 <span class="math display">\[P\left(\frac1n\sum_{i=1}^n(Z_i-\mathbb E[Z_i])\ge s\right)
+ \le\exp\left(-\frac{2ns^2}{(b-a)^2}\right).\]</span> 下尾有相同的界，双侧界多一个因子 <span class="math inline">\(2\)</span>。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">几乎肯定有界。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(Z_i\in[a,b]\)</span></p>
+</div>
+<p>对事件 <span class="math inline">\(A_1,\ldots,A_n\)</span>， <span class="math display">\[P(A_1\cup\cdots\cup A_n)\le\sum_{i=1}^nP(A_i).\]</span> 我把这个 union bound 与所需的置信水平 <span class="math inline">\(1-K/T\)</span> 联系起来。</p>
+<p><strong>我的计算尝试：</strong>猜吧，也许只需证明 <span class="math display">\[P\left(\mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)
+ -b\sqrt{\frac{4\log T}{j}}\ge0\right)\le\frac1T.\]</span> 左边可以写成 <span class="math display">\[P\left(\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)-\mu_k
+ \le-b\sqrt{\frac{4\log T}{j}}\right).\]</span> 尝试套用有界变量的不等式，会得到下面这个表达式： <span class="math display">\[\exp\left(-\frac{2j\,b^2(4\log T)/j}{(b-a)^2}\right)
+ =\exp\left(-\frac{8b^2}{(b-a)^2}\log T\right)
+ \ \overset{?}{\le}\ \frac1T.\]</span> <span style="color: #C92B32">但 <span class="math inline">\(Y&#39;_\ell(k)\)</span> 无界，<span class="math inline">\(k\)</span> 是否写错了？不知道最后一步怎么化，可能有未说明的假设。</span></p>
+<p>选择次数的论证需要以下同时成立的事件，其概率至少为 <span class="math inline">\(1-K/T\)</span>： <span class="math display">\[|\widehat\mu_{k,t-1}-\mu_k|
+ \le b\sqrt{\frac{4\log T}{n_{k,t-1}}}
+ \quad\text{对所有 }k,\ t=K+1,\ldots,T.\tag{14.8}\]</span></p>
+<details class="technical-note"><summary>补充推导：高斯分布的集中不等式</summary><div class="technical-content">
+<p>高斯假设提供了所需的尾概率界，不必要求奖励有界。记 <span class="math inline">\(\overline Y&#39;_{kj}=j^{-1}\sum_{\ell=1}^jY&#39;_\ell(k)\)</span>。当 <span class="math inline">\(T\ge2\)</span> 时， <span class="math display">\[\sqrt j(\overline Y&#39;_{kj}-\mu_k)/b\sim N(0,1),\qquad
+ P\left(|\overline Y&#39;_{kj}-\mu_k|&gt;b\sqrt{4\log T/j}\right)
+ =2\Phi(-2\sqrt{\log T})\le T^{-2}.\]</span> 最后一步使用正态尾界 <span class="math inline">\(2\Phi(-x)\le2e^{-x^2/2}/(x\sqrt{2\pi})\)</span>。 对至多 <span class="math inline">\(KT\)</span> 个臂／次数组合使用 union bound，即得到 (14.8)。 如果每个计数只有 <span class="math inline">\(1/T\)</span> 的界，再对所有计数取并集就不够。高斯标准差 <span class="math inline">\(b\)</span> 与有界变量不等式中区间端点的 <span class="math inline">\(b\)</span> 也不是同一个量。讲义在这段推导中两次出现的 <span class="math inline">\(Y&#39;_\ell(0)\)</span> 应为 <span class="math inline">\(Y&#39;_\ell(k)\)</span>。</p>
+</div></details>
+<h4 id="继续推导选择次数界">继续推导选择次数界。</h4>
+<p>在事件 (14.8) 上，记 <span class="math inline">\(r_{kt}=b\sqrt{4\log T/n_{k,t-1}}\)</span>。若 <span class="math inline">\(W_t=k\)</span>，由 UCB 的选择规则， <span class="math display">\[\begin{aligned}
+ \mu^*&amp;\le\widehat\mu_{k^*,t-1}+r_{k^*t}\\
+ &amp;\le\widehat\mu_{k,t-1}+r_{kt}\\
+ &amp;\le\mu_k+2r_{kt}.
+\end{aligned}\]</span> 第一步和最后一步分别用到 (14.8) 的两个偏差方向。因此，当 <span class="math inline">\(\Delta_k&gt;0\)</span> 时， <span class="math display">\[n_{k,t-1}\le\frac{16b^2\log T}{\Delta_k^2},\qquad
+ n_{kT}\le\frac{16b^2\log T}{\Delta_k^2}+1.\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">置信事件（1），再加上 UCB 选择 <span class="math inline">\(k\)</span>。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 次数阈值（2）：<span class="math inline">\(n_{k,t-1}\le16b^2\log T/\Delta_k^2\)</span>。</p>
+</div>
+<p><span style="color: #C92B32">我的理解：选择臂 <span class="math inline">\(k\)</span>，说明它的置信区间上端点还必须高于最优臂的上端点。一旦选择次数超过阈值，而阈值只随 <span class="math inline">\(\log T\)</span> 增长，在这个论证中就不能再选择它了。</span></p>
+<p>这两幅草图分别比较增长速度、示意越过阈值。</p>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-012.png" alt="image" /></p>
+</div>
+<p>将次数上界代入 regret： <span class="math display">\[R_T=\sum_{k:\Delta_k&gt;0}\Delta_k n_{kT}
+ \ \le\ \sum_{k:\Delta_k&gt;0}\left\{\frac{16b^2\log T}{\Delta_k}+\Delta_k\right\}.\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">最后加上的均值差 <span class="math inline">\(\Delta_k\)</span>。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 该臂初始化时 <span class="math inline">\(t_0=1\)</span> 次选择带来的 regret；第一项对应其余选择。</p>
+</div>
+<h2 id="自适应随机化方案">自适应随机化方案</h2>
+<p>UCB 有局限性：很难与 IID 抽样方法结合，也难以推广到复杂的抽样设计。各臂的 <span class="math inline">\(b_k^2\)</span> 可以不同，需要构造基于不同标准误的、可比较的置信区间。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">UCB 的 <span class="math inline">\(W_t\)</span> 依赖过去的观测。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 许多熟悉的方法，包括统计检验和条件均值模型拟合，依赖随机化的 IID 数据。</p>
+</div>
+<h4 id="thompson-采样">Thompson 采样。</h4>
+<p>这是 UCB 的替代方案：<span style="color: #C92B32">基于 Bayesian 更新的启发式算法。</span></p>
+<ol>
+<li><p>为每个潜在结果分布 <span class="math inline">\(F_k\)</span> 选择先验 <span class="math inline">\(\Pi_{k,0}\)</span>。</p></li>
+<li><p>在时点 <span class="math inline">\(t\)</span>，计算臂 <span class="math inline">\(k\)</span> 是最优臂的后验概率： <span class="math display">\[e_{k,t-1}=P_{\Pi_{t-1}}(\mu_k=\mu^*).\]</span></p></li>
+<li><p>随机选择动作： <span class="math display">\[W_t\sim\operatorname{Categorical}(e_{\cdot,t-1}).\]</span></p></li>
+<li><p>观测 <span class="math inline">\(Y_t=Y_t(W_t)\)</span>，并将后验更新为 <span class="math inline">\(\Pi_t\)</span>。</p></li>
+</ol>
+<p>Thompson 采样与 UCB 有相似的统计行为：周期性地对每个臂采样，直到基本确信该臂较差。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">后验概率降到 <span class="math inline">\(1/T\)</span> 以下。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 基本确信该臂较差。</p>
+</div>
+<p>若后验允许并列最优臂，需指定平局规则，使各概率之和为一。<span class="math inline">\(1/T\)</span> 的比较是直觉，并不是 Thompson sampling 的停止规则。</p>
+<p>Thompson 采样中的动作是随机的，自适应随机化概率依赖过去的数据。这自然可以与因果推断结合。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Thompson 采样使用依赖历史数据的概率随机选择动作。</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 与因果推断结合。</p>
+</div>
+<p>调整先验 <span class="math inline">\(\Pi_0\)</span> 可能比调整 UCB 区间 <span class="math inline">\(\widehat U_{kt}\)</span> 更合理。</p>
+<h2 id="自适应实验中的统计推断">自适应实验中的统计推断</h2>
+<p>分析由 UCB 或 Thompson 采样得到的数据，并对问题背后的参数给出置信结论。这比 IID 情形困难得多。</p>
+<p><span class="math inline">\(\mu_k\)</span> 的两个自然估计量，一是样本均值： <span class="math display">\[\widehat\mu_k^{\mathrm{AVG}}=\widehat\mu_{kT}
+ =\frac1{n_{kT}}\sum_{t=1}^T\mathbf1\{W_t=k\}Y_t,\tag{14.11}\]</span> 二是 Thompson 采样下的 IPW 估计量：</p>
+<p>这里 <span class="math inline">\(e_{tk}=P(W_t=k\mid\mathcal H_{t-1})&gt;0\)</span> 在当前结果出现前计算，对应前面的 <span class="math inline">\(e_{k,t-1}\)</span>。IPW／AW 公式需要随机探索；确定性 UCB 未必给每只臂正的选择概率。</p>
+<p><span class="math display">\[\widehat\mu_k^{\mathrm{IPW}}=\frac1T\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}Y_t}{e_{tk}}.\tag{14.12}\]</span> 由于数据收集是自适应的，这些估计量未必具有渐近正态极限分布，所以置信区间难以构造。</p>
+<p>自适应加权估计量可以得到高斯枢轴量： <span style="color: #C92B32">高斯枢轴量接近，或依分布收敛到 <span class="math inline">\(N(0,1)\)</span>。</span> <span class="math display">\[\widehat\mu_k^{\mathrm{AW}}
+ =\frac{\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}Y_t}{\sqrt{e_{tk}}}}
+ {\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}}.\tag{14.13}\]</span> 例如，设当前潜在结果 IID 且独立于过去，<span class="math inline">\(0&lt;b_k^2&lt;\infty\)</span>，<span class="math inline">\(E|Y_t(k)-\mu_k|^4&lt;\infty\)</span>，可预测概率满足 <span class="math inline">\(e_{tk}\ge ct^{-\alpha}\)</span>，其中 <span class="math inline">\(c&gt;0\)</span>、<span class="math inline">\(0\le\alpha&lt;1\)</span>。则 <span class="math display">\[\widehat V_k^{-1/2}(\widehat\mu_k^{\mathrm{AW}}-\mu_k)
+ \ \Rightarrow\ \mathcal N(0,1),\]</span> 其中 <span class="math display">\[\widehat V_k=
+ \frac{\displaystyle\sum_{t=1}^T
+ \left\{\frac{\mathbf1\{W_t=k\}(Y_t-\widehat\mu_k^{\mathrm{AW}})}
+ {\sqrt{e_{tk}}}\right\}^{\!2}}
+ {\displaystyle\left\{\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}\right\}^{\!2}}.\tag{14.14}\]</span> <strong>我的解释：</strong>由于估计量稳定了方差，便可以恢复 CLT。它的方差变得可控制，从而能应用中心极限定理。</p>
+<h4 id="推导估计量背后的鞅">推导：估计量背后的鞅。</h4>
+<p>鞅 <span class="math inline">\(M_t\)</span> 适应于可用历史 <span class="math inline">\(\mathcal H_t\)</span>，满足 <span class="math inline">\(E|M_t|&lt;\infty\)</span>，且 <span class="math inline">\(E[M_t\mid\mathcal H_{t-1}]=M_{t-1}\)</span>。特别地，<span class="math inline">\(M_t\)</span> 只使用截至时点 <span class="math inline">\(t\)</span> 的信息。</p>
+<p>由 (14.13)， <span class="math display">\[\widehat\mu_k^{\mathrm{AW}}-\mu_k
+ =\frac{\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}(Y_t-\mu_k)}{\sqrt{e_{tk}}}}
+ {\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}}.\]</span> 令分子中的部分和为 <span class="math display">\[M_t=\sum_{j=1}^t
+ \frac{\mathbf1\{W_j=k\}(Y_j-\mu_k)}{\sqrt{e_{jk}}}.\]</span> <span class="math inline">\(W_t\)</span> 根据时点 <span class="math inline">\(t\)</span> 之前可用的信息随机选择，并且给定过去后与 <span class="math inline">\(Y_t(k)\)</span> 独立。因此，<span class="math inline">\(M_t\)</span> 是鞅：</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[\mathbb E[M_{t+1}\mid M_1,\ldots,M_t]=M_t,\qquad \text{对所有 }t.\]</span></p>
+</div>
+<p>由加权方案， <span class="math display">\[\operatorname{Var}[M_t\mid M_1,\ldots,M_{t-1}]=b_k^2,
+ \qquad b_k^2=\operatorname{Var}[Y_t(k)].\tag{14.18}\]</span> 给定之前的部分和后，这也就是新增加一项的条件方差。</p>
+<p>只要 <span class="math inline">\(e_{tk}\)</span> 不衰减得太快，由鞅 CLT 可得 <span class="math display">\[\frac{M_T}{\sqrt{Tb_k^2}}\Rightarrow\mathcal N(0,1).\]</span> <span style="color: #C92B32">自适应加权的 CLT；有限二阶矩；抽样概率 <span class="math inline">\(e_{tk}\)</span> 的衰减速度应慢于 <span class="math inline">\(1/t\)</span>。这排除了最激进的强有效探索方案：一个臂只抽样 <span class="math inline">\(\log T\)</span> 量级的次数。</span></p>
+<details class="technical-note"><summary>补充条件：鞅枢轴量</summary><div class="technical-content">
+<p>一组清楚的充分条件是：<span class="math inline">\(0&lt;b_k^2&lt;\infty\)</span>，<span class="math inline">\(E|Y_t(k)-\mu_k|^4&lt;\infty\)</span>，可预测的 <span class="math inline">\(e_{tk}\ge c t^{-\alpha}\)</span>，其中 <span class="math inline">\(c&gt;0\)</span>、<span class="math inline">\(0\le\alpha&lt;1\)</span>，且当前潜在结果独立于过去的数据。对 <span class="math inline">\(D_t=\mathbf1\{W_t=k\}(Y_t-\mu_k)/\sqrt{e_{tk}}\)</span>， <span class="math display">\[E[D_t\mid\mathcal H_{t-1}]=0,\quad E[D_t^2\mid\mathcal H_{t-1}]=b_k^2,\quad
+ T^{-2}\sum_{t\le T}E[D_t^4]=O(T^{\alpha-1})\to0.\]</span> 由此得到鞅 Lyapunov 条件，以及 <span class="math inline">\(T^{-1}\sum D_t^2\)</span> 的集中性。AW 分母的可预测均值量级至少为 <span class="math inline">\(T^{1-\alpha/2}\)</span>，波动为 <span class="math inline">\(O_P(\sqrt T)\)</span>，因此可得一致性，并允许在方差中使用拟合残差。这些条件充分但非必要。更一般的条件见 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8054003/">Hadad 等（2021）</a>。</p>
+</div></details>
+<p>接着， <span class="math display">\[\frac1{Tb_k^2}\sum_{t=1}^T
+ \left\{\frac{\mathbf1\{W_t=k\}(Y_t-\widehat\mu_k^{\mathrm{AW}})}
+ {\sqrt{e_{tk}}}\right\}^{\!2}
+ \xrightarrow{P}1.\]</span> 这一步证明集中性；再次要求概率不要衰减得太快。<span class="math inline">\(\widehat\mu_k^{\mathrm{AW}}-\mu_k\)</span> 与 <span class="math inline">\(\widehat V_k^{1/2}\)</span> 的分母相消，就得到前面的高斯枢轴量。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(\widehat\mu_k^{\mathrm{AW}}-\mu_k\)</span> 与 <span class="math inline">\(\widehat V_k^{1/2}\)</span> 的分母相消。</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 式 (14.14) 中的高斯枢轴量。</p>
+</div>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-13.html">← 第 13 讲：结构方程建模</a><span></span></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture11-14.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"设定与记号": "setting-and-notation", "我的重新表述": "my-restatement.", "面对不确定性时保持乐观": "optimism-in-the-face-of-uncertainty", "ucb-的-regret-上界": "a-regret-bound-for-ucb", "我对-hoeffding-不等式的疑问": "my-question-about-hoeffdings-inequality.", "继续推导选择次数界": "continuing-the-arm-count-argument.", "自适应随机化方案": "adaptive-randomization-schemes", "thompson-采样": "thompson-sampling.", "自适应实验中的统计推断": "inference-in-adaptive-experiments", "推导估计量背后的鞅": "derivation-the-martingale-behind-the-estimator."}</script></body></html>

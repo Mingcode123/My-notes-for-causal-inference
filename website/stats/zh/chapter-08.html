@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 8 讲：面板数据方法 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-08.html">EN</a><a href="chapter-08.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html" aria-current="page">第 8 讲：面板数据方法</a><ul class="section-list"><li><a href="#常数处理效应模型">常数处理效应模型</a></li><li><a href="#双向模型">双向模型</a></li><li><a href="#交互效应面板模型">交互效应面板模型</a></li><li><a href="#通过可交换性识别">通过可交换性识别</a></li></ul></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-8-讲面板数据方法">第 8 讲：面板数据方法</h1>
+<p>面板（纵向）数据在时刻 <span class="math inline">\(t=1,\ldots,T\)</span> 观测单位 <span class="math inline">\(i=1,\ldots,n\)</span>。把观测排成矩阵：各行对应单位，各列对应时间点 <span class="math inline">\(t_1,t_2,\ldots,T\)</span>。 <span class="math display">\[\begin{array}{c|cccc}
+ &amp;t=t_1&amp;t=t_2&amp;\cdots&amp;t=T\\\hline
+ i=1&amp;&amp;&amp;&amp;\\i=2&amp;&amp;&amp;&amp;\\\vdots&amp;&amp;&amp;&amp;\\i=n&amp;&amp;&amp;&amp;
+\end{array}\]</span></p>
+<h2 id="常数处理效应模型">常数处理效应模型</h2>
+<p>结果为 <span class="math inline">\(Y_{it}\in\mathbb R\)</span>，处理分配为 <span class="math inline">\(W_{it}\in\{0,1\}\)</span>。基本模型是 <span class="math display">\[Y_{it}=Y_{it}(0)+W_{it}\tau,\qquad i=1,\ldots,n,\quad t=1,\ldots,T.
+\tag{ 8.1}\]</span> 这个非常基础的模型没有考虑处理效应异质性及动态效应。这里，所有单位、所有时点的处理效应相同；单位在 <span class="math inline">\(t\)</span> 时点的结果只依赖该时点的处理，不依赖之前的处理。<span style="color: #C92B32"><span class="math inline">\(\tau\)</span> 不依赖 <span class="math inline">\(i,t\)</span>；过去的时点不进入模型。</span></p>
+<h2 id="双向模型">双向模型</h2>
+<p><span class="math display">\[Y_{it}=\alpha_i+\beta_t+W_{it}\tau+\varepsilon_{it},
+\qquad E[\varepsilon\mid\alpha,\beta,W]=0.
+\tag{ 8.2}\]</span> <span style="color: #C92B32"><span class="math inline">\(\alpha_i\)</span>、<span class="math inline">\(\beta_t\)</span> 分别为单位和时间的平移。</span><span style="color: #C92B32">严格外生性条件于完整处理路径及固定效应：决策不能响应任一时期的个体噪声。这比同时期的均值外生性更强。</span></p>
+<p>例如有两个时期，一组的处理路径为 <span class="math inline">\((0,0)\)</span>，另一组为 <span class="math inline">\((0,1)\)</span>。双重差分的闭式估计为</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">DID</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 两组各自的前后差，再做组间差。</p>
+</div>
+<p><span class="math display">\[\widehat\tau=\frac1{|\{i:W_{i2}=1\}|}\sum_{W_{i2}=1}(Y_{i2}-Y_{i1})
+-\frac1{|\{i:W_{i2}=0\}|}\sum_{W_{i2}=0}(Y_{i2}-Y_{i1}).\]</span></p>
+<h4 id="理解">理解。</h4>
+<p>局限是：当 <span class="math inline">\(n,T\)</span> 很大且处理分配分布一般时，模型 (8.2) 可能不成立。类似地，多于两个时期的 OLS 有时也称为 DID，但一般 OLS 系数不再由两组前后差的简单式子描述。其优点是平行趋势要求比较直观（单位只在 <span class="math inline">\(\alpha_i\)</span> 上存在差异）；没有平行趋势就不能使用。 在平衡面板中，对单位和时间指标残差化：<span class="math inline">\(\widetilde W_{it}=W_{it}-\overline W_{i\cdot}-\overline W_{\cdot t}+\overline W_{\cdot\cdot}\)</span>，<span class="math inline">\(Y\)</span> 同理。若 <span class="math inline">\(\sum_{it}\widetilde W_{it}^2&gt;0\)</span>，<span class="math display">\[\widehat\tau=\frac{\sum_{it}\widetilde W_{it}\widetilde Y_{it}}{\sum_{it}\widetilde W_{it}^2}.\]</span> 这里平行趋势指条件均值路径，而非带噪声的实际结果。</p>
+<h4 id="补充噪声建模与方差估计">补充：噪声建模与方差估计。</h4>
+<p>将各行向量 <span class="math inline">\(\varepsilon_i=(\varepsilon_{i1},\ldots,\varepsilon_{iT})\)</span> 视为在单位之间独立同分布，并有 <span class="math inline">\(\operatorname{Var}[\varepsilon_i]=\Sigma\)</span>。假设每个 <span class="math inline">\(\varepsilon_{it}\)</span> 都相互独立，很难论证，也不合理。<span class="math inline">\(T=2\)</span> 时，直接估计差分的方差： <span class="math display">\[\widehat{\operatorname{Var}}[\widehat\tau]
+=\frac{\widehat{\operatorname{Var}}[Y_{i2}-Y_{i1}\mid W_{i2}=1]}{|\{i:W_{i2}=1\}|}
++\frac{\widehat{\operatorname{Var}}[Y_{i2}-Y_{i1}\mid W_{i2}=0]}{|\{i:W_{i2}=0\}|}.
+\tag{ 8.4}\]</span> 同一行／单位内的误差相关时，该方法仍稳健。</p>
+<h2 id="交互效应面板模型">交互效应面板模型</h2>
+<p>考虑交互效应面板模型 <span class="math display">\[Y_{it}=A_{i\cdot}B_{t\cdot}^{\mathsf T}+W_{it}\tau+\varepsilon_{it},
+ \qquad\mathbb E[\varepsilon\mid A,B,W]=0,\tag{8.5}\]</span> 其中 <span class="math inline">\(A\in\mathbb R^{n\times k}\)</span>、<span class="math inline">\(B\in\mathbb R^{T\times k}\)</span>，<span class="math inline">\(k\)</span> 是秩参数。等价地， <span class="math display">\[Y_{it}=L_{it}+W_{it}\tau+\varepsilon_{it}
+ \qquad\text{对某个秩至多为 $k$ 的矩阵 }L.\]</span></p>
+<h4 id="我的矩阵直觉">我的矩阵直觉。</h4>
+<p>将 <span class="math inline">\(A\)</span> 的取值沿行往下放，<span class="math inline">\(B\)</span> 的取值沿列横向放。秩为一时，交点的元素就是 <span class="math inline">\(a_i b_t\)</span>；若 <span class="math inline">\(k\ne1\)</span>，则该元素是一个和 <span class="math inline">\(a_{i1}b_{t1}+a_{i2}b_{t2}+\cdots\)</span>。</p>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-004.png" alt="image" /></p>
+</div>
+<p>处理这个模型，可以考虑合成控制和合成双重差分。假设当且仅当 <span class="math inline">\(i&gt;n_0\)</span> 且 <span class="math inline">\(t&gt;T_0\)</span> 时，<span class="math inline">\(W_{it}=1\)</span>。图中在第 <span class="math inline">\(n_0\)</span> 行、第 <span class="math inline">\(T_0\)</span> 列分割结果矩阵，只有右下角区块接受处理。</p>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-005.png" alt="image" /></p>
+</div>
+<p>用未处理个体拟合处理组在处理前的轨迹： <span class="math display">\[\sum_{i=1}^{n_0}\gamma_iY_{it}
+ \approx\alpha+\frac1{n-n_0}\sum_{i=n_0+1}^nY_{it},
+ \qquad t=1,\ldots,T_0.\]</span> <span style="color: #C92B32">第一组从不接受处理；第二组在 <span class="math inline">\(T_0\)</span> 之后接受处理。</span>截距 <span class="math inline">\(\alpha\)</span> 的作用类似于固定效应。权重选择为 <span class="math display">\[\begin{aligned}
+ (\widehat\gamma,\widehat\alpha)\in
+ \operatorname*{arg\,min}_{\gamma&#39;,\alpha}\quad&amp;
+ \left\|\sum_{i=1}^{n_0}\gamma&#39;_iY_{i,1:T_0}
+ -\frac1{n-n_0}\sum_{i=n_0+1}^nY_{i,1:T_0}
+ -\alpha\mathbf1\right\|_2^2,\\
+ \text{约束为}\quad&amp;\sum_{i=1}^{n_0}\gamma&#39;_i=1,
+ \qquad\gamma&#39;_i\ge0.
+\end{aligned}
+\tag{8.7}\]</span> <span style="color: #C92B32"><span class="math inline">\(\gamma_i\)</span> 的目的是创造平行趋势，从而平衡潜在的 <span class="math inline">\(A_i\)</span> 项。</span></p>
+<p>最后，在加权的双向模型中估计处理系数： <span class="math display">\[(\widehat\tau,\widehat\alpha,\widehat\beta)
+ \in\operatorname*{arg\,min}_{\tau&#39;,\alpha&#39;,\beta&#39;}
+ \sum_{i,t}\gamma_i
+ (Y_{it}-\alpha&#39;_i-\beta&#39;_t-W_{it}\tau&#39;)^2,\tag{8.8}\]</span> 其中，对 <span class="math inline">\(i&gt;n_0\)</span>，<span class="math inline">\(\gamma_i=1/(n-n_0)\)</span>。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">加权回归中处理个体的权重</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span style="color: #C92B32">对 <span class="math inline">\(i&gt;n_0\)</span>，<span class="math inline">\(\gamma_i=1/(n-n_0)\)</span>。</span></p>
+</div>
+<p>处理系数的闭式解为 <span class="math display">\[\begin{aligned}
+ \widehat\tau={}&amp;\frac1{n-n_0}\sum_{i=n_0+1}^n
+ \left\{\frac1{T-T_0}\sum_{t=T_0+1}^TY_{it}
+ -\frac1{T_0}\sum_{t=1}^{T_0}Y_{it}\right\}\\
+ &amp;-\sum_{i=1}^{n_0}\gamma_i
+ \left\{\frac1{T-T_0}\sum_{t=T_0+1}^TY_{it}
+ -\frac1{T_0}\sum_{t=1}^{T_0}Y_{it}\right\}.
+\end{aligned}\]</span> <span style="color: #C92B32">这依赖 <span class="math inline">\(T_0\)</span> 和 <span class="math inline">\(n\)</span>。</span>在适当的大面板渐近框架下，<span class="math inline">\(n_0,n_1,T\to\infty\)</span> 时，估计量一致。 一致性要求处理前因子能够揭示处理后相关的方向，处理前信息足够，并控制噪声与权重集中。仅有良好的处理前拟合并不充分。完整合成 DID 还使用时间权重和正则化；这里的式子突出单位加权思路。</p>
+<h4 id="其他方法">其他方法。</h4>
+<p>合成控制并非处理交互式固定效应的唯一方法。例如，通过 <span class="math inline">\(k\)</span>-均值聚类矩阵 <span class="math inline">\(Y\)</span> 的行，然后分别为每个群组拟合时变基线模型。</p>
+<h2 id="通过可交换性识别">通过可交换性识别</h2>
+<p>回顾 <span class="math inline">\(Y_{it}=Y_{it}(0)+W_{it}\tau\)</span>。一个基于设计的假设为 <span class="math display">\[Y_{i\cdot}(0)\perp W_{i\cdot}\mid S_i,
+ \qquad S_i=\sum_{t=1}^TW_{it}.\tag{8.10}\]</span> 其一个推论：考虑线性估计量 <span class="math display">\[\widehat\tau=\sum_{i,t}\gamma_{it}Y_{it},\tag{8.11}\]</span> 权重矩阵只依赖 <span class="math inline">\(W\)</span>。在 (8.10) 下，给定同一个 <span class="math inline">\(S_i\)</span> 值，未处理潜在结果可交换，并且 <span class="math display">\[\mathbb E[\widehat\tau\mid W,\gamma]
+ =\sum_{i,t}\gamma_{it}\mathbb E[Y_{it}(0)\mid S_i]
+ +\tau\sum_{i,t}\gamma_{it}W_{it}.\]</span> 因此，只要满足下列条件，就可得无偏性： <span class="math display">\[\sum_{i,t}\gamma_{it}W_{it}=1,
+ \qquad
+ \sum_{i:S_i=s}\gamma_{it}=0
+ \quad\text{对每个 }t\text{ 和 }s\in\mathcal S,\]</span> 其中 <span class="math inline">\(\mathcal S\)</span> 是 <span class="math inline">\(S_i\)</span> 的支持集。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">同一层内，条件期望为常数</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\sum_{i:S_i=s}\gamma_{it}=0\)</span> 消去 <span class="math inline">\(\sum_i\gamma_{it}E[Y_{it}(0)\mid S_i]\)</span>。</p>
+</div>
+<p>这里假设各行独立同分布，且条件均值共同为 <span class="math inline">\(E[Y_{it}(0)\mid S_i=s]=m_t(s)\)</span>。准则 <span class="math inline">\(\sum_{it}\gamma_{it}^2\)</span> 对应条件不相关且同方差的单元格；单位内协方差为 <span class="math inline">\(\Sigma_i\)</span> 时使用 <span class="math inline">\(\sum_i\gamma_i^\mathsf T\Sigma_i\gamma_i\)</span>。只要平衡约束可行，即使该工作方差模型错设，无偏性仍成立。</p>
+<p>在这些无偏性约束下，选择使方差最小的 <span class="math inline">\(\gamma\)</span>： <span class="math display">\[\begin{aligned}
+ \gamma\in\operatorname*{arg\,min}_{\gamma&#39;}\quad&amp;\sum_{i,t}(\gamma&#39;_{it})^2,\\
+ \text{约束为}\quad&amp;\sum_{i,t}\gamma&#39;_{it}W_{it}=1,
+ \quad\sum_{i:S_i=s}\gamma&#39;_{it}=0\quad\text{对所有 }s,t.
+\end{aligned}
+\tag{8.14}\]</span> <span style="color: #244DA8">大致说，需要相同 <span class="math inline">\(S_i\)</span> 的个体之间存在 <span class="math inline">\(W_{it}\)</span> 的变异。</span></p>
+<h4 id="两组识别约束">两组识别约束。</h4>
+<p>回顾双向模型 <span class="math display">\[Y_{it}=\alpha_i+\beta_t+W_{it}\tau+\varepsilon_{it},
+ \qquad\mathbb E[\varepsilon\mid\alpha,\beta,W]=0.\tag{8.2，回顾}\]</span> 在这个模型下，若满足下列条件，估计量 (8.11) 也无偏： <span class="math display">\[\sum_t\gamma_{it}=0\ \text{对每个 }i,
+ \qquad\sum_i\gamma_{it}=0\ \text{对每个 }t,
+ \qquad\sum_{i,t}\gamma_{it}W_{it}=1.\]</span> <span style="color: #C92B32">前两个等式消去固定效应 <span class="math inline">\(\alpha_i\)</span> 和 <span class="math inline">\(\beta_t\)</span>，第三个等式将处理系数归一化。</span></p>
+<p>合并这些约束可得到双重稳健估计量：最小化 <span class="math inline">\(\sum_{i,t}\gamma_{it}^2\)</span>，约束为 <span class="math display">\[\sum_{i,t}\gamma_{it}W_{it}=1,
+ \qquad\sum_{i:S_i=s}\gamma_{it}=0\quad\text{对所有 }s,t,\]</span> <span class="math display">\[\sum_t\gamma_{it}=0\quad\text{对所有 }i,
+ \qquad\sum_i\gamma_{it}=0\quad\text{对所有 }t.\]</span> 只要 (8.2) 或 (8.10) 任一成立，它就无偏。</p>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-07.html">← 第 7 讲：平衡估计量</a><a href="chapter-09.html">第 9 讲：工具变量回归 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"常数处理效应模型": "a-constant-treatment-effect-model", "双向模型": "the-two-way-model", "理解": "comments.", "补充噪声建模与方差估计": "supplement-modeling-the-noise-and-estimating-variance.", "交互效应面板模型": "interactive-panel-models", "我的矩阵直觉": "my-matrix-intuition.", "其他方法": "another-approach.", "通过可交换性识别": "identification-through-exchangeability", "两组识别约束": "two-sets-of-identifying-restrictions."}</script></body></html>

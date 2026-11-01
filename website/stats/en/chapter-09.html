@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 9: Instrumental variables regression · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-09.html" aria-current="true">EN</a><a href="../zh/chapter-09.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html" aria-current="page">Lecture 9: Instrumental variables regression</a><ul class="section-list"><li><a href="#a-structural-model">A structural model</a></li><li><a href="#identification-with-an-instrument">Identification with an instrument</a></li><li><a href="#optimal-instruments">Optimal instruments</a></li><li><a href="#cross-fitting-and-feasible-estimation">Cross-fitting and feasible estimation</a></li><li><a href="#nonparametric-instrumental-variables-regression">Nonparametric instrumental variables regression</a></li></ul></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-9-instrumental-variables-regression">Lecture 9: Instrumental variables regression</h1>
+<p>Instrumental variables regression addresses endogenous treatment effects, where <span class="math inline">\(Y_i(0)\)</span> and <span class="math inline">\(W_i\)</span> are dependent.</p>
+<h2 id="a-structural-model">A structural model</h2>
+<p>Start with a constant-effect model: <span class="math display">\[Y_i(w)=Y_i(0)+w\tau,\qquad Y_i=Y_i(W_i).\tag{9.1}\]</span> Unconfoundedness ordinarily means <span class="math inline">\(\{Y_i(w)\}\perp W_i\)</span>; in (9.1), this is <span class="math inline">\(Y_i(0)\perp W_i\)</span>. Rewrite the model as</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Constant-effect potential outcomes and unconfoundedness</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span class="math inline">\(Y_i=\alpha+W_i\tau+\varepsilon_i\)</span>.</p>
+</div>
+<p><span class="math display">\[Y_i=\alpha+W_i\tau+\varepsilon_i,\tag{9.2}\]</span> where <span class="math inline">\(\alpha=\mathbb E[Y_i(0)]\)</span> and <span class="math inline">\(\varepsilon_i=Y_i(0)-\mathbb E[Y_i(0)]\)</span>. Under unconfoundedness, <span class="math inline">\(\mathbb E[\varepsilon_i\mid W_i]=0\)</span>, so OLS of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(W_i\)</span> estimates <span class="math inline">\(\tau\)</span>.</p>
+<p>Equation (9.2) still holds with confounding, but the conditional mean of <span class="math inline">\(\varepsilon_i\)</span> may depend on <span class="math inline">\(W_i\)</span>. OLS then targets <span class="math display">\[\begin{aligned}
+ \tau_{\mathrm{OLS}}
+ &amp;=\frac{\operatorname{Cov}(Y_i,W_i)}{\operatorname{Var}(W_i)}\\
+ &amp;=\frac{\operatorname{Cov}(\tau W_i+\varepsilon_i,W_i)}{\operatorname{Var}(W_i)}
+ =\tau+\frac{\operatorname{Cov}(\varepsilon_i,W_i)}{\operatorname{Var}(W_i)}
+ .
+\end{aligned}\]</span> <span style="color: #C92B32">This ratio is the OLS coefficient.</span> The coefficient differs from <span class="math inline">\(\tau\)</span> when <span class="math inline">\(\operatorname{Cov}(\varepsilon,W)\ne0\)</span>; dependence alone need not create linear bias. IV identification requires a nonzero first-stage covariance.</p>
+<h2 id="identification-with-an-instrument">Identification with an instrument</h2>
+<p>Introduce <span class="math inline">\(Z_i\)</span>: <span class="math display">\[Y_i=\alpha+W_i\tau+\varepsilon_i,\qquad\varepsilon_i\perp Z_i,
+ \qquad W_i=Z_i\gamma+\eta_i.\tag{9.4}\]</span> Since <span class="math inline">\(Z_i\)</span> is uncorrelated with <span class="math inline">\(\varepsilon_i\)</span>, <span class="math display">\[\operatorname{Cov}(Y_i,Z_i)
+ =\operatorname{Cov}(\tau W_i+\varepsilon_i,Z_i)
+ =\tau\operatorname{Cov}(W_i,Z_i).\]</span> Hence <span class="math display">\[\tau=\frac{\operatorname{Cov}(Y_i,Z_i)}{\operatorname{Cov}(W_i,Z_i)},
+ \qquad
+ \widehat\tau=\frac{\widehat{\operatorname{Cov}}(Y_i,Z_i)}
+ {\widehat{\operatorname{Cov}}(W_i,Z_i)}.\]</span></p>
+<h4 id="my-checklist-for-an-iv.">My checklist for an IV.</h4>
+<ol>
+<li><p><strong>Exogenous:</strong> <span class="math inline">\(\varepsilon_i\perp Z_i\)</span>.</p></li>
+<li><p><strong>Relevant:</strong> <span class="math inline">\(\operatorname{Cov}(W_i,Z_i)\ne0\)</span>.</p></li>
+<li><p><strong>Exclusion restriction:</strong> every effect of <span class="math inline">\(Z_i\)</span> on <span class="math inline">\(Y_i\)</span> must pass through <span class="math inline">\(W_i\)</span>.</p></li>
+</ol>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-006.png" alt="image" /></p>
+</div>
+<h2 id="optimal-instruments">Optimal instruments</h2>
+<p>Allow a high-dimensional instrument <span class="math inline">\(Z_i\in\mathcal Z\)</span>: <span class="math display">\[Y_i=\tau W_i+\varepsilon_i,\qquad\varepsilon_i\perp Z_i,
+ \qquad Y_i,W_i\in\mathbb R.\]</span> For a function <span class="math inline">\(w:\mathcal Z\to\mathbb R\)</span>, <span class="math display">\[\tau=\frac{\operatorname{Cov}(Y_i,w(Z_i))}
+ {\operatorname{Cov}(W_i,w(Z_i))},\tag{9.8}\]</span> with nonzero denominator. Which transformation <span class="math inline">\(w(\cdot)\)</span> is optimal? The estimator is <span class="math display">\[\begin{aligned}
+ \widehat\tau_w
+ &amp;=\frac{\widehat{\operatorname{Cov}}(Y_i,w(Z_i))}
+ {\widehat{\operatorname{Cov}}(W_i,w(Z_i))}\\
+ &amp;=\frac{n^{-1}\sum_i(Y_i-\overline Y)(w(Z_i)-\overline{w(Z)})}
+ {n^{-1}\sum_i(W_i-\overline W)(w(Z_i)-\overline{w(Z)})},
+\end{aligned}
+\tag{9.9}\]</span> where <span class="math inline">\(\overline Y=n^{-1}\sum_iY_i\)</span>, with analogous definitions for the other averages. It solves the estimating equation <span class="math display">\[\frac1n\sum_i(w(Z_i)-\overline{w(Z)})
+ \{Y_i-\overline Y-\widehat\tau_w(W_i-\overline W)\}=0.\tag{9.10}\]</span> The limit is <span class="math display">\[\sqrt n(\widehat\tau_w-\tau)\Rightarrow\mathcal N(0,V_w),
+ \qquad
+ V_w=\frac{\operatorname{Var}(\varepsilon_i)\operatorname{Var}(w(Z_i))}
+ {\operatorname{Cov}(W_i,w(Z_i))^2}.\tag{9.11}\]</span> This limit uses IID observations, finite required moments, centered errors and nonzero limiting first-stage covariance. Its first-order term is<span class="math display">\[\sqrt n(\widehat\tau_w-\tau)=\frac{n^{-1/2}\sum_i(w(Z_i)-E[w(Z)])\varepsilon_i}{\operatorname{Cov}(W,w(Z))}+o_p(1).\]</span></p>
+<p>Because <span class="math inline">\(Z_i\perp\varepsilon_i\)</span> and <span class="math inline">\(\mathbb E[\varepsilon_i]=0\)</span>, <span class="math display">\[\operatorname{Var}\{\varepsilon_i(w(Z_i)-\mathbb E[w(Z_i)])\}
+ =\operatorname{Var}(\varepsilon_i)\operatorname{Var}(w(Z_i)).\]</span> To minimize asymptotic variance, maximize the reciprocal ratio:</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Use the reciprocal of the variance-dependent ratio</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The maximization defining <span class="math inline">\(w^*(\cdot)\)</span> below.</p>
+</div>
+<p><span class="math display">\[w^*(\cdot)\in\operatorname*{arg\,max}_{w&#39;}
+ \frac{\operatorname{Cov}(W_i,w&#39;(Z_i))^2}{\operatorname{Var}(w&#39;(Z_i))}.\]</span> A solution is <span class="math display">\[w^*(z)\propto\mathbb E[W_i\mid Z_i=z].\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32"><span class="math inline">\(w^*(z)\propto E[W_i\mid Z_i=z]\)</span></span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span style="color: #C92B32">The best prediction of <span class="math inline">\(W_i\)</span> from <span class="math inline">\(Z_i\)</span>.</span></p>
+</div>
+<p>Writing <span class="math inline">\(m(Z)=E[W\mid Z]\)</span>, Cauchy–Schwarz gives <span class="math inline">\(\operatorname{Cov}(W,w)^2=\operatorname{Cov}(m,w)^2\le\operatorname{Var}(m)\operatorname{Var}(w)\)</span>. Equality holds for <span class="math inline">\(w=a+bm\)</span>, <span class="math inline">\(b\ne0\)</span>, if <span class="math inline">\(\operatorname{Var}(m)&gt;0\)</span>. This optimality uses the independence setup above.</p>
+<h4 id="conditioning-on-covariates.">Conditioning on covariates.</h4>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p>The condition can be extended to <span class="math inline">\(\varepsilon_i\perp Z_i\mid X_i\)</span>, giving <span class="math display">\[\tau(x)=\frac{\operatorname{Cov}(Y_i,w(Z_i)\mid X_i=x)}
+ {\operatorname{Cov}(W_i,w(Z_i)\mid X_i=x)}.\]</span> This motivates a doubly robust estimator of the average effect <span class="math inline">\(\tau=\mathbb E[\tau(X)]\)</span>, and a random-forest estimator of <span class="math inline">\(\tau(\cdot)\)</span>.</p>
+</div>
+<p>This equals <span class="math inline">\(\tau(x)\)</span> under <span class="math inline">\(Y=a(X)+W\tau(X)+\varepsilon\)</span>, <span class="math inline">\(E[\varepsilon\mid Z,X]=0\)</span> and a nonzero conditional first stage. With unrestricted individual heterogeneity, a valid instrument need not identify the CATE; suitable monotonicity can instead identify a conditional local effect.</p>
+<p>A useful reminder: for independent <span class="math inline">\(X_1,X_2\)</span>, <span class="math display">\[\begin{aligned}
+ \operatorname{Var}(X_1X_2)
+ ={}&amp;\operatorname{Var}(X_1)\operatorname{Var}(X_2)\\
+ &amp;+\mathbb E[X_2]^2\operatorname{Var}(X_1)
+ +\mathbb E[X_1]^2\operatorname{Var}(X_2).
+\end{aligned}\]</span></p>
+<h4 id="starred-supplement-estimating-equations-and-the-delta-method.">Starred supplement: estimating equations and the delta method.</h4>
+<p>If functions <span class="math inline">\(\psi_i\)</span> satisfy <span class="math inline">\(\mathbb E[\psi_i(\theta)]=0\)</span>, and <span class="math inline">\(\widehat\theta\)</span> is estimated by <span class="math display">\[\frac1n\sum_{i=1}^n\psi_i(\widehat\theta)=0,\]</span> then, under differentiability, nonsingular derivative and moment conditions, <span class="math display">\[\sqrt n(\widehat\theta-\theta)\Rightarrow\mathcal N(0,V),
+ \qquad
+ V=\frac{\operatorname{Var}(\psi_i(\theta))}
+ {\mathbb E[\psi_i&#39;(\theta)]^2}.\]</span></p>
+<h2 id="cross-fitting-and-feasible-estimation">Cross-fitting and feasible estimation</h2>
+<p>The optimal instrument is <span class="math inline">\(w^*(z)=\mathbb E[W_i\mid Z_i=z]\)</span>. The general procedure is:</p>
+<ol>
+<li><p>Fit a nonparametric first-stage regression to estimate <span class="math inline">\(\mathbb E[W_i\mid Z_i=z]\)</span>, obtaining <span class="math inline">\(\widehat w(\cdot)\)</span>.</p></li>
+<li><p>Use <span class="math inline">\(\widehat w(\cdot)\)</span> as the instrument in (9.9), obtaining <span class="math inline">\(\widehat\tau_w\)</span>.</p></li>
+</ol>
+<p>However, with many instruments this can create overfitting bias. If <span class="math inline">\(\widehat w(Z_i)\)</span> is fit using the entire data set, it need not be independent of <span class="math inline">\(\varepsilon_i\)</span>: the fitted instrument can inherit the dependence of <span class="math inline">\(W_i\)</span> on <span class="math inline">\(\varepsilon_i\)</span>.</p>
+<h4 id="my-overfitting-example.">My overfitting example.</h4>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p>Let <span class="math inline">\(W_i=\alpha+\beta Z_i+\eta_i\)</span>, with fitted value <span class="math inline">\(\widehat W_i=\widehat\alpha+\widehat\beta Z_i\)</span>. The structural equation is <span class="math inline">\(Y_i=\gamma+\delta W_i+\varepsilon_i\)</span>; substituting the fitted treatment gives <span class="math display">\[Y_i=\gamma+\delta\widehat W_i+\{\varepsilon_i+\delta(W_i-\widehat W_i)\}.\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">Rewrite using fitted treatment <span class="math inline">\(\widehat W_i\)</span></span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> Return to <span class="math inline">\(Y_i=\gamma+\delta W_i+\varepsilon_i\)</span>: the residual changes too.</p>
+</div>
+<p>My concern is that an overfit first stage may learn the noise in <span class="math inline">\(W_i\)</span> that is related to <span class="math inline">\(\varepsilon_i\)</span>, without removing this dependence.</p>
+</div>
+<p>If <span class="math inline">\(Z\)</span> is pure noise, relevance fails. Cross-fitting avoids reusing an observations own noise but cannot create a relevant instrument.</p>
+<p>Use <span class="math inline">\(K\)</span>-fold cross-fitting instead. With <span class="math inline">\(k(i)\)</span> the fold containing observation <span class="math inline">\(i\)</span>, <span class="math display">\[\widehat\tau=
+ \frac{\widehat{\operatorname{Cov}}(Y_i,\widehat w^{(-k(i))}(Z_i))}
+ {\widehat{\operatorname{Cov}}(W_i,\widehat w^{(-k(i))}(Z_i))}.\tag{9.13}\]</span> The corresponding fitted instrument is independent of the observation’s error under the stated sampling setup. In particular, if <span class="math inline">\(\widehat w^{(-k(i))}(z)\)</span> is mean-square consistent for <span class="math inline">\(\mathbb E[W_i\mid Z_i=z]\)</span>, then (9.13) is asymptotically equivalent to the oracle version of (9.9). Write this consistency as</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[\lim_{n\to\infty}\mathbb E[(\widehat w_n-\mathbb E[W\mid Z])^2]=0,\]</span></p>
+</div>
+<p><span style="color: #C92B32">where <span class="math inline">\(n\)</span> is the sample size.</span> With a nonvanishing first stage, suitable moments and first-stage mean-square consistency, the cross-fitted estimator has the oracle limit. Independence is conditional on each training fold; overlapping training samples do not make all fitted observations mutually independent.</p>
+<h2 id="nonparametric-instrumental-variables-regression">Nonparametric instrumental variables regression</h2>
+<p>The previous model is linear in treatment <span class="math inline">\(W_i\)</span>: <span class="math inline">\(Y_i=W_i\tau+\varepsilon_i\)</span>.</p>
+<p>Generalize it to <span class="math display">\[Y_i=g(W_i)+\varepsilon_i,\qquad Z_i\perp\varepsilon_i,
+ \qquad Y_i,W_i\in\mathbb R,\quad Z_i\in\mathcal Z,\]</span> where <span class="math inline">\(g\)</span> is a general smooth function.</p>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p><strong>My concern:</strong> we cannot simply run a nonparametric regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(W_i\)</span>, because <span class="math display">\[\mathbb E[Y_i\mid W_i=w]=g(w)+\mathbb E[\varepsilon_i\mid W_i=w],\]</span> and the conditional error mean need not vanish.</p>
+</div>
+<p>Since <span class="math inline">\(Z_i\perp\varepsilon_i\)</span> and <span class="math inline">\(\mathbb E[\varepsilon_i]=0\)</span>, <span class="math display">\[\begin{aligned}
+ \mathbb E[Y_i\mid Z_i=z]
+ &amp;=\mathbb E[g(W_i)+\varepsilon_i\mid Z_i=z]\\
+ &amp;=\mathbb E[g(W_i)\mid Z_i=z]
+ =\int_{\mathbb R}g(w)f(w\mid z)\,dw.
+\end{aligned}
+\tag{9.15}\]</span> Here <span class="math inline">\(f(w\mid z)\)</span> is the conditional density of <span class="math inline">\(W_i\)</span> given <span class="math inline">\(Z_i=z\)</span>.</p>
+<p>A learning procedure:</p>
+<ol>
+<li><p>Estimate <span class="math inline">\(\widehat f(w\mid z)\)</span> using cross-fitting.</p></li>
+<li><p>Choose a suitable function class <span class="math inline">\(\mathcal G\)</span> and minimize the loss to estimate <span class="math inline">\(g\)</span>: <span class="math display">\[\widehat g\in\operatorname*{arg\,min}_{g\in\mathcal G}
+ \frac1n\sum_{i=1}^n\left\{
+ Y_i-\int_{\mathbb R}g(w)\widehat f^{(-k(i))}(w\mid Z_i)\,dw
+ \right\}^{\!2}.\tag{9.16}\]</span></p></li>
+</ol>
+<p>To solve this in practice, approximate <span class="math inline">\(g\)</span> with a basis expansion, <span class="math display">\[g_K(w)=\sum_{k=1}^K\beta_k\psi_k(w),\]</span> where the <span class="math inline">\(\psi_k\)</span> are predetermined basis functions. As <span class="math inline">\(K\)</span> grows, <span class="math inline">\(g_K\)</span> better approximates <span class="math inline">\(g\)</span>. Then <span class="math display">\[\widehat\beta\in\operatorname*{arg\,min}_\beta
+ \frac1n\sum_{i=1}^n
+ \{Y_i-\widehat m^{(-k(i))}(Z_i)^{\mathsf T}\beta\}^2,\tag{9.17}\]</span> with components <span class="math display">\[\widehat m_k^{(-k(i))}(Z_i)=
+ \int_{\mathbb R}\psi_k(w)\widehat f^{(-k(i))}(w\mid Z_i)\,dw.\]</span> <span style="color: #244DA8">My understanding: consistent estimation of <span class="math inline">\(g(\cdot)\)</span> needs conditions. The integral equation (9.15) is complicated; the basis expansion (9.17) turns it into regression, with a cost in regularization. This connects to the cross-fitted first-stage idea in (9.13).</span></p>
+<details class="technical-note"><summary>Identification and regularization</summary><div class="technical-content">
+<p>Let <span class="math inline">\((Th)(z)=E[h(W)\mid Z=z]\)</span>. Identification requires injectivity on the chosen class: <span class="math inline">\(Th=0\)</span> implies <span class="math inline">\(h(W)=0\)</span> almost surely (completeness). Inversion may still be ill posed, so sieve dimension or other regularization must control instability and approximation error.</p>
+</div></details>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-08.html">← Lecture 8: Methods for Panel Data</a><a href="chapter-10.html">Lecture 10: Local average treatment effects →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"a-structural-model": "结构模型", "identification-with-an-instrument": "利用工具变量识别", "my-checklist-for-an-iv.": "我的-iv-条件检查表", "optimal-instruments": "最优工具变量", "conditioning-on-covariates.": "以协变量为条件", "starred-supplement-estimating-equations-and-the-delta-method.": "星号补充估计方程与-delta-方法", "cross-fitting-and-feasible-estimation": "交叉拟合与可行估计", "my-overfitting-example.": "我的过拟合例子", "nonparametric-instrumental-variables-regression": "非参数工具变量回归"}</script></body></html>

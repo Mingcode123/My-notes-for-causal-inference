@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 11: Policy learning · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-11.html" aria-current="true">EN</a><a href="../zh/chapter-11.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html" aria-current="page">Lecture 11: Policy learning</a><ul class="section-list"><li><a href="#policy-learning-by-empirical-maximization">Policy learning by empirical maximization</a></li><li><a href="#policy-learning-as-weighted-classification">Policy learning as weighted classification</a></li><li><a href="#efficient-scoring-rules-for-policy-learning">Efficient scoring rules for policy learning</a></li><li><a href="#the-role-of-the-policy-class">The role of the policy class</a></li></ul></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-11-policy-learning">Lecture 11: Policy learning</h1>
+<p>We study how to allocate treatment so as to maximize benefit. The decision is simply which group a person should enter: treatment or control.</p>
+<p>A treatment policy is a mapping <span class="math display">\[\pi:\mathcal X\longrightarrow\{0,1\}.\]</span> An individual with characteristics <span class="math inline">\(X_i=x\)</span> is treated if and only if <span class="math inline">\(\pi(x)=1\)</span>. The goal is to find a policy that maximizes expected utility: <span class="math display">\[V(\pi)=\mathbb E[Y_i(\pi(X_i))].\]</span> (Take <span class="math inline">\(Y_i=1\)</span> to be a good outcome.) For a policy class <span class="math inline">\(\Pi\)</span>, define <span class="math display">\[\pi^*=\operatorname*{arg\,max}_{\pi&#39;\in\Pi}V(\pi&#39;).\]</span> The regret of another policy is <span class="math display">\[R(\pi)=\sup_{\pi&#39;\in\Pi}V(\pi&#39;)-V(\pi).\]</span> <span style="color: #C92B32">the loss is regret, rather than squared-error loss.</span> The objective is to learn a policy with a guaranteed upper bound on worst-case regret: a minimax regret criterion.</p>
+<p>Assume IID observations <span class="math inline">\((X_i,Y_i,W_i)\in\mathcal X\times\mathbb R\times\{0,1\}\)</span>, <span class="math inline">\(i=1,\ldots,n\)</span>, with <span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,\qquad Y_i=Y_i(W_i),\]</span> <span class="math display">\[0&lt;\eta\le e(X_i)\le1-\eta&lt;1,\qquad e(x)=\mathbb P(W_i=1\mid X_i=x).\]</span> After learning <span class="math inline">\(\widehat\pi\)</span>, set <span class="math inline">\(W_i=\widehat\pi(X_i)\)</span> and expect <span class="math inline">\(Y_i=Y_i(\widehat\pi(X_i))\)</span> to be large. <strong>My observation:</strong> once treatment is assigned this way, assignment has no randomness; we can no longer learn the causal effect from it in the same way.</p>
+<p>Deployment data alone lose overlap: <span class="math inline">\(e(x)\in\{0,1\}\)</span>. Earlier randomized data or additional assumptions may still support causal learning.</p>
+<h2 id="policy-learning-by-empirical-maximization">Policy learning by empirical maximization</h2>
+<p>In general, <span class="math display">\[\widehat\pi=\operatorname*{arg\,max}_{\pi\in\Pi}\widehat V(\pi).\]</span> If <span class="math inline">\(e(x)\)</span> is known, an unbiased IPW choice is <span class="math display">\[\widehat V_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n
+ \frac{\mathbf1\{W_i=\pi(X_i)\}Y_i}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]},
+ \qquad
+ \widehat\pi_{\mathrm{IPW}}
+ =\operatorname*{arg\,max}_{\pi\in\Pi}\widehat V_{\mathrm{IPW}}(\pi).\]</span> In words, retain observations whose treatment <span class="math inline">\(W_i\)</span> agrees with the policy <span class="math inline">\(\pi(X_i)\)</span>, and weight their observed outcomes using the inverse assignment probability. Unconfoundedness gives <span class="math display">\[\begin{aligned}
+ \mathbb E[\widehat V_{\mathrm{IPW}}(\pi)]
+ &amp;=\mathbb E\left[
+ \frac{\mathbf1\{W_i=\pi(X_i)\}Y_i(\pi(X_i))}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]}\right]\\
+ &amp;=\mathbb E\left[
+ \mathbb E\left[\left.
+ \frac{\mathbf1\{W_i=\pi(X_i)\}}
+ {\mathbb P[W_i=\pi(X_i)\mid X_i]}\right|X_i\right]
+ \mathbb E[Y_i(\pi(X_i))\mid X_i]\right]\\
+ &amp;=\mathbb E[Y_i(\pi(X_i))]=V(\pi).
+\end{aligned}\]</span> <span style="color: #C92B32">The conditional expectation of the indicator divided by its probability is <span class="math inline">\(1\)</span>.</span> <span class="math display">\[\textcolor{red}{\boxed{\textcolor{black}{E\left[\left.
+ \frac{\mathbf1\{W_i=\pi(X_i)\}}{P[W_i=\pi(X_i)\mid X_i]}
+ \right|X_i\right]}}}=\textcolor{red}{1}.\]</span></p>
+<h4 id="analogy-unbiasedness-of-the-ate-ipw-estimator.">Analogy: unbiasedness of the ATE IPW estimator.</h4>
+<p><span class="math display">\[\begin{aligned}
+ \mathbb E[\widehat\tau^*_{\mathrm{IPW}}]
+ &amp;=\mathbb E\left[\frac{W_iY_i}{e(X_i)}-
+ \frac{(1-W_i)Y_i}{1-e(X_i)}\right]\\
+ &amp;=\mathbb E\left[\frac{W_iY_i(1)}{e(X_i)}-
+ \frac{(1-W_i)Y_i(0)}{1-e(X_i)}\right]\\
+ &amp;=\mathbb E\left[
+ \mathbb E\left[\left.\frac{W_iY_i(1)}{e(X_i)}\right|e(X_i)\right]
+ -\mathbb E\left[\left.\frac{(1-W_i)Y_i(0)}{1-e(X_i)}\right|e(X_i)\right]
+ \right]\\
+ &amp;=\mathbb E[Y_i(1)-Y_i(0)].
+\end{aligned}\]</span> Thus it is unbiased for <span class="math inline">\(\tau\)</span>.</p>
+<h2 id="policy-learning-as-weighted-classification">Policy learning as weighted classification</h2>
+<p>Decompose the value function: <span class="math display">\[V(\pi)=\underbrace{\mathbb E[Y_i(0)]}_{\textcolor{red}{E_0}}+
+ \mathbb E[(Y_i(1)-Y_i(0))\pi(X_i)].\]</span> <strong>My interpretation:</strong> this displays the baseline outcome <span class="math inline">\(E_0\)</span> and the contribution from the treatment effects of people treated by <span class="math inline">\(\pi(\cdot)\)</span>.</p>
+<p>With <span class="math inline">\(\tau(x)\)</span> denoting the CATE, the policy advantage is <span class="math display">\[\begin{aligned}
+ A(\pi)&amp;=2\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(0)+Y_i(1)]\\
+ &amp;=\mathbb E[(2\pi(X_i)-1)\tau(X_i)].
+\end{aligned}\]</span> <span class="math inline">\(A(\pi)\)</span> is the advantage of <span class="math inline">\(\pi(\cdot)\)</span>. The same <span class="math inline">\(\pi^*\)</span> maximizes <span class="math inline">\(A(\pi)\)</span> over <span class="math inline">\(\Pi\)</span>.</p>
+<p>Rewrite IPW: <span class="math inline">\(\widehat\pi_{\mathrm{IPW}}\)</span> maximizes <span class="math display">\[\begin{aligned}
+ \widehat A_{\mathrm{IPW}}(\pi)
+ &amp;=2\widehat V_{\mathrm{IPW}}(\pi)
+ -\frac1n\sum_{i=1}^n\left\{
+ \frac{W_iY_i}{e(X_i)}+\frac{(1-W_i)Y_i}{1-e(X_i)}\right\}\\
+ &amp;=\frac1n\sum_{i=1}^n(2\pi(X_i)-1)
+ \left\{\frac{W_iY_i}{e(X_i)}-
+ \frac{(1-W_i)Y_i}{1-e(X_i)}\right\}.
+\end{aligned}
+\tag{11.10}\]</span> For fixed <span class="math inline">\(\pi\)</span>, this estimates the advantage without bias.</p>
+<p>This unbiasedness statement is for a fixed policy, or a policy learned from independent data; maximizing the estimate on the same sample need not preserve unbiasedness.</p>
+<p>Write <span class="math display">\[\widehat A_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\Gamma_i^{\mathrm{IPW}},
+ \qquad
+ \Gamma_i^{\mathrm{IPW}}=
+ \frac{W_iY_i}{e(X_i)}-\frac{(1-W_i)Y_i}{1-e(X_i)}.\tag{11.11}\]</span> Here <span class="math inline">\(\Gamma_i^{\mathrm{IPW}}\)</span> is the IPW score used in ATE estimation: <span class="math inline">\(\widehat\tau_{\mathrm{IPW}}=n^{-1}\sum_i\Gamma_i^{\mathrm{IPW}}\)</span>. <strong>My interpretation:</strong> <span class="math inline">\(\widehat A_{\mathrm{IPW}}(\pi)\)</span> resembles the ATE IPW estimator. When <span class="math inline">\(\pi(X_i)=1\)</span>, we “earn” that individual’s treatment effect; when <span class="math inline">\(\pi(X_i)=0\)</span>, we “pay” that individual’s treatment effect.</p>
+<p>For optimization, write <span class="math display">\[\widehat A_{\mathrm{IPW}}(\pi)
+ =\frac1n\sum_{i=1}^n
+ \underbrace{(2\pi(X_i)-1)\operatorname{sign}(\Gamma_i)}_{\textcolor{red}{\text{classification target}}}
+ \underbrace{|\Gamma_i|}_{\textcolor{red}{\text{weight }\star}}.\tag{11.12}\]</span> <span style="color: #C92B32">The sign defines a classification target and <span class="math inline">\(|\Gamma_i|\)</span> is the weight .</span> Maximizing the advantage is equivalent to optimizing a weighted classification objective. <span style="color: #244DA8">In practice one often minimizes a weighted surrogate loss instead. But the estimator may be wrong.</span> See Wager (2020), <em>On regression tables for policy learning: Comment on a paper by Jiang, Song, Li and Zeng</em>.</p>
+<p>The exact score minimizes weighted classification error because <span class="math inline">\((2\pi(X_i)-1)\Gamma_i=|\Gamma_i|[1-2\mathbf1\{\pi(X_i)\ne\mathbf1\{\Gamma_i&gt;0\}\}]\)</span>. A surrogate loss need not retain that optimizer within a restricted policy class.</p>
+<h4 id="supplement-complexity-and-a-regret-rate.">Supplement: complexity and a regret rate.</h4>
+<p><span style="color: #C92B32">The VC dimension measures the complexity of <span class="math inline">\(\Pi\)</span>; look up its precise definition.</span> If <span class="math inline">\(|Y_i|\le M\)</span>, <span class="math inline">\(\eta\le e(X_i)\le1-\eta\)</span> (so the scores are bounded), and <span class="math inline">\(\Pi\)</span> has finite Vapnik–Chervonenkis dimension, then <span class="math display">\[R(\widehat\pi_{\mathrm{IPW}})
+ =O_P\left(\frac M\eta\sqrt{\frac{\operatorname{VC}(\Pi)}n}\right),
+ \quad
+ \widehat\pi_{\mathrm{IPW}}=
+ \operatorname*{arg\,max}_{\pi\in\Pi}\widehat A_{\mathrm{IPW}}(\pi).\]</span> <span style="color: #C92B32">This is an optimal convergence rate. What about superefficiency: after fixing <span class="math inline">\(\pi(x)\)</span>, could convergence with <span class="math inline">\(n\)</span> observations be faster than <span class="math inline">\(\sqrt{\operatorname{VC}(\Pi)/n}\)</span>?</span></p>
+<p>Here the rate is a worst-case learning rate. Faster regret at an easier distribution is compatible with it; estimating the value of a fixed policy is a separate problem.</p>
+<h2 id="efficient-scoring-rules-for-policy-learning">Efficient scoring rules for policy learning</h2>
+<p>Is there a better learning method? Observe that <span class="math display">\[\begin{aligned}
+ A(\pi)&amp;=2\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(0)+Y_i(1)]\\
+ &amp;=\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(1-\pi(X_i))].
+\end{aligned}\]</span> Thus <span class="math inline">\(A(\pi)\)</span> is the ATE in an experiment comparing deployment of <span class="math inline">\(\pi(\cdot)\)</span> with deployment of its opposite policy.</p>
+<p>Oracle IPW is feasible but inefficient. The oracle AIPW estimator uses an efficient score and reaches the semiparametric efficiency bound: <span class="math display">\[\widehat A^*_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\Gamma_i^*,\]</span> <span class="math display">\[\Gamma_i^*=\mu_1(X_i)-\mu_0(X_i)
+ +W_i\frac{Y_i-\mu_1(X_i)}{e(X_i)}
+ -(1-W_i)\frac{Y_i-\mu_0(X_i)}{1-e(X_i)}.\]</span> Assume further that there are <span class="math inline">\(o_P(n^{-1/4})\)</span>-consistent regression adjustments <span class="math inline">\(\widehat\mu_w(x)\)</span> and <span class="math inline">\(\widehat e(x)\)</span>. <span style="color: #C92B32">As <span class="math inline">\(n\to\infty\)</span>, both nuisance-estimation errors are <span class="math inline">\(o_P(n^{-1/4})\)</span>.</span> Construct a doubly robust estimator close to the efficient oracle: <span class="math display">\[\widehat A_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\widehat\Gamma_i,\]</span> <span class="math display">\[\begin{aligned}
+ \widehat\Gamma_i={}&amp;\widehat\mu_1^{(-k(i))}(X_i)
+ -\widehat\mu_0^{(-k(i))}(X_i)\\
+ &amp;+W_i\frac{Y_i-\widehat\mu_1^{(-k(i))}(X_i)}
+ {\widehat e^{(-k(i))}(X_i)}
+ -(1-W_i)\frac{Y_i-\widehat\mu_0^{(-k(i))}(X_i)}
+ {1-\widehat e^{(-k(i))}(X_i)}.
+\end{aligned}\]</span> This too is a weighted classification objective. If <span class="math inline">\(\Pi\)</span> is a VC class, the feasible and oracle objectives are uniformly asymptotically equivalent faster than <span class="math inline">\(1/\sqrt n\)</span>: <span class="math display">\[\sqrt n\sup_{\pi\in\Pi}
+ \left|\widehat A_{\mathrm{AIPW}}(\pi)
+ -\widehat A^*_{\mathrm{AIPW}}(\pi)\right|
+ \xrightarrow{P}0.\tag{11.17}\]</span></p>
+<p>Take these rates in <span class="math inline">\(L_2(P_X)\)</span>, with cross-fitting, fixed finite VC dimension, bounded outcomes and estimated propensities bounded away from <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>. In particular, <span class="math inline">\(\|\widehat e-e\|_2\max_w\|\widehat\mu_w-\mu_w\|_2=o_P(n^{-1/2})\)</span>.</p>
+<h4 id="continuation-regret-and-efficiency.">Continuation: regret and efficiency.</h4>
+<p>Combining the preceding result with empirical-process concentration gives <span class="math display">\[R(\widehat\pi_{\mathrm{AIPW}})
+ =O_P\left(\sqrt{\frac{V^*\operatorname{VC}(\Pi)}n}\right),
+ \quad
+ \widehat\pi_{\mathrm{AIPW}}
+ =\operatorname*{arg\,max}_{\pi\in\Pi}\widehat A_{\mathrm{AIPW}}(\pi),\]</span> <span class="math display">\[V^*=\mathbb E[\tau^2(X_i)]
+ +\mathbb E\left[\frac{\operatorname{Var}(Y_i(0)\mid X_i)}{1-e(X_i)}\right]
+ +\mathbb E\left[\frac{\operatorname{Var}(Y_i(1)\mid X_i)}{e(X_i)}\right].\]</span> Athey and Wager (2017 preprint), <em>Policy learning with observational data</em>.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">The displayed <span class="math inline">\(V^*\)</span> decomposition.</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> This bound is optimal when the treatment effect just emerges from the noise.</p>
+</div>
+<p><span style="color: #C92B32">Not quite right…</span> Here <span class="math inline">\(V^*=E[(\Gamma_i^*)^2]\)</span> and <span class="math inline">\(\operatorname{Var}((2\pi(X)-1)\Gamma_i^*)=V^*-A(\pi)^2\)</span>. The optimality claim concerns a worst-case model; it is not a pointwise claim for every distribution.</p>
+<h2 id="the-role-of-the-policy-class">The role of the policy class</h2>
+<p>Start from a nonparametric model: <span class="math inline">\(\mu_w(x)\)</span> and <span class="math inline">\(e(x)\)</span> may be arbitrary. Then the Bayes-optimal treatment assignment rule is <span class="math display">\[\pi_{\mathrm{Bayes}}(x)=\mathbf1\{\tau(x)&gt;0\}.\]</span> Our goal, however, is to work with a specified policy class <span class="math inline">\(\Pi\)</span>, not necessarily to approximate this Bayes rule. Examples include linear decision rules, <span class="math inline">\(k\)</span>-sparse decision rules, and decision trees of depth <span class="math inline">\(\ell\)</span>. We do not require <span class="math inline">\(\pi_{\mathrm{Bayes}}\in\Pi\)</span>.</p>
+<p>Reasons:</p>
+<ol>
+<li><p>We use <span class="math inline">\(X_i\)</span> to make unconfoundedness plausible: <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i\)</span>. Access to a richer, appropriate set of pretreatment confounders can make this assumption more plausible; adding arbitrary variables, such as colliders, need not do so. For reliable modeling, it is preferable to use richer features and flexible nonparametric models for <span class="math inline">\(e(x)\)</span> and <span class="math inline">\(\mu_w(x)\)</span>.</p></li>
+<li><p>A policy has a concrete form and practical restrictions: it may not use certain features; resources or treatment budgets may be limited; and the functional form of <span class="math inline">\(\pi(\cdot)\)</span> may be constrained.</p></li>
+</ol>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-10.html">← Lecture 10: Local average treatment effects</a><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture11-14.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"policy-learning-by-empirical-maximization": "通过经验最大化学习策略", "analogy-unbiasedness-of-the-ate-ipw-estimator.": "类比ate-的-ipw-估计量为何无偏", "policy-learning-as-weighted-classification": "将策略学习转化为加权分类", "supplement-complexity-and-a-regret-rate.": "补充复杂度与-regret-的收敛速度", "efficient-scoring-rules-for-policy-learning": "策略学习的有效得分", "continuation-regret-and-efficiency.": "续记regret-与效率", "the-role-of-the-policy-class": "策略类的作用"}</script></body></html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 6 讲：断点回归的有限样本推断 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-06.html">EN</a><a href="chapter-06.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html" aria-current="page">第 6 讲：断点回归的有限样本推断</a><ul class="section-list"><li><a href="#极小极大线性估计">极小极大线性估计</a></li><li><a href="#推导极小极大线性权重">推导极小极大线性权重</a></li><li><a href="#线性估计量的推断">线性估计量的推断</a></li><li><a href="#超出同方差情形">超出同方差情形</a></li></ul></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-6-讲断点回归的有限样本推断">第 6 讲：断点回归的有限样本推断</h1>
+<p>有限样本 RDD 允许不连续／离散的驱动变量，或更复杂的阈值规则。局部线性回归的解 (6.2) 可以写成线性估计量： <span class="math display">\[\widehat\tau_c(\gamma)=\sum_{i=1}^n\gamma_iY_i.\tag{6.3}\]</span> 权重仅依赖 <span class="math inline">\(Z_i\)</span>。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">局部线性解 (6.2)</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 线性估计量 (6.3)，下面继续分析其性质。</p>
+</div>
+<p>若 <span class="math display">\[Y_i(w)=\mu_{(w)}(Z_i)+\varepsilon_i(w),\qquad
+\varepsilon_i(w)\mid Z_i\sim N(0,b^2),\]</span> 则在给定 <span class="math inline">\(Z_1,\ldots,Z_n\)</span> 后， <span class="math display">\[\widehat\tau_c(\gamma)\sim N(\widehat\tau_c^*(\gamma),b^2\|\gamma\|_2^2),
+\qquad \widehat\tau_c^*(\gamma)=\sum_i\gamma_i\mu_{(W_i)}(Z_i).\]</span> 这里 <span class="math inline">\(W_i=\mathbf1_{\{Z_i\geq c\}}\)</span>，且<span style="color: #C92B32"><span class="math inline">\(\|\gamma\|_2=(\gamma_1^2+\cdots+\gamma_n^2)^{1/2}\)</span> 是欧几里得范数。</span></p>
+<h2 id="极小极大线性估计">极小极大线性估计</h2>
+<p><span style="color: #C92B32">极小极大是指最小化最坏情形的均方误差（MSE）。</span>同方差下，线性估计量的条件方差可以直接写为 <span class="math inline">\(b^2\|\gamma\|_2^2\)</span>。其偏差则依赖未知的条件均值： <span class="math display">\[\operatorname{Bias}(\widehat\tau_c(\gamma)\mid Z_1,\ldots,Z_n)
+=\sum_i\gamma_i\mu_{(W_i)}(Z_i)-[\mu_{(1)}(c)-\mu_{(0)}(c)].\]</span> 光滑性限制 <span class="math inline">\(|\mu_{(w)}&#39;&#39;(z)|\leq B\)</span> 给出偏差的上界 <span class="math display">\[I_B(\gamma)=\sup_{|\mu_{(w)}&#39;&#39;|\leq B}
+\left\{\sum_i\gamma_i\mu_{(W_i)}(Z_i)-[\mu_{(1)}(c)-\mu_{(0)}(c)]\right\}.\]</span> <span style="color: #244DA8">因为二阶导数约束的函数类对称，取上确界时不需要绝对值。</span>因此 <span class="math display">\[|\operatorname{Bias}(\widehat\tau_c(\gamma)\mid Z_1,\ldots,Z_n)|\leq I_B(\gamma),\]</span> <span class="math display">\[\operatorname{MSE}(\widehat\tau_c(\gamma)\mid Z_1,\ldots,Z_n)
+\leq b^2\|\gamma\|_2^2+I_B^2(\gamma).\]</span> <span style="color: #C92B32">MSE = 方差 + 偏差平方；这个界不依赖未知的 <span class="math inline">\(\mu\)</span>。</span>接着定义 <span class="math display">\[\gamma^B=\arg\min_\gamma\{b^2\|\gamma\|_2^2+I_B^2(\gamma)\},\qquad
+\widehat\tau_c(\gamma^B)=\sum_i\gamma_i^B Y_i.
+\tag{ 6.8}\]</span> <span style="color: #244DA8">比较：在同一曲率约束下，优化后的最坏 MSE 不大于局部线性估计的最坏 MSE。</span> 条件于设计，假设误差独立且服从已知方差 <span class="math inline">\(b^2\)</span> 的高斯分布，并使用有效曲率上界 <span class="math inline">\(B\)</span>。极小极大准则最小化该函数类中的最坏 MSE，并非对每个回归函数都更好。离散设计要求约束可行，区间宽度可能保持为正。</p>
+<h2 id="推导极小极大线性权重">推导极小极大线性权重</h2>
+<p>分解为 <span class="math display">\[\mu_{(w)}(z)=a_{(w)}+\beta_{(w)}(z-c)+\rho_{(w)}(z),\]</span> 其中 <span class="math inline">\(\rho_{(w)}(c)=\rho&#39;_{(w)}(c)=0\)</span>，二阶导数以 <span class="math inline">\(B\)</span> 为界。截距和斜率没有限制，因此除非满足下列条件，否则 <span class="math inline">\(I_B(\gamma)\)</span> 可以为无穷大： <span class="math display">\[\sum_i\gamma_iW_i=1,\qquad \sum_i\gamma_i=0,\qquad
+\sum_i\gamma_i(Z_i-c)_+=0,\qquad \sum_i\gamma_i(Z_i-c)_-=0.\]</span> 加上这些约束后，只需控制余项。将式 (6.8) 改写为 <span class="math display">\[(\gamma^B,t)=\arg\min_{\gamma,t}\{b^2\|\gamma\|_2^2+B^2t^2\},\]</span> 约束为 <span class="math display">\[\sum_i\gamma_iW_i\rho_{(1)}(Z_i)+\sum_i\gamma_i(1-W_i)\rho_{(0)}(Z_i)\leq t\]</span> 对所有满足 <span class="math inline">\(\rho_{(w)}(c)=\rho&#39;_{(w)}(c)=0\)</span>、<span class="math inline">\(|\rho&#39;&#39;_{(w)}(z)|\leq1\)</span> 的 <span class="math inline">\(\rho_{(w)}\)</span> 都成立，同时满足 <span class="math display">\[\sum_i\gamma_iW_i=1,\quad\sum_i\gamma_i=0,\quad
+\sum_i\gamma_iW_i(Z_i-c)=0,\quad
+\sum_i\gamma_i(1-W_i)(Z_i-c)=0.
+\tag{ 6.10}\]</span> 提示：求解对应的对偶问题。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">原始极小极大优化问题 (6.10)</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 转化为对偶问题求解。</p>
+</div>
+<h4 id="个人补充为什么权重之和为零">个人补充：为什么权重之和为零？</h4>
+<p>最终估计的是一个差。将求和拆成处理组和对照组两部分： <span class="math display">\[\widehat\tau_c(\gamma)=\sum_i\gamma_i^{(1)}Y_i+\sum_i\gamma_i^{(2)}Y_i.\]</span> 处理组权重之和为 <span class="math inline">\(1\)</span>，对照组权重之和为 <span class="math inline">\(-1\)</span>，所以</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32"><span class="math inline">\(W=1\)</span> 组；<span class="math inline">\(W=0\)</span> 组</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span style="color: #C92B32">权重分别加总为 <span class="math inline">\(1\)</span>、<span class="math inline">\(-1\)</span>；总和为 <span class="math inline">\(0\)</span>。</span></p>
+</div>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[\sum_i\gamma_i=1+(-1)=0,\quad
+\sum_i\gamma_i^{(1)}=\sum_i\gamma_iW_i=1,\quad
+\sum_i\gamma_i^{(2)}=\sum_i\gamma_i(1-W_i)=-1.\]</span></p>
+</div>
+<p>图中的权重在阈值左侧近处有负的尖峰，右侧近处有正的尖峰；离阈值更远时，权重改变符号，然后趋近零。</p>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-003.png" alt="image" /></p>
+</div>
+<h2 id="线性估计量的推断">线性估计量的推断</h2>
+<p>构造 <span class="math inline">\(\widehat\tau_c(\gamma^B)\)</span> 的置信区间。令 <span class="math display">\[\mathrm{err}=\widehat\tau_c-\tau_c,\qquad
+\mathrm{err}\mid Z_1,\ldots,Z_n\sim N(\mathrm{bias},b^2\|\gamma^B\|_2^2),\]</span> 其中由式 (6.10) 得到 <span class="math inline">\(|\mathrm{bias}|\leq Bt\)</span>。根据高斯分布的单峰性，对于 <span class="math inline">\(S\sim N(0,1)\)</span>， <span class="math display">\[P(|\mathrm{err}|\geq\zeta)\leq P(|Bt+b\|\gamma^B\|_2S|\geq\zeta).\]</span> 条件覆盖率至少为 <span class="math inline">\(1-\alpha\)</span> 的置信区间是 <span class="math display">\[I_\alpha=(\widehat\tau_c(\gamma^B)-\zeta_\alpha^B,
+\widehat\tau_c(\gamma^B)+\zeta_\alpha^B),\]</span> <span class="math display">\[\zeta_\alpha^B=\inf\{\zeta:P(|Bt+b\|\gamma^B\|_2S|&gt;\zeta)\leq\alpha\}.
+\tag{ 6.13}\]</span> <span style="color: #244DA8">强调：条件于 <span class="math inline">\(Z_i\)</span>，因此驱动变量服从任何分布都可以，包括非标准的 RDD 情形。</span></p>
+<h4 id="离散驱动变量">离散驱动变量。</h4>
+<p>单独限制 <span class="math inline">\(|\mu_{(w)}&#39;&#39;(z)|\leq B\)</span> 不一定能识别 <span class="math inline">\(\tau_c\)</span>，但式 (6.13) 仍有效。<span class="math inline">\(Z_i\)</span> 连续时，区间以 <span class="math inline">\(n^{-2/5}\)</span> 速度缩小；<span class="math inline">\(Z_i\)</span> 离散时，长度未必趋于零。<span style="color: #244DA8">当 <span class="math inline">\(c\)</span> 不在驱动变量的支持集内，需要用满足二阶导数界的插值函数表示 <span class="math inline">\(\mu_{(w)}(z)\)</span>。</span></p>
+<h4 id="多维驱动变量">多维驱动变量。</h4>
+<p>例如二维、三维区域以及地理边界。不能直接使用一维阈值 RDD；<span style="color: #244DA8">有的方法将其化为一维距离，这样可能丢失相关空间信息。</span>极小极大方法则可以直接推广到多维。</p>
+<h2 id="超出同方差情形">超出同方差情形</h2>
+<p>当误差 <span class="math inline">\(\varepsilon_i=Y_i-\mu_{(W_i)}(Z_i)\)</span> 不再是方差为 <span class="math inline">\(b^2\)</span> 的同方差高斯误差时，式 (6.11) 的精确正态分布结论不成立。利用中心极限定理来说明 <span class="math display">\[\widehat\tau_c(\gamma)\mid Z_1,\ldots,Z_n
+\ \approx\ N\left(\widehat\tau_c^*(\gamma),
+\sum_i\gamma_i^2\operatorname{Var}[Y_i\mid Z_i,W_i]\right).
+\tag{ 6.14}\]</span> 若高斯近似有效，仍可构造置信区间。将条件方差估计为 <span class="math display">\[\widehat V_n=\sum_i\gamma_i^2(Y_i-\widehat\mu_{(W_i)}(Z_i))^2,\]</span> 其中拟合均值来自局部线性回归。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">局部线性拟合的均值</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 残差方差估计量中的 <span class="math inline">\(\widehat\mu_{(W_i)}(Z_i)\)</span>。</p>
+</div>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">在独立评估数据上，如果均值拟合错了</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span style="color: #244DA8">残差平方期望增加了均值误差的平方。</span></p>
+</div>
+<p>极小极大准则 (6.8) 针对同方差；异方差下，将各个方差 <span class="math inline">\(b_i^2\)</span> 引入用于构造对偶问题的式 (6.10)。 残差膨胀的直觉适用于独立评估数据：残差平方期望等于条件方差加均值误差平方。样本内过拟合反而可能缩小残差。应使用有效的留一法或交叉拟合方差估计，并要求不存在支配性观测的加权中心极限定理。</p>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-05.html">← 第 5 讲：断点回归设计</a><a href="chapter-07.html">第 7 讲：平衡估计量 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"极小极大线性估计": "minimax-linear-estimation", "推导极小极大线性权重": "deriving-the-minimax-linear-weights", "个人补充为什么权重之和为零": "personal-supplement-why-do-the-weights-sum-to-zero", "线性估计量的推断": "inference-with-linear-estimators", "离散驱动变量": "discrete-running-variables.", "多维驱动变量": "multivariate-running-variables.", "超出同方差情形": "beyond-homoskedasticity"}</script></body></html>

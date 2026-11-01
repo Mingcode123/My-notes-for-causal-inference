@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第14章：面板数据与固定效应 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-14.html">EN</a><a href="chapter-14.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>Brave and True</h2><ol class="chapter-list"><li><a href="chapter-01.html">第1章：因果推断入门</a></li><li><a href="chapter-02.html">第2章：随机实验</a></li><li><a href="chapter-03.html">第3章：统计学回顾</a></li><li><a href="chapter-04.html">第4章：图模型</a></li><li><a href="chapter-05.html">第5章：线性回归的作用</a></li><li><a href="chapter-06.html">第6章：分组与虚拟变量回归</a></li><li><a href="chapter-07.html">第7章：控制混杂因素之外</a></li><li><a href="chapter-08.html">第8章：工具变量</a></li><li><a href="chapter-09.html">第9章：不依从与局部平均处理效应</a></li><li><a href="chapter-10.html">第10章：匹配</a></li><li><a href="chapter-11.html">第11章：倾向得分</a></li><li><a href="chapter-12.html">第12章：双重稳健估计</a></li><li><a href="chapter-13.html">第13章：双重差分</a></li><li><a href="chapter-14.html" aria-current="page">第14章：面板数据与固定效应</a></li><li><a href="chapter-15.html">第15章：合成控制</a></li><li><a href="chapter-16.html">第16章：断点回归设计</a></li><li class="chapter-group">第二部分：应用</li><li><a href="chapter-17.html">第17章：预测模型基础</a></li><li><a href="chapter-18.html">第18章：异质处理效应与个性化</a></li><li><a href="chapter-19.html">第19章：评价因果模型</a></li><li><a href="chapter-20.html">第20章：即插即用估计量</a></li><li><a href="chapter-21.html">第21章：元学习器</a></li><li><a href="chapter-22.html">第22章：去偏／正交机器学习</a></li><li><a href="chapter-23.html">第23章：效应异质性与非线性</a></li><li><a href="chapter-24.html">第24章：双重差分的发展与问题</a></li><li><a href="chapter-25.html">第25章：合成双重差分</a></li><li><a href="chapter-26.html">附录：去偏与预测</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">Brave and True · 中文</div><h1 id="第14章面板数据与固定效应">第14章：面板数据与固定效应</h1>
+<p>面板数据在多个时间反复观测同一单位。固定个体身份后，可用个体固定效应消除加性且不随时间变化的特征。</p>
+<p>回顾 DID。对处理城市，干预后的未处理反事实可用“其干预前未处理结果 + 未处理城市随时间的变化”估计： <span class="math display">\[E[Y_0(1)\mid D=1]=E[Y_0(0)\mid D=1]+E[Y_0(1)-Y_0(0)\mid D=0].\]</span></p>
+<p>于是 <span class="math inline">\(\widehat{\mathrm{ATT}}=\widehat E[Y_1(1)\mid D=1]-\widehat E[Y_0(1)\mid D=1]\)</span>：第一项已知，第二项估计。例子旁注提到在 DMA 投放广告的效果。</p>
+<p>平行趋势约束的是前述未处理均值的变化，并非每个个体潜在结果的恒等式。面板模型为 <span class="math display">\[y_{it}=\beta X_{it}+\gamma U_i+e_{it}.\]</span> <span style="color: #244DA8"><span class="math inline">\(y_{it}\)</span> 是单位 <span class="math inline">\(i\)</span> 在时期 <span class="math inline">\(t\)</span> 的结果，<span class="math inline">\(X_{it}\)</span> 随时间变化，<span class="math inline">\(U_i\)</span> 无法观测且不随时间变化。</span></p>
+<h4 id="面板数据的局限">面板数据的局限。</h4>
+<div class="original-ink" data-ink="blue" style="color: #244DA8">
+<p>面板数据不能解决反向因果：原因和结果互相增强，固定效应无法控制这种关系。它也不能消除随时间变化的未观测混杂因素。</p>
+</div>
+<h4 id="线性面板模型的残差化">线性面板模型的残差化。</h4>
+<p>对于两组特征 <span class="math inline">\(X_1,X_2\)</span>， <span class="math display">\[\hat y=X_1\hat\beta_1+X_2\hat\beta_2.\]</span> 特征矩阵以观测为行、特征为列。</p>
+<ol>
+<li><p>将 <span class="math inline">\(y\)</span> 对第二组特征回归：<span class="math inline">\(\hat y^*=P_{X_2}Y\)</span>。</p></li>
+<li><p>将 <span class="math inline">\(X_1\)</span> 对 <span class="math inline">\(X_2\)</span> 回归：<span class="math inline">\(\hat X_1=P_{X_2}X_1\)</span>。</p></li>
+<li><p>取残差 <span class="math inline">\(\widetilde X_1=X_1-\hat X_1\)</span> 和 <span class="math inline">\(\widetilde y=y-\hat y^*\)</span>。</p></li>
+<li><p>将结果残差对特征残差回归，得到 <span class="math inline">\(X_1\)</span> 的系数。</p></li>
+</ol>
+<h4 id="组内变换within-transformation">组内变换（within transformation）。</h4>
+<p>计算 <span class="math inline">\(\ddot Y_{it}=Y_{it}-\bar Y_i\)</span> 和 <span class="math inline">\(\ddot X_{it}=X_{it}-\bar X_i\)</span>，再将 <span class="math inline">\(\ddot Y_{it}\)</span> 对 <span class="math inline">\(\ddot X_{it}\)</span> 回归。因为 <span class="math inline">\(\bar U_i=U_i\)</span>，固定效应消失： <span class="math display">\[\begin{aligned}
+Y_{it}&amp;=\beta X_{it}+\gamma U_i+e_{it},\\
+\bar Y_i&amp;=\beta\bar X_i+\gamma\bar U_i+\bar e_i,\\
+Y_{it}-\bar Y_i&amp;=\beta(X_{it}-\bar X_i)+\gamma(U_i-\bar U_i)+(e_{it}-\bar e_i),\\
+\ddot Y_{it}&amp;=\beta\ddot X_{it}+\ddot e_{it}.
+\end{aligned}\]</span> <span style="color: #244DA8">这样去掉了所有不随时间变化的未观测特征。</span> 对通胀等时间效应，可为每个时期加入一个虚拟变量；随时间变化的因素也可能重要。个体内去均值后的变量总和为零；这一中心化恒等式对时变变量也成立。固定特征消失，是因为其每个去均值值都为零。因果解释仍需外生性，通常为 <span class="math inline">\(E[e_{it}\mid X_{i1},\ldots,X_{iT},U_i]=0\)</span>。</p>
+<p>图中画了多条平行的“购买量—成本”直线。固定效应模型给每个城市拟合一条线，并假定不同条件下的因果效应相同。</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-Chinese-figure-007.png" alt="image" /></p>
+<p><span>各城市内部平行的购买量—成本直线，保留蓝色。</span></p>
+</div>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-13.html">← 第13章：双重差分</a><a href="chapter-15.html">第15章：合成控制 →</a></nav><div class="article book-downloads"><a href="../../Brave-and-True-Chinese.pdf">完整 PDF</a> · <a download href="../../Brave-and-True-Chinese.md">Markdown</a> · <a href="https://matheusfacure.github.io/python-causality-handbook/landing-page.html">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"面板数据的局限": "limits-of-panel-data.", "线性面板模型的残差化": "residualizing-a-linear-panel-model.", "组内变换within-transformation": "within-transformation."}</script></body></html>

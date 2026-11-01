@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 14: Adaptive experiments · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-14.html" aria-current="true">EN</a><a href="../zh/chapter-14.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html" aria-current="page">Lecture 14: Adaptive experiments</a><ul class="section-list"><li><a href="#setting-and-notation">Setting and notation</a></li><li><a href="#optimism-in-the-face-of-uncertainty">Optimism in the face of uncertainty</a></li><li><a href="#a-regret-bound-for-ucb">A regret bound for UCB</a></li><li><a href="#adaptive-randomization-schemes">Adaptive randomization schemes</a></li><li><a href="#inference-in-adaptive-experiments">Inference in adaptive experiments</a></li></ul></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-14-adaptive-experiments">Lecture 14: Adaptive experiments</h1>
+<p>Adaptive experiments dynamically adjust the experimental design. Earlier fixed experiments worked in an IID setting, an assumption that is sometimes too restrictive.</p>
+<h2 id="setting-and-notation">Setting and notation</h2>
+<p>There are actions <span class="math inline">\(k=1,\ldots,K\)</span> and subjects <span class="math inline">\(t=1,\ldots,T\)</span>. Across subjects, potential outcomes are IID. Write <span class="math display">\[Y_t(k)\sim F_k,\qquad Y_t=Y_t(W_t),\qquad
+ \mu_k=\mathbb E[Y_t(k)].\]</span> <span class="math inline">\(W_t\)</span> is the action selected for subject <span class="math inline">\(t\)</span>, <span class="math inline">\(F_k\)</span> is the potential-outcome distribution for arm <span class="math inline">\(k\)</span>, and <span class="math inline">\(\mu_k\)</span> is its mean. Define regret by <span class="math display">\[R_T=\sum_{t=1}^T(\mu^*-\mu_{W_t}),\qquad
+ \mu^*=\sup_{1\le k\le K}\mu_k.\]</span> <span class="math inline">\(\mu^*\)</span> is the largest expected reward among the available actions. Regret is the expected reward lost by choosing a sequence of actions instead of always choosing the best action.</p>
+<p>Define <span class="math display">\[n_{kt}=\sum_{j=1}^t\mathbf1\{W_j=k\},\qquad
+ \widehat\mu_{kt}=\frac1{n_{kt}}\sum_{j=1}^t\mathbf1\{W_j=k\}Y_j.\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(n_{kt}\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Number of pulls of arm <span class="math inline">\(k\)</span> through time <span class="math inline">\(t\)</span>.</p>
+</div>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(\widehat\mu_{kt}\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Average reward of arm <span class="math inline">\(k\)</span>.</p>
+</div>
+<p><span style="color: #C92B32">These use the information collected from time <span class="math inline">\(1\)</span> through <span class="math inline">\(t\)</span>.</span></p>
+<h4 id="my-restatement.">My restatement.</h4>
+<p>Think of <span class="math inline">\(T\)</span> similar, independent individuals. Each has <span class="math inline">\(K\)</span> treatment options and hence <span class="math inline">\(K\)</span> potential outcomes, with the same arm-specific distributions <span class="math inline">\(F_k\)</span>. For each individual we observe only the outcome of the chosen treatment, <span class="math inline">\(Y_t=Y_t(W_t)\)</span>. The vector <span class="math inline">\(\mu\)</span> collects expected rewards. Total regret adds, across the <span class="math inline">\(T\)</span> individuals, the difference between the chosen treatment and the best treatment; the best arm is the same arm throughout this setup.</p>
+<p>In an ordinary randomized experiment, <span class="math inline">\(W_t\)</span> is uniform and nonadaptive over <span class="math inline">\(1,\ldots,K\)</span>, so regret grows linearly with <span class="math inline">\(T\)</span>: <span class="math display">\[R_T\sim T\sum_{k=1}^K\frac{\mu^*-\mu_k}{K}.\]</span> <span style="color: #244DA8">The summand average is the expected loss per individual.</span> The first objective of an adaptive experiment is sublinear regret.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Regret should not grow linearly with the number of experiments or time; choices get closer to the optimum.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> Sublinear regret.</p>
+</div>
+<p>This requires balancing <em>exploration</em> (trying things) with <em>exploitation</em> (using what is known).</p>
+<h2 id="optimism-in-the-face-of-uncertainty">Optimism in the face of uncertainty</h2>
+<p>The upper confidence bound (UCB) method balances exploration and exploitation:</p>
+<ol>
+<li><p>Initialize by sampling each arm <span class="math inline">\(t_0\)</span> times: <span style="color: #C92B32">choose it and observe it <span class="math inline">\(t_0\)</span> times, for <span class="math inline">\(Kt_0\)</span> initial samples.</span></p></li>
+<li><p>For each <span class="math inline">\(t=Kt_0+1,Kt_0+2,\ldots\)</span>, use data collected through <span class="math inline">\(t-1\)</span> to construct a confidence interval <span class="math inline">\(\widehat U_{kt}\)</span> for each <span class="math inline">\(\mu_k\)</span>.</p></li>
+<li><p>Select the action <span class="math inline">\(W_t\)</span> whose interval has the largest upper endpoint and observe <span class="math inline">\(Y_t=Y_t(W_t)\)</span>.</p></li>
+</ol>
+<p><span style="color: #C92B32">Each new time point adds only one observation.</span></p>
+<p>To understand how UCB controls regret, simplify to Gaussian rewards: <span class="math display">\[Y_t(k)\sim\mathcal N(\mu_k,b^2),\tag{14.4}\]</span> with known <span class="math inline">\(b^2\)</span>.</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">Known variance simplifies the calculation.</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(b^2\)</span> in the Gaussian UCB radius.</p>
+</div>
+<p>Use <span class="math display">\[\widehat U_{kt}=\widehat\mu_{k,t-1}
+ \ \pm\ b\sqrt{\frac{4\log T}{n_{k,t-1}}}.\tag{14.5}\]</span> For <span class="math inline">\(t_0=1\)</span> and <span class="math inline">\(T\ge\max\{K,2\}\)</span>, the regret upper bound is <span class="math display">\[R_T\le\sum_{k:\mu_k&lt;\mu_{k^*}}
+ \left\{\frac{16b^2\log T}{\mu_{k^*}-\mu_k}
+ +(\mu_{k^*}-\mu_k)\right\},\tag{14.6}\]</span> with probability at least <span class="math inline">\(1-K/T\)</span>, where <span class="math inline">\(k^*\)</span> denotes the best arm.</p>
+<p><strong>My intuition about this bound.</strong></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">The gap <span class="math inline">\(\mu_{k^*}-\mu_k\)</span> in the denominator.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span style="color: #C92B32">Closer arms take longer to distinguish; far worse arms can be discarded quickly.</span></p>
+</div>
+<p><span style="color: #C92B32">UCB regret grows only logarithmically. A small gap <span class="math inline">\(\mu_{k^*}-\mu_k\)</span> appears to send the displayed bound to infinity. In practice there are two competing bounds: for a strong effect, UCB discards an arm when its interval is separated; for a weak effect, total regret is at most <span class="math inline">\(T(\mu_{k^*}-\mu_k)\)</span>. Combining these gives a finite bound, and for uniformly bounded mean gaps it gives an order <span class="math inline">\(K\sqrt{T\log T}\)</span> upper bound.</span></p>
+<p>On the confidence event, each arm contributes at most <span class="math inline">\(\min\{T\Delta_k,16b^2\log T/\Delta_k+\Delta_k\}\)</span>. The uniform <span class="math inline">\(O(K\sqrt{T\log T})\)</span> comparison uses fixed <span class="math inline">\(b\)</span> and uniformly bounded gaps; the initial pulls alone cost <span class="math inline">\(\sum_k\Delta_k\)</span>.</p>
+<h2 id="a-regret-bound-for-ucb">A regret bound for UCB</h2>
+<p>Write regret as <span class="math display">\[R_T=\sum_{k:\Delta_k&gt;0}n_{kT}\Delta_k,\qquad \Delta_k=\mu^*-\mu_k.\]</span> The main task is to control how often UCB selects a suboptimal arm.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">This is also how I understand the design of UCB.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> Control the number of pulls <span class="math inline">\(n_{kT}\)</span>.</p>
+</div>
+<p>Let <span class="math inline">\(\zeta_{kj}\)</span> be the time of the <span class="math inline">\(j\)</span>th pull of arm <span class="math inline">\(k\)</span>. For each arm, imagine an IID reward stream <span class="math inline">\(Y&#39;_\ell(k)\sim\mathcal N(\mu_k,b^2)\)</span>, revealed one observation at a time when that arm is selected. Then <span class="math display">\[\begin{aligned}
+ &amp;P\left[\sup_{K&lt;t\le T}\left\{
+ \mu_k-\widehat\mu_{k,t-1}-b\sqrt{\frac{4\log T}{n_{k,t-1}}}\right\}\ge0\right]\\
+ &amp;\quad\le P\left[\sup_{1\le j\le n_{kT}}\left\{
+ \mu_k-\widehat\mu_{k,\zeta_{kj}}-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]\\
+ &amp;\quad=P\left[\sup_{1\le j\le n_{kT}}\left\{
+ \mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]\\
+ &amp;\quad\le P\left[\sup_{1\le j\le T}\left\{
+ \mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]
+ \le\frac1T.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Enlarging the index set can only increase the supremum and its event.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(K&lt;t\le T\ \leadsto\ 1\le j\le n_{kT}\ \leadsto\ 1\le j\le T\)</span></p>
+</div>
+<p>The reindexing replaces calendar time by the number of observations from the same arm. The final concentration step is the part I wanted to check.</p>
+<h4 id="my-question-about-hoeffdings-inequality.">My question about Hoeffding’s inequality.</h4>
+<p>For independent random variables <span class="math inline">\(Z_1,\ldots,Z_n\)</span> with <span class="math inline">\(Z_i\in[a,b]\)</span> almost surely, and <span class="math inline">\(s&gt;0\)</span>, <span class="math display">\[P\left(\frac1n\sum_{i=1}^n(Z_i-\mathbb E[Z_i])\ge s\right)
+ \le\exp\left(-\frac{2ns^2}{(b-a)^2}\right).\]</span> The lower tail has the same bound, and the two-sided bound has a factor <span class="math inline">\(2\)</span>.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Almost surely bounded.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(Z_i\in[a,b]\)</span></p>
+</div>
+<p>For events <span class="math inline">\(A_1,\ldots,A_n\)</span>, <span class="math display">\[P(A_1\cup\cdots\cup A_n)\le\sum_{i=1}^nP(A_i).\]</span> I connect this union bound with the desired confidence level <span class="math inline">\(1-K/T\)</span>.</p>
+<p><strong>My attempted calculation:</strong> perhaps it is enough to show <span class="math display">\[P\left(\mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)
+ -b\sqrt{\frac{4\log T}{j}}\ge0\right)\le\frac1T.\]</span> The left side can be written as <span class="math display">\[P\left(\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)-\mu_k
+ \le-b\sqrt{\frac{4\log T}{j}}\right).\]</span> Trying to use the bounded-variable inequality leads me to the expression <span class="math display">\[\exp\left(-\frac{2j\,b^2(4\log T)/j}{(b-a)^2}\right)
+ =\exp\left(-\frac{8b^2}{(b-a)^2}\log T\right)
+ \ \overset{?}{\le}\ \frac1T.\]</span> <span style="color: #C92B32">But <span class="math inline">\(Y&#39;_\ell(k)\)</span> is unbounded. Is the <span class="math inline">\(k\)</span> written incorrectly? I do not know how the last step is simplified; perhaps there is an unstated assumption.</span></p>
+<p>For the arm-count argument, we need a simultaneous event of probability at least <span class="math inline">\(1-K/T\)</span>: <span class="math display">\[|\widehat\mu_{k,t-1}-\mu_k|
+ \le b\sqrt{\frac{4\log T}{n_{k,t-1}}}
+ \quad\text{for all }k,\ t=K+1,\ldots,T.\tag{14.8}\]</span></p>
+<details class="technical-note"><summary>Supplementary derivation: the Gaussian concentration step</summary><div class="technical-content">
+<p>The Gaussian assumption supplies the tail bound, without bounded rewards. Let <span class="math inline">\(\overline Y&#39;_{kj}=j^{-1}\sum_{\ell=1}^jY&#39;_\ell(k)\)</span>. For <span class="math inline">\(T\ge2\)</span>, <span class="math display">\[\sqrt j(\overline Y&#39;_{kj}-\mu_k)/b\sim N(0,1),\qquad
+ P\left(|\overline Y&#39;_{kj}-\mu_k|&gt;b\sqrt{4\log T/j}\right)
+ =2\Phi(-2\sqrt{\log T})\le T^{-2}.\]</span> The last inequality follows from the normal tail bound <span class="math inline">\(2\Phi(-x)\le2e^{-x^2/2}/(x\sqrt{2\pi})\)</span>. A union bound over at most <span class="math inline">\(KT\)</span> arm/count pairs establishes (14.8). A bound of only <span class="math inline">\(1/T\)</span> for each count would not be enough before taking the union over counts. The <span class="math inline">\(b\)</span> denoting a Gaussian standard deviation is also distinct from an endpoint in the bounded-variable inequality. The lecture’s two occurrences of <span class="math inline">\(Y&#39;_\ell(0)\)</span> in this derivation should read <span class="math inline">\(Y&#39;_\ell(k)\)</span>.</p>
+</div></details>
+<h4 id="continuing-the-arm-count-argument.">Continuing the arm-count argument.</h4>
+<p>On the event (14.8), write <span class="math inline">\(r_{kt}=b\sqrt{4\log T/n_{k,t-1}}\)</span>. If <span class="math inline">\(W_t=k\)</span>, the UCB rule gives <span class="math display">\[\begin{aligned}
+ \mu^*&amp;\le\widehat\mu_{k^*,t-1}+r_{k^*t}\\
+ &amp;\le\widehat\mu_{k,t-1}+r_{kt}\\
+ &amp;\le\mu_k+2r_{kt}.
+\end{aligned}\]</span> The first and last steps use the two different sides of (14.8). Hence, for <span class="math inline">\(\Delta_k&gt;0\)</span>, <span class="math display">\[n_{k,t-1}\le\frac{16b^2\log T}{\Delta_k^2},\qquad
+ n_{kT}\le\frac{16b^2\log T}{\Delta_k^2}+1.\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Confidence event (1), followed by UCB selecting <span class="math inline">\(k\)</span>.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> Pull-count threshold (2): <span class="math inline">\(n_{k,t-1}\le16b^2\log T/\Delta_k^2\)</span>.</p>
+</div>
+<p><span style="color: #C92B32">My interpretation: choosing arm <span class="math inline">\(k\)</span> means that its upper confidence endpoint must still exceed that of the best arm. Once its count passes the threshold, which grows only with <span class="math inline">\(\log T\)</span>, this argument rules out choosing it again.</span></p>
+<p>The two sketches compare growth rates and illustrate crossing a threshold.</p>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-012.png" alt="image" /></p>
+</div>
+<p>Substituting the count bound into regret gives <span class="math display">\[R_T=\sum_{k:\Delta_k&gt;0}\Delta_k n_{kT}
+ \ \le\ \sum_{k:\Delta_k&gt;0}\left\{\frac{16b^2\log T}{\Delta_k}+\Delta_k\right\}.\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">The final additive gap <span class="math inline">\(\Delta_k\)</span>.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The regret of the initial <span class="math inline">\(t_0=1\)</span> pull; the first term covers the remaining pulls.</p>
+</div>
+<h2 id="adaptive-randomization-schemes">Adaptive randomization schemes</h2>
+<p>UCB has limitations. It is difficult to combine with methods developed for IID sampling and to extend to complicated sampling designs. Arm-specific variances <span class="math inline">\(b_k^2\)</span> can differ, requiring comparable confidence intervals based on different standard errors.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">UCB chooses <span class="math inline">\(W_t\)</span> using past observations.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> Many familiar methods, including statistical tests and conditional-mean model fitting, use randomized IID data.</p>
+</div>
+<h4 id="thompson-sampling.">Thompson sampling.</h4>
+<p>This is an alternative to UCB: <span style="color: #C92B32">a heuristic algorithm based on Bayesian updating.</span></p>
+<ol>
+<li><p>Choose a prior <span class="math inline">\(\Pi_{k,0}\)</span> for each potential-outcome distribution <span class="math inline">\(F_k\)</span>.</p></li>
+<li><p>At time <span class="math inline">\(t\)</span>, compute the posterior probability that arm <span class="math inline">\(k\)</span> is the best arm: <span class="math display">\[e_{k,t-1}=P_{\Pi_{t-1}}(\mu_k=\mu^*).\]</span></p></li>
+<li><p>Randomly select an action: <span class="math display">\[W_t\sim\operatorname{Categorical}(e_{\cdot,t-1}).\]</span></p></li>
+<li><p>Observe <span class="math inline">\(Y_t=Y_t(W_t)\)</span> and update the posterior to <span class="math inline">\(\Pi_t\)</span>.</p></li>
+</ol>
+<p>Thompson sampling and UCB have similar statistical behavior: they sample each arm periodically until they are essentially convinced that it is inferior.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Posterior probability drops below <span class="math inline">\(1/T\)</span>.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> Essentially convinced that the arm is inferior.</p>
+</div>
+<p>Use a specified tie-breaking rule if the posterior permits tied best arms; the probabilities then sum to one. The <span class="math inline">\(1/T\)</span> comparison is an intuition, not a stopping rule of Thompson sampling.</p>
+<p>In Thompson sampling the selected action is random, with adaptive randomization probabilities depending on past data. This connects naturally with causal inference.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Thompson sampling chooses a random action using past-data-dependent probabilities.</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Combine with causal inference.</p>
+</div>
+<p>Tuning the prior <span class="math inline">\(\Pi_0\)</span> can be more reasonable than tuning the UCB interval <span class="math inline">\(\widehat U_{kt}\)</span>.</p>
+<h2 id="inference-in-adaptive-experiments">Inference in adaptive experiments</h2>
+<p>Analyze data from UCB or Thompson sampling and provide confidence statements about the underlying problem parameters. This is much harder than in the IID setting.</p>
+<p>Two natural estimators of <span class="math inline">\(\mu_k\)</span> are the sample average, <span class="math display">\[\widehat\mu_k^{\mathrm{AVG}}=\widehat\mu_{kT}
+ =\frac1{n_{kT}}\sum_{t=1}^T\mathbf1\{W_t=k\}Y_t,\tag{14.11}\]</span> and, under Thompson sampling, the IPW estimator,</p>
+<p>Here <span class="math inline">\(e_{tk}=P(W_t=k\mid\mathcal H_{t-1})&gt;0\)</span> is computed before the current outcome, and equals the earlier <span class="math inline">\(e_{k,t-1}\)</span>. These IPW/AW formulas require randomized exploration; deterministic UCB need not provide positive probabilities for every arm.</p>
+<p><span class="math display">\[\widehat\mu_k^{\mathrm{IPW}}=\frac1T\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}Y_t}{e_{tk}}.\tag{14.12}\]</span> Because the data collection is adaptive, these estimators need not have asymptotically normal limiting distributions, making confidence intervals difficult.</p>
+<p>An adaptively weighted estimator can admit a Gaussian pivot: <span style="color: #C92B32">A Gaussian pivot approaches, or converges in distribution to, <span class="math inline">\(N(0,1)\)</span>.</span> <span class="math display">\[\widehat\mu_k^{\mathrm{AW}}
+ =\frac{\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}Y_t}{\sqrt{e_{tk}}}}
+ {\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}}.\tag{14.13}\]</span> For example, suppose current potential outcomes are IID and independent of the past, <span class="math inline">\(0&lt;b_k^2&lt;\infty\)</span>, <span class="math inline">\(E|Y_t(k)-\mu_k|^4&lt;\infty\)</span>, and predictable probabilities satisfy <span class="math inline">\(e_{tk}\ge ct^{-\alpha}\)</span> for <span class="math inline">\(c&gt;0\)</span> and <span class="math inline">\(0\le\alpha&lt;1\)</span>. Then <span class="math display">\[\widehat V_k^{-1/2}(\widehat\mu_k^{\mathrm{AW}}-\mu_k)
+ \ \Rightarrow\ \mathcal N(0,1),\]</span> where <span class="math display">\[\widehat V_k=
+ \frac{\displaystyle\sum_{t=1}^T
+ \left\{\frac{\mathbf1\{W_t=k\}(Y_t-\widehat\mu_k^{\mathrm{AW}})}
+ {\sqrt{e_{tk}}}\right\}^{\!2}}
+ {\displaystyle\left\{\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}\right\}^{\!2}}.\tag{14.14}\]</span> <strong>My explanation:</strong> a CLT can be recovered because the estimator stabilizes variance. Its variance becomes controllable, allowing a central limit theorem.</p>
+<h4 id="derivation-the-martingale-behind-the-estimator.">Derivation: the martingale behind the estimator.</h4>
+<p>A martingale <span class="math inline">\(M_t\)</span> is adapted to the available history <span class="math inline">\(\mathcal H_t\)</span>, satisfies <span class="math inline">\(E|M_t|&lt;\infty\)</span>, and obeys <span class="math inline">\(E[M_t\mid\mathcal H_{t-1}]=M_{t-1}\)</span>. In particular, <span class="math inline">\(M_t\)</span> uses only information available through time <span class="math inline">\(t\)</span>.</p>
+<p>From (14.13), <span class="math display">\[\widehat\mu_k^{\mathrm{AW}}-\mu_k
+ =\frac{\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}(Y_t-\mu_k)}{\sqrt{e_{tk}}}}
+ {\displaystyle\sum_{t=1}^T
+ \frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}}.\]</span> Let the partial sum in the numerator be <span class="math display">\[M_t=\sum_{j=1}^t
+ \frac{\mathbf1\{W_j=k\}(Y_j-\mu_k)}{\sqrt{e_{jk}}}.\]</span> <span class="math inline">\(W_t\)</span> is randomized using the information available before time <span class="math inline">\(t\)</span> and is independent of <span class="math inline">\(Y_t(k)\)</span> given the past. Therefore <span class="math inline">\(M_t\)</span> is a martingale:</p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><span class="math display">\[\mathbb E[M_{t+1}\mid M_1,\ldots,M_t]=M_t,\qquad \text{for all }t.\]</span></p>
+</div>
+<p>By the weighting scheme, <span class="math display">\[\operatorname{Var}[M_t\mid M_1,\ldots,M_{t-1}]=b_k^2,
+ \qquad b_k^2=\operatorname{Var}[Y_t(k)].\tag{14.18}\]</span> Conditioning on the previous partial sum makes this the conditional variance of the new increment as well.</p>
+<p>A martingale CLT gives, provided <span class="math inline">\(e_{tk}\)</span> does not decay too quickly, <span class="math display">\[\frac{M_T}{\sqrt{Tb_k^2}}\Rightarrow\mathcal N(0,1).\]</span> <span style="color: #C92B32"> adaptively weighted CLT; finite second moments; the sampling probability <span class="math inline">\(e_{tk}\)</span> should decay more slowly than <span class="math inline">\(1/t\)</span>. This excludes the most aggressive strongly efficient exploration regimes that pull an arm only on the order of <span class="math inline">\(\log T\)</span> times.</span></p>
+<details class="technical-note"><summary>Supplementary conditions for the martingale pivot</summary><div class="technical-content">
+<p>One transparent sufficient regime is <span class="math inline">\(0&lt;b_k^2&lt;\infty\)</span>, <span class="math inline">\(E|Y_t(k)-\mu_k|^4&lt;\infty\)</span>, predictable <span class="math inline">\(e_{tk}\ge c t^{-\alpha}\)</span> with <span class="math inline">\(c&gt;0\)</span>, <span class="math inline">\(0\le\alpha&lt;1\)</span>, and current potential outcomes independent of past data. For <span class="math inline">\(D_t=\mathbf1\{W_t=k\}(Y_t-\mu_k)/\sqrt{e_{tk}}\)</span>, <span class="math display">\[E[D_t\mid\mathcal H_{t-1}]=0,\quad E[D_t^2\mid\mathcal H_{t-1}]=b_k^2,\quad
+ T^{-2}\sum_{t\le T}E[D_t^4]=O(T^{\alpha-1})\to0.\]</span> This gives a martingale Lyapunov condition and concentration of <span class="math inline">\(T^{-1}\sum D_t^2\)</span>. The AW denominator has predictable mean scale at least <span class="math inline">\(T^{1-\alpha/2}\)</span> and fluctuations <span class="math inline">\(O_P(\sqrt T)\)</span>, giving consistency and permitting fitted residuals in the variance. These conditions are sufficient, not necessary. See <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8054003/">Hadad et al. (2021)</a> for broader conditions.</p>
+</div></details>
+<p>Next, <span class="math display">\[\frac1{Tb_k^2}\sum_{t=1}^T
+ \left\{\frac{\mathbf1\{W_t=k\}(Y_t-\widehat\mu_k^{\mathrm{AW}})}
+ {\sqrt{e_{tk}}}\right\}^{\!2}
+ \xrightarrow{P}1.\]</span> This is a concentration step; again require the probabilities not to decay too fast. The denominators in <span class="math inline">\(\widehat\mu_k^{\mathrm{AW}}-\mu_k\)</span> and <span class="math inline">\(\widehat V_k^{1/2}\)</span> cancel, yielding the Gaussian pivot above.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">The denominators of <span class="math inline">\(\widehat\mu_k^{\mathrm{AW}}-\mu_k\)</span> and <span class="math inline">\(\widehat V_k^{1/2}\)</span> cancel.</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> The Gaussian pivot in (14.14).</p>
+</div>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-13.html">← Lecture 13: Structural equation modeling</a><span></span></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture11-14.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"setting-and-notation": "设定与记号", "my-restatement.": "我的重新表述", "optimism-in-the-face-of-uncertainty": "面对不确定性时保持乐观", "a-regret-bound-for-ucb": "ucb-的-regret-上界", "my-question-about-hoeffdings-inequality.": "我对-hoeffding-不等式的疑问", "continuing-the-arm-count-argument.": "继续推导选择次数界", "adaptive-randomization-schemes": "自适应随机化方案", "thompson-sampling.": "thompson-采样", "inference-in-adaptive-experiments": "自适应实验中的统计推断", "derivation-the-martingale-behind-the-estimator.": "推导估计量背后的鞅"}</script></body></html>

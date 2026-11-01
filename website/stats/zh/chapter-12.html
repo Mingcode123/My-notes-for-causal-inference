@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 12 讲：动态策略评估 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-12.html">EN</a><a href="chapter-12.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html" aria-current="page">第 12 讲：动态策略评估</a><ul class="section-list"><li><a href="#处理与混杂因素之间的反馈">处理与混杂因素之间的反馈</a></li><li><a href="#序贯可忽略性下的序贯推断">序贯可忽略性下的序贯推断</a></li><li><a href="#逆倾向概率加权">逆倾向概率加权</a></li><li><a href="#向后递推的回归调整">向后递推的回归调整</a></li><li><a href="#双重稳健估计量">双重稳健估计量</a></li></ul></li><li><a href="chapter-13.html">第 13 讲：结构方程建模</a></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-12-讲动态策略评估">第 12 讲：动态策略评估</h1>
+<p>这一主题与强化学习有关。我们评估动态策略，也就是随时间改变的策略。</p>
+<p>有 <span class="math inline">\(n\)</span> 个 IID 个体 <span class="math inline">\(i=1,\ldots,n\)</span>，以及时点 <span class="math inline">\(t=1,\ldots,T\)</span>。每个时点观测随时间变化的协变量 <span class="math inline">\(X_{it}\)</span> 和处理 <span class="math inline">\(W_{it}\in\{0,1\}\)</span>。在最后一个时点 <span class="math inline">\(T\)</span>，还观测结果 <span class="math inline">\(Y_i\in\mathbb R\)</span>。</p>
+<p>为了体现动态结构，每个随时间变化的观测都可能依赖之前的全部处理。对每个 <span class="math inline">\(X_{it}\in\mathcal X_t\)</span>，定义 <span class="math inline">\(2^{t-1}\)</span> 个潜在取值 <span class="math inline">\(X_{it}(w_{1:t-1})\)</span>，且 <span class="math display">\[X_{it}=X_{it}(W_{i,1:t-1}).\]</span> 最终结果有 <span class="math inline">\(2^T\)</span> 个潜在结果 <span class="math inline">\(Y_i(w_{1:T})\)</span>，且 <span class="math display">\[Y_i=Y_i(W_{i,1:T}).\]</span> 类似地，写为 <span class="math inline">\(W_{it}=W_{it}(W_{i,1:t-1})\)</span>：第 <span class="math inline">\(t\)</span> 期的处理依赖已观测的协变量历史 <span class="math inline">\(X_{i,1:t}\)</span> 和之前的处理取值。</p>
+<h4 id="我的直觉">我的直觉。</h4>
+<p>想象对一个人按 <span class="math inline">\(1,\ldots,T\)</span> 各期逐列观测，记录协变量 <span class="math inline">\(X_{i1},X_{i2},\ldots\)</span> 和决策 <span class="math inline">\(W_{i1},W_{i2},\ldots\)</span>。每一期做一个决策。第 <span class="math inline">\(t\)</span> 期的决策依赖截至 <span class="math inline">\(t-1\)</span> 期发生的事情，最后有 <span class="math inline">\(2^T\)</span> 个可能的结果。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000"><span class="math inline">\(X_{i1},W_{i1};\ X_{i2},W_{i2};\ \ldots;\ X_{iT},W_{iT}\)</span></span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span class="math inline">\(2^T\)</span> 个潜在最终结果 <span class="math inline">\(Y_i(w_{1:T})\)</span></p>
+</div>
+<p>有两类目标参数：</p>
+<ol>
+<li><p>评估一个固定处理序列 <span class="math inline">\(w\in\{0,1\}^T\)</span>： <span class="math display">\[V(w)=\mathbb E[Y_i(w)].\]</span></p></li>
+<li><p>评估一个策略，其决策规则 <span class="math inline">\(\pi_t\)</span> 将可用历史映射到 <span class="math inline">\(\{0,1\}\)</span>： <span class="math display">\[\begin{aligned}
+ V(\pi)=\mathbb E\bigl[Y_i\bigl(&amp;\pi_1(X_{i1}),\\
+ &amp;\pi_2(X_{i1},\pi_1(X_{i1}),X_{i2}(\pi_1(X_{i1}))),\ldots\bigr)\bigr].
+\end{aligned}
+\tag{12.2}\]</span></p></li>
+</ol>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">第二次决策依赖协变量历史和先前的处理取值。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 式 (12.2) 中 <span class="math inline">\(\pi_2\)</span> 的参数。</p>
+</div>
+<p>这两个问题都用潜在处理序列定义目标参数，包括对生成数据的处理分配分布实施干预。</p>
+<p>考虑两种自然的无混杂性假设：</p>
+<ol>
+<li><p><strong>序贯无混杂性／序贯可忽略性（sequential ignorability）：</strong> <span class="math display">\[\{\text{时点 }t\text{ 之后的潜在结果}\}\perp W_{it}
+ \mid\{\text{时点 }t\text{ 的历史}\}.\]</span> 在每一期，给定截至该期收集的数据，处理分配不存在混杂。</p></li>
+<li><p><strong>完全随机化：</strong> <span class="math display">\[\{\text{所有潜在结果}\}\perp W_{i,1:T}.\]</span> 对这里的自适应设计，这不合理。</p></li>
+</ol>
+<p>识别还要求一致性，以及在 <span class="math inline">\(\pi\)</span> 可到达的每段历史上，目标动作的概率为正。对整个处理序列完全随机化是另一种可行设计，但通常不描述这里的自适应分配。</p>
+<h2 id="处理与混杂因素之间的反馈">处理与混杂因素之间的反馈</h2>
+<p>一个可能出问题的例子。所有个体都有 <span class="math inline">\(X_{i1}=0\)</span>，且 <span class="math display">\[\mathbb P(W_{i1}=1)=0.5,\qquad
+ \mathbb P(W_{i2}=1\mid X_{i2}=1)=0.8,\qquad
+ \mathbb P(W_{i2}=1\mid X_{i2}=0)=0.4.\]</span> 比较始终处理与始终不处理，目标为 <span class="math inline">\(\tau=\mathbb E[Y(1,1)-Y(0,0)]\)</span>。分析得到 <span class="math display">\[\mathbb E[Y_i\mid W_{i1}=0]=\mathbb E[Y_i\mid W_{i1}=1],\]</span> <span class="math display">\[\mathbb E[Y_i\mid W_{i2}=0,W_{i1}=w_1,X_{i2}=x]
+ =\mathbb E[Y_i\mid W_{i2}=1,W_{i1}=w_1,X_{i2}=x]\]</span> 对每个 <span class="math inline">\(w_1,x\)</span> 都成立。</p>
+<p>第一种错误是忽略自适应采样，直接使用通常的均值差： <span class="math display">\[\widehat\tau=\widehat{\mathbb E}[Y\mid W_1=W_2=1]
+ -\widehat{\mathbb E}[Y\mid W_1=W_2=0].\]</span> 第二种错误是按 <span class="math inline">\(X_{i2}\)</span> 分层： <span class="math display">\[\begin{aligned}
+ \widehat\tau_0&amp;=\mathbb E[Y\mid W_1=W_2=1,X_{i2}=0]
+ -\mathbb E[Y\mid W_1=W_2=0,X_{i2}=0],\\
+ \widehat\tau_1&amp;=\mathbb E[Y\mid W_1=W_2=1,X_{i2}=1]
+ -\mathbb E[Y\mid W_1=W_2=0,X_{i2}=1],\\
+ \widehat\tau&amp;=\frac{n_0\widehat\tau_0+n_1\widehat\tau_1}{n_0+n_1}.
+\end{aligned}\]</span> 为什么会想这样做？我们知道形如 <span class="math inline">\(Y_i(\cdots)\perp W_{i2}\mid X_{i2}\)</span> 的结论，但这种分层实际需要 <span class="math display">\[Y_i(\cdots)\perp(W_{i1},W_{i2})\mid X_{i2}.\]</span> 考虑三类人：</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">类型</th>
+<th style="text-align: center;"><span class="math inline">\(W_{i1}=0\)</span> 时的 <span class="math inline">\(X_{i2}\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(W_{i1}=1\)</span> 时的 <span class="math inline">\(X_{i2}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">稳定型（1）</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">响应型（2）</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">急性型（3）</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>由一致性，<span class="math inline">\(W_1=1,X_{i2}=0\)</span> 组包含第（1）、（2）类，而 <span class="math inline">\(W_1=0,X_{i2}=0\)</span> 组仅包含第（1）类；<span class="math inline">\(W_1=1,X_{i2}=1\)</span> 组包含第（3）类，而 <span class="math inline">\(W_1=0,X_{i2}=1\)</span> 组包含第（2）、（3）类。因此，即使实验是序贯随机化的，这样分层也不能控制混杂。</p>
+<h2 id="序贯可忽略性下的序贯推断">序贯可忽略性下的序贯推断</h2>
+<p>简单分层不起作用，便直接专注于估计 <span class="math inline">\(V(\pi)\)</span>。定义过滤族 <span class="math display">\[\mathcal F_t=\sigma(X_1,W_1,X_2,W_2,\ldots,W_{t-1},X_t),\]</span> 它包含选择第 <span class="math inline">\(t\)</span> 期处理之前的所有可用信息。用 <span class="math inline">\(\mathbb E_\pi\)</span> 表示按照策略 <span class="math inline">\(\pi\)</span> 分配处理时的期望。于是 (12.2) 变为 <span class="math inline">\(V(\pi)=\mathbb E_\pi[Y]\)</span>。</p>
+<p>定义价值函数 <span class="math display">\[V_{\pi,t}(X_1,W_1,\ldots,W_{t-1},X_t)
+ =\mathbb E_\pi[Y\mid\mathcal F_t].\]</span> 这个函数衡量：从 <span class="math inline">\(\mathcal F_t\)</span> 所代表的状态开始遵循 <span class="math inline">\(\pi\)</span>，预计会获得的回报。<span style="color: #C92B32">策略 <span class="math inline">\(\pi\)</span> 的整体价值为 <span class="math inline">\(V_{\pi,0}\)</span>。</span></p>
+<p>由塔式法则， <span class="math display">\[\begin{aligned}
+ &amp;\mathbb E_\pi[V_{\pi,t+1}(X_1,W_1,\ldots,W_t,X_{t+1})\mid\mathcal F_t]\\
+ &amp;\quad=\mathbb E_\pi[\mathbb E_\pi[Y\mid\mathcal F_{t+1}]\mid\mathcal F_t]\\
+ &amp;\quad=\mathbb E_\pi[Y\mid\mathcal F_t]
+ =V_{\pi,t}(X_1,W_1,\ldots,W_{t-1},X_t).
+\end{aligned}
+\tag{12.6}\]</span></p>
+<div class="original-ink" data-ink="red" style="color: #C92B32">
+<p><strong>我的理解：</strong>即当已知 <span class="math inline">\(\mathcal F_t\)</span>，从 <span class="math inline">\(t\)</span> 到 <span class="math inline">\(t+1\)</span>，我以后的预期一直不变。把它联系到“贝尔曼方程”： <span class="math display">\[V(s)=R(s)+\gamma\sum_{s&#39;}P(s&#39;\mid s,a)V(s&#39;).\]</span></p>
+</div>
+<p>这是与 Bellman 方程的类比：固定确定性策略时取 <span class="math inline">\(a=\pi(s)\)</span>。基于完整历史的塔式恒等式本身不需要 Markov 假设或折扣因子。</p>
+<p>若已有 <span class="math inline">\(V_{\pi,t+1}\)</span> 的好估计，就设法得到 <span class="math inline">\(V_{\pi,t}\)</span> 的好估计，一直向前回溯，直到恢复 <span class="math inline">\(V(\pi)\)</span>。</p>
+<p>记 <span class="math inline">\(X_{T+1}=Y\)</span>。联合分布可分解为 <span class="math display">\[P_\pi(X_1,W_1,\ldots,X_T,W_T,Y)
+ =P_\pi(X_1)\prod_{t=1}^T
+ P_\pi(W_t\mid\mathcal F_t)
+ P_\pi(X_{t+1}\mid\mathcal F_t,W_t).\]</span> 无混杂性意味着：分解中非处理项不依赖于策略， <span class="math display">\[P_\pi(X_1)=P(X_1),\qquad
+ P_\pi(X_{t+1}\mid\mathcal F_t,W_t)
+ =P(X_{t+1}\mid\mathcal F_t,W_t),\quad\text{对所有 }\pi.\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">处理对后续协变量的影响与选择处理的策略无关。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 不变的转移项 <span class="math inline">\(P(X_{t+1}\mid\mathcal F_t,W_t)\)</span>。</p>
+</div>
+<h2 id="逆倾向概率加权">逆倾向概率加权</h2>
+<p>为了把 (12.6) 用于 off-policy 数据，需要改变测度：实际数据并不是由 <span class="math inline">\(\pi(\cdot)\)</span> 生成的。 <span class="math display">\[\begin{aligned}
+ V_{\pi,t}
+ &amp;=\mathbb E_\pi[V_{\pi,t+1}\mid\mathcal F_t]\\
+ &amp;=\mathbb E\left[\left.
+ \frac{P_\pi(W_t,X_{t+1}\mid\mathcal F_t)}
+ {P(W_t,X_{t+1}\mid\mathcal F_t)}V_{\pi,t+1}
+ \right|\mathcal F_t\right]\\
+ &amp;=\mathbb E\left[\left.
+ \frac{P_\pi(W_t\mid\mathcal F_t)P_\pi(X_{t+1}\mid\mathcal F_t,W_t)}
+ {P(W_t\mid\mathcal F_t)P(X_{t+1}\mid\mathcal F_t,W_t)}
+ V_{\pi,t+1}\right|\mathcal F_t\right]\\
+ &amp;=\mathbb E\left[\left.
+ \frac{\mathbf1\{W_t=\pi_t(\ldots,X_t)\}}
+ {P[W_t=\pi_t(\ldots,X_t)\mid\mathcal F_t]}
+ V_{\pi,t+1}\right|\mathcal F_t\right].
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">从观测策略换到 <span class="math inline">\(\pi\)</span>，消去转移项。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 两个转移项相消。</p>
+</div>
+<p>对每个 <span class="math inline">\(t=1,\ldots,T\)</span> 都进行测度变换。由于 <span class="math display">\[V(\pi)=\mathbb E[V_{\pi,1}(X_1)],\]</span> <span class="math display">\[V_{\pi,1}(X_1)=\mathbb E\left[\left.
+ \frac{\mathbf1\{W_1=\pi_1(X_1)\}}
+ {P[W_1=\pi_1(X_1)\mid\mathcal F_1]}
+ V_{\pi,2}(X_1,W_1,X_2)\right|\mathcal F_1\right],\]</span></p>
+<p>反复代入，最后留下 <span class="math inline">\(V_{\pi,T+1}=\mathbb E_\pi[Y\mid\mathcal F_{T+1}]=Y\)</span>，从而得到</p>
+<p><span class="math display">\[V(\pi)=\mathbb E\left[
+ \left\{\prod_{t=1}^T
+ \frac{\mathbf1\{W_t=\pi_t(\ldots,X_t)\}}
+ {P[W_t=\pi_t(\ldots,X_t)\mid\mathcal F_t]}\right\}Y\right].\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">这里需要以 <span class="math inline">\(\mathcal F_1\)</span> 为条件吗？</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 匹配概率 <span class="math inline">\(P[W_1=\pi_1(X_1)\mid\mathcal F_1]\)</span>。</p>
+</div>
+<p>需要：分母必须以 <span class="math inline">\(\mathcal F_1\)</span> 为条件。<span class="math inline">\(\pi_1(X_1)\)</span> 随历史变化时，仅有 <span class="math inline">\(W_1\)</span> 与 <span class="math inline">\(X_1\)</span> 独立，并不能保证匹配概率不变。</p>
+<p>IPW 估计量为 <span class="math display">\[\widehat V_{\mathrm{IPW}}(\pi)=\frac1n\sum_{i=1}^n\gamma_{iT}(\pi)Y_i,
+ \qquad
+ \gamma_{it}(\pi)=\gamma_{i,t-1}(\pi)
+ \frac{\mathbf1\{W_{it}=\pi_t(\ldots,X_{it})\}}
+ {P[W_{it}=\pi_t(\ldots,X_{it})\mid\mathcal F_{it}]}.\]</span> 递推的初值为 <span class="math inline">\(\gamma_{i0}(\pi)=1\)</span>。</p>
+<p><span style="color: #C92B32"><strong>我的理解：</strong>对符合 <span class="math inline">\(\pi\)</span> 的结果取平均，用 IPW 去除已观测的时变变量造成的混杂影响。如果权重，即每一期的条件分配概率，都是已知的，那么 <span class="math inline">\(\widehat V_{\mathrm{IPW}}\)</span> 无偏。</span></p>
+<h2 id="向后递推的回归调整">向后递推的回归调整</h2>
+<p>利用 (12.6) 与序贯无混杂性，从后向前迭代。在 <span class="math inline">\(t=T\)</span> 时， <span class="math display">\[\begin{aligned}
+ V_{\pi,T}(X_1,W_1,\ldots,X_T)
+ &amp;=\mathbb E_\pi[Y\mid\mathcal F_T]\\
+ &amp;=\mathbb E_\pi[Y\mid\mathcal F_T,W_T=\pi_T(X_1,W_1,\ldots,X_T)]\\
+ &amp;=\mathbb E[Y\mid\mathcal F_T,W_T=\pi_T(X_1,W_1,\ldots,X_T)].
+\end{aligned}\]</span> 直接用非参数回归学习 <span class="math inline">\(\widehat V_{\pi,T}\)</span>。给定下一期价值函数的合理估计， <span class="math display">\[V_{\pi,t}(X_1,W_1,\ldots,X_t)
+ \approx\mathbb E[\widehat V_{\pi,t+1}(\ldots,X_{t+1})
+ \mid\mathcal F_t,W_t=\pi_t(\ldots,X_t)].\tag{12.12}\]</span> 继续向前回溯，直到得到 <span class="math inline">\(V(\pi)\)</span> 的估计。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">与 IPW 不同，需要量化回归误差在向后递推中如何传播。</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(Q\)</span>-learning</p>
+</div>
+<p>上面的递推评估固定策略；最优 <span class="math inline">\(Q\)</span>-learning 还需要对动作取最大。两者都有误差传播的问题。</p>
+<h2 id="双重稳健估计量">双重稳健估计量</h2>
+<p>现在同时有 IPW 和回归两种方法。式 (12.12) 给出价值估计 <span class="math inline">\(\widehat V_{\pi,1}(X_1)\)</span>，于是 <span class="math display">\[\widehat V_{\mathrm{REG}}(\pi)=\frac1n\sum_{i=1}^n\widehat V_{\pi,1}(X_{i1}).\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">向后回归 (12.12)</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span class="math inline">\(\widehat V_{\pi,1}\)</span>，再取 <span class="math inline">\(n^{-1}\sum_i\widehat V_{\pi,1}(X_{i1})\)</span></p>
+</div>
+<p>如果相比 <span class="math inline">\(\widehat V_{\pi,1}\)</span> 更相信 <span class="math inline">\(\widehat V_{\pi,2}\)</span>，就用后者给前者去偏： <span class="math display">\[\widehat V(\pi)=\frac1n\sum_{i=1}^n\left[
+ \widehat V_{\pi,1}(X_{i1})+
+ \gamma_{i1}(\pi)\{
+ \widehat V_{\pi,2}(X_{i1},W_{i1},X_{i2})
+ -\widehat V_{\pi,1}(X_{i1})\}\right].\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">权重 <span class="math inline">\(\gamma_{i1}\)</span>；修正项。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\gamma_{i1}(\widehat V_{\pi,2}-\widehat V_{\pi,1})\)</span></p>
+</div>
+<p><span class="math display">\[\widehat V_{\mathrm{AIPW}}(\pi)
+ =\frac1n\sum_{i=1}^n\left[
+ \gamma_{iT}(\pi)Y_i+
+ \sum_{t=1}^T\{\gamma_{i,t-1}(\pi)-\gamma_{it}(\pi)\}
+ \widehat V_{\pi,t}(X_{i1},\ldots,X_{it})\right].\]</span> 这将非动态情形的 AIPW 推广到了动态情形。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">不断修正，直到 <span class="math inline">\(V_{\pi,T+1}=Y\)</span>。</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 上面的完整序贯 AIPW 估计量。</p>
+</div>
+<p><span style="color: #C92B32">哪些条件保证序贯 AIPW 估计量无偏？</span></p>
+<details class="technical-note"><summary>补充推导：序贯双重稳健性</summary><div class="technical-content">
+<p>设 <span class="math inline">\(q_t\)</span> 是固定的或用独立数据训练的价值函数，<span class="math inline">\(q_{T+1}=Y\)</span>，且 <span class="math inline">\(\gamma_0=1\)</span>。被平均的单项可写为 <span class="math display">\[q_1+\sum_{t=1}^T\gamma_t(q_{t+1}-q_t).\]</span> 如果每一期的处理概率都正确，对任意 <span class="math inline">\(q_t\)</span>，加权期望都会通过望远镜消去得到 <span class="math inline">\(E_\pi[Y]\)</span>，不需要回归无偏。如果每个 <span class="math inline">\(q_t=V_{\pi,t}\)</span>，在目标动作下每个残差的条件均值都为零，此时可容许正的、可预测的倾向概率模型。仅仅要求拟合回归在边际上无偏并不足够，尤其是重复使用同一批观测时。对估得的 nuisance 作渐近论断，通常还需一致性和乘积收敛速度条件。参见 <a href="https://proceedings.mlr.press/v48/jiang16.html">Jiang 和 Li（2016）</a>。</p>
+</div></details>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-11.html">← 第 11 讲：策略学习</a><a href="chapter-13.html">第 13 讲：结构方程建模 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture11-14.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"我的直觉": "my-intuition.", "处理与混杂因素之间的反馈": "treatmentconfounder-feedback", "序贯可忽略性下的序贯推断": "sequential-inference-under-sequential-ignorability", "逆倾向概率加权": "inverse-propensity-weighting-1", "向后递推的回归调整": "backward-regression-adjustment", "双重稳健估计量": "a-doubly-robust-estimator"}</script></body></html>

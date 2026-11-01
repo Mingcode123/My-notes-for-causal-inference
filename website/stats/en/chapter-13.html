@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 13: Structural equation modeling · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-13.html" aria-current="true">EN</a><a href="../zh/chapter-13.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html" aria-current="page">Lecture 13: Structural equation modeling</a><ul class="section-list"><li><a href="#nonparametric-sems">Nonparametric SEMs</a></li><li><a href="#the-do-calculus-separation-and-graph-modifications">The do-calculus: separation and graph modifications</a></li><li><a href="#the-three-rules">The three rules</a></li><li><a href="#example-1-the-back-door-criterion">Example 1: the back-door criterion</a></li><li><a href="#example-2-the-front-door-criterion">Example 2: the front-door criterion</a></li><li><a href="#example-3-instrumental-variables">Example 3: instrumental variables</a></li><li><a href="#sems-and-potential-outcomes">SEMs and potential outcomes</a></li></ul></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-13-structural-equation-modeling">Lecture 13: Structural equation modeling</h1>
+<p>SEM means structural equation model. Recall the earlier equation <span class="math inline">\(Y_i=\alpha+W_i\tau+\varepsilon_i\)</span>: set <span class="math inline">\(W_i=w\)</span> and observe <span class="math inline">\(Y_i(W_i=w)=\alpha+w\tau+\varepsilon_i\)</span>.</p>
+<h2 id="nonparametric-sems">Nonparametric SEMs</h2>
+<p>Let <span class="math inline">\((X_1,\ldots,X_p)\)</span> be <span class="math inline">\(p\)</span> random variables with joint distribution <span class="math inline">\(P\)</span>. Suppose <span class="math inline">\(P\)</span> can be represented by a directed acyclic graph (DAG) <span class="math inline">\(G\)</span>. This means that <span class="math display">\[P(X_1,\ldots,X_p)=\prod_{j=1}^p P(X_j\mid\operatorname{pa}_j),\tag{13.2}\]</span> where <span class="math inline">\(\operatorname{pa}_j\)</span> is the set of parents of <span class="math inline">\(X_j\)</span> in <span class="math inline">\(G\)</span>. Equivalently, <span class="math display">\[\operatorname{pa}_j=\{X_i:E_{ij}=1\},\]</span> with <span class="math inline">\(E_{ij}\)</span> indicating an edge <span class="math inline">\(X_i\to X_j\)</span>. Assume further that deterministic functions <span class="math inline">\(f_j\)</span>, <span class="math inline">\(j=1,\ldots,p\)</span>, yield <span class="math display">\[X_j=f_j(\operatorname{pa}_j,\varepsilon_j),\qquad
+ \varepsilon_j\sim F_j,\quad\text{mutually independent}.\tag{13.3}\]</span> <span style="color: #C92B32">An SEM/DAG specifies each node through its parents and noise.</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Even when upstream parent values change, <span class="math inline">\(f_j(\cdot)\)</span> does not change.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(X_j=f_j(\operatorname{pa}_j,\varepsilon_j)\)</span></p>
+</div>
+<p><span style="color: #244DA8">This gives a concrete meaning: <span class="math inline">\(f_j\)</span> can be viewed as the distributional index for <span class="math inline">\(X_j\)</span> conditional on its parents.</span></p>
+<p>A causal query externally sets the values of some nodes and examines how other nodes’ distributions change. For disjoint node sets <span class="math inline">\(W,Y\subset X\)</span>, write the effect of setting <span class="math inline">\(W=w\)</span> on <span class="math inline">\(Y\)</span> as <span class="math display">\[P[Y\mid\operatorname{do}(W=w)].\]</span> In (13.3), delete the equations associated with <span class="math inline">\(W\)</span> and replace <span class="math inline">\(W\)</span> by <span class="math inline">\(w\)</span> in the other equations. For an intervention on <span class="math inline">\(X_j\)</span>, for discrete variables the truncated factorization is <span class="math display">\[P[X\mid\operatorname{do}(X_j=x_j)]
+ =\begin{cases}
+ \displaystyle\frac{P[X]}{P[X_j=x_j\mid\operatorname{pa}_j]},&amp;X_j=x_j,\\
+ 0,&amp;\text{otherwise}.
+ \end{cases}\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">1?</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> The denominator <span class="math inline">\(P[X_j=x_j\mid\operatorname{pa}_j]\)</span></p>
+</div>
+<p>The forced node has new probability mass <span class="math inline">\(1\)</span> at <span class="math inline">\(x_j\)</span>. The denominator removes its old observational mechanism; it is not replaced by <span class="math inline">\(1\)</span>.</p>
+<h2 id="the-do-calculus-separation-and-graph-modifications">The do-calculus: separation and graph modifications</h2>
+<p>For disjoint node sets <span class="math inline">\(X,Y,Z\)</span>, consider an undirected path <span class="math inline">\(p\)</span> between a node in <span class="math inline">\(X\)</span> and a node in <span class="math inline">\(Y\)</span>. The path is blocked by <span class="math inline">\(Z\)</span> if it contains a node <span class="math inline">\(W\)</span> such that either:</p>
+<ol>
+<li><p><span class="math inline">\(W\)</span> is a collider on <span class="math inline">\(p\)</span>, and neither <span class="math inline">\(W\)</span> nor any descendant of <span class="math inline">\(W\)</span> is in <span class="math inline">\(Z\)</span>; or</p></li>
+<li><p><span class="math inline">\(W\)</span> is not a collider on <span class="math inline">\(p\)</span>, and <span class="math inline">\(W\in Z\)</span>.</p></li>
+</ol>
+<p>The two path sketches (solid arrows are causal; dashed arrows link annotations):</p>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-008.png" alt="image" /></p>
+</div>
+<p><span class="math inline">\(Z\)</span> <span class="math inline">\(d\)</span>-separates the node sets when it blocks every path between them.</p>
+<p>If <span class="math inline">\(Z\)</span> <span class="math inline">\(d\)</span>-separates <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, (13.2) implies <span class="math inline">\(X\perp Y\mid Z\)</span>, written <span class="math display">\[(X\perp Y\mid Z)_G.\]</span> Graph notation:</p>
+<ul>
+<li><p><span class="math inline">\(G_{\overline X}\)</span> deletes edges pointing into <span class="math inline">\(X\)</span>.</p></li>
+<li><p><span class="math inline">\(G_{\underline X}\)</span> deletes edges leaving <span class="math inline">\(X\)</span>.</p></li>
+<li><p><span class="math inline">\(G_{\underline X\overline Z}\)</span> deletes edges leaving <span class="math inline">\(X\)</span> and entering <span class="math inline">\(Z\)</span>.</p></li>
+</ul>
+<h2 id="the-three-rules">The three rules</h2>
+<p><span style="color: #C92B32"><span class="math inline">\(\operatorname{do}(X=x)\)</span> removes incoming edges, hence the overbar on <span class="math inline">\(X\)</span>.</span> For disjoint node sets <span class="math inline">\(X,Y,Z,W\)</span>:</p>
+<ol>
+<li><p><strong>Insertion/deletion of observations.</strong> If <span class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline X}},\]</span> then <span class="math display">\[P[Y\mid\operatorname{do}(X=x),Z=z,W=w]
+ =P[Y\mid\operatorname{do}(X=x),W=w].\]</span></p></li>
+<li><p><strong>Action/observation exchange.</strong> If <span class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline X\underline Z}},\]</span> then <span class="math display">\[P[Y\mid\operatorname{do}(X=x),\operatorname{do}(Z=z),W=w]
+ =P[Y\mid\operatorname{do}(X=x),Z=z,W=w].\]</span></p></li>
+<li><p><strong>Insertion/deletion of actions.</strong> If <span class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline X\overline{Z(W)}}},\]</span> where <span class="math inline">\(Z(W)\)</span> consists of nodes in <span class="math inline">\(Z\)</span> that are not ancestors of any node in <span class="math inline">\(W\)</span> in <span class="math inline">\(G_{\overline X}\)</span>, then <span class="math display">\[P[Y\mid\operatorname{do}(X=x),\operatorname{do}(Z=z),W=w]
+ =P[Y\mid\operatorname{do}(X=x),W=w].\]</span></p></li>
+</ol>
+<p><strong>My mnemonic.</strong></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">The common <span class="math inline">\(\operatorname{do}(X=x)\)</span> and the extra bars/underlines.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The three do-calculus rules above.</p>
+</div>
+<p><span style="color: #C92B32">All three rules contain <span class="math inline">\(\operatorname{do}(X=x)\)</span>; the bar over <span class="math inline">\(X\)</span> supplies that intervention. Then, when the appropriate separation condition holds, deleting outgoing edges from <span class="math inline">\(Z\)</span> lets us exchange “do <span class="math inline">\(Z\)</span>” with “control for <span class="math inline">\(Z\)</span>.” Deleting incoming edges to <span class="math inline">\(Z(W)\)</span> lets us remove “do <span class="math inline">\(Z\)</span>” entirely. <span class="math inline">\(Z(W)\)</span> is the part of <span class="math inline">\(Z\)</span> with no ancestry relation to <span class="math inline">\(W\)</span> of the prohibited kind.</span></p>
+<p>Repeatedly apply do-calculus to reduce a causal query to an observable query about <span class="math inline">\(P\)</span>: an expression without the do-operator, depending only on observed random variables. Do-calculus is complete: if it cannot reduce the causal query to such an observational expression, the query is not nonparametrically identifiable in the stated SEM framework.</p>
+<p>Completeness means that no valid reduction exists in the specified causal model and observed-variable set. An unsuccessful attempt alone does not establish nonidentification. Adjustment formulas also require the relevant support.</p>
+<h2 id="example-1-the-back-door-criterion">Example 1: the back-door criterion</h2>
+<p>Take three disjoint node sets <span class="math inline">\(X,Y,W\)</span> and query <span class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>. Suppose <span class="math inline">\(X\)</span> contains no descendants of <span class="math inline">\(W\)</span> and <span class="math inline">\(X\)</span> <span class="math inline">\(d\)</span>-separates <span class="math inline">\(W\)</span> and <span class="math inline">\(Y\)</span> after the outgoing edges of <span class="math inline">\(W\)</span> are removed: <span class="math display">\[(Y\perp W\mid X)_{G_{\underline W}}.\tag{13.8}\]</span> Then <span class="math display">\[\begin{aligned}
+ P[Y\mid\operatorname{do}(W=w)]
+ &amp;=\sum_xP[X=x\mid\operatorname{do}(W=w)]
+ P[Y\mid X=x,\operatorname{do}(W=w)]\\
+ &amp;=\sum_xP[X=x]P[Y\mid X=x,\operatorname{do}(W=w)]\\
+ &amp;=\sum_xP[X=x]P[Y\mid X=x,W=w].
+\end{aligned}
+\tag{13.9}\]</span> <span style="color: #C92B32">The second equality uses the fact that <span class="math inline">\(X\)</span> is not downstream of <span class="math inline">\(W\)</span>; the last is rule 2. The first replacement is linked to <span class="math inline">\((X\perp W)_{G_{\overline W}}\)</span>.</span></p>
+<h4 id="my-interpretation-of-the-graphical-condition.">My interpretation of the graphical condition.</h4>
+<p>Think of <span class="math inline">\(W\)</span> and <span class="math inline">\(Y\)</span> as single nodes. Removing the outgoing arrows from <span class="math inline">\(W\)</span> removes its downstream causal influence on <span class="math inline">\(Y\)</span>; what remains is the dependence that the adjustment set must block. <span style="color: #C92B32">If <span class="math inline">\(X\)</span> blocks every path between <span class="math inline">\(W\)</span> and <span class="math inline">\(Y\)</span> that points into <span class="math inline">\(W\)</span>, it blocks the back-door paths.</span></p>
+<p>Suppose <span class="math inline">\(W\)</span> and <span class="math inline">\(Y\)</span> are single nodes and <span class="math inline">\(W\)</span> has no descendants other than <span class="math inline">\(Y\)</span> in <span class="math inline">\(G\)</span>. Cutting the outgoing arrows of <span class="math inline">\(W\)</span> removes its downstream influence. Then (13.8) becomes <span class="math display">\[F_Y(w)\perp W\mid X,\qquad
+ F_Y(w)=f_Y(w,X,\varepsilon_Y).\tag{13.10}\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">Infer this graphically; a concrete conditional-independence argument.</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(F_Y(w)\perp W\mid X\)</span> in (13.10)</p>
+</div>
+<p><span style="color: #C92B32">All factors other than <span class="math inline">\(w\)</span> remain unspecified in <span class="math inline">\(X_j=f_j(\operatorname{pa}_j,\varepsilon_j)\)</span>.</span></p>
+<h2 id="example-2-the-front-door-criterion">Example 2: the front-door criterion</h2>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-009.png" alt="image" /></p>
+</div>
+<p>We want <span class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>. Since <span class="math inline">\(U\)</span> is unobserved, we cannot apply back-door adjustment using <span class="math inline">\(X=U\)</span>. But suppose <span class="math inline">\(Z\)</span> fully mediates the effect of <span class="math inline">\(W\)</span> on <span class="math inline">\(Y\)</span> and is not affected by <span class="math inline">\(U\)</span>. <span class="math display">\[\begin{aligned}
+ P[Y\mid\operatorname{do}(W=w)]
+ &amp;=\sum_zP[Z=z\mid\operatorname{do}(W=w)]
+ P[Y\mid Z=z,\operatorname{do}(W=w)]\\
+ &amp;=\sum_zP[Z=z\mid W=w]
+ P[Y\mid Z=z,\operatorname{do}(W=w)].
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">No back-door path connects <span class="math inline">\(W\)</span> to <span class="math inline">\(Z\)</span>.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The replacement of <span class="math inline">\(\operatorname{do}(W=w)\)</span> by <span class="math inline">\(W=w\)</span> in the <span class="math inline">\(Z\)</span> factor.</p>
+</div>
+<p>Next, <span class="math display">\[\begin{aligned}
+ P[Y\mid Z=z,\operatorname{do}(W=w)]
+ &amp;=P[Y\mid\operatorname{do}(Z=z),\operatorname{do}(W=w)]
+ &amp;&amp;\text{\textcolor{red}{(rule 2)}}\\
+ &amp;=P[Y\mid\operatorname{do}(Z=z)]&amp;&amp;\text{\textcolor{red}{(rule 3)}}\\
+ &amp;=\sum_{w&#39;}P[W=w&#39;]P[Y\mid Z=z,W=w&#39;]&amp;&amp;\text{\textcolor{red}{(back-door)}}.
+\end{aligned}\]</span> Combining the steps, <span class="math display">\[P[Y\mid\operatorname{do}(W=w)]
+ =\sum_zP[Z=z\mid W=w]
+ \sum_{w&#39;}P[W=w&#39;]P[Y\mid Z=z,W=w&#39;].\tag{13.11}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Overall <span class="math inline">\(W\to Y\)</span> effect.</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(W\to Z\)</span>: <span class="math inline">\(P(Z=z\mid W=w)\)</span>; <span class="math inline">\(Z\to Y\)</span>: <span class="math inline">\(\sum_{w\prime}P(w\prime)P(Y\mid z,w\prime)\)</span></p>
+</div>
+<p><strong>My observation:</strong> although this directly describes an intervention <span class="math inline">\(\operatorname{do}(W=w)\)</span>, it still has to integrate over the observational distribution <span class="math inline">\(P[W=w&#39;]\)</span>.</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">Even an intervention on <span class="math inline">\(W\)</span> integrates an observational distribution.</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> The <span class="math inline">\(P[W=w&#39;]\)</span> factor in (13.11).</p>
+</div>
+<h2 id="example-3-instrumental-variables">Example 3: instrumental variables</h2>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-010.png" alt="image" /></p>
+</div>
+<p>We would like to estimate <span class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>. In this graph, do-calculus alone does not identify the full intervention distribution; the instrument does not remove the unobserved <span class="math inline">\(W\)</span>–<span class="math inline">\(Y\)</span> confounding.</p>
+<p>For the LATE analysis, the graph alone does not suffice; monotonicity is an additional assumption. Even then, we may identify only a nonstandard causal quantity such as LATE. Encoding monotonicity in an SEM is itself complicated.</p>
+<h2 id="sems-and-potential-outcomes">SEMs and potential outcomes</h2>
+<p>For a two-node graph <span class="math inline">\(W\to Y\)</span>, the two formulations coincide: the potential outcome <span class="math inline">\(Y_i(w)\)</span> and the SEM expression <span class="math inline">\(f_Y(w,\varepsilon_Y)\)</span> can be mapped one to one.</p>
+<p>More generally, how do the formulations compare? Potential-outcome notation asks what <span class="math inline">\(Y\)</span> would be if specified variables were set to particular values. The SEM formulation is flexible enough to express nested operations. For the graph <span class="math inline">\(W\to Z\to Y\)</span> together with <span class="math inline">\(W\to Y\)</span>, define <span class="math display">\[Z(w):=f_Z(w,\varepsilon_Z).\]</span></p>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-011.png" alt="image" /></p>
+</div>
+<p>The nested counterfactual is <span class="math display">\[Y(0,Z(1))
+ =f_Y\bigl(w=0,z=f_Z(w=1,\varepsilon_Z),\varepsilon_Y\bigr).\]</span> <span style="color: #C92B32">Different counterfactual settings can be combined. Can potential-outcome notation do this without drawing a graph?</span></p>
+<p>Can the SEM identify effects of such nested operations? Is that additional power a drawback, or is the weaker potential-outcome model too restrictive?</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Identifiable?</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> The nested counterfactual <span class="math inline">\(Y(0,Z(1))\)</span>.</p>
+</div>
+<p>Potential outcomes also express this as <span class="math inline">\(Y(0,Z(1))\)</span>; no graph is required merely to define the nested variable. Identification depends on substantive assumptions, rather than the choice of notation.</p>
+<p>For the fully observed graph with mutually independent structural errors and adequate support, <span class="math inline">\(E[Y(0,Z(1))]=\int E[Y\mid W=0,Z=z]\,dP(Z=z\mid W=1)\)</span>. This uses cross-world independence from that SEM; latent mediator–outcome confounding or weaker assumptions can invalidate it.</p>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-12.html">← Lecture 12: Evaluating dynamic policies</a><a href="chapter-14.html">Lecture 14: Adaptive experiments →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture11-14.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"nonparametric-sems": "非参数-sem", "the-do-calculus-separation-and-graph-modifications": "do-calculus分离与图的修改", "the-three-rules": "三条规则", "example-1-the-back-door-criterion": "例-1后门准则", "my-interpretation-of-the-graphical-condition.": "我对图条件的理解", "example-2-the-front-door-criterion": "例-2前门准则", "example-3-instrumental-variables": "例-3工具变量", "sems-and-potential-outcomes": "sem-与潜在结果"}</script></body></html>

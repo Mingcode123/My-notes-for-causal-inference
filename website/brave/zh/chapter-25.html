@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第25章：合成双重差分 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-25.html">EN</a><a href="chapter-25.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>Brave and True</h2><ol class="chapter-list"><li><a href="chapter-01.html">第1章：因果推断入门</a></li><li><a href="chapter-02.html">第2章：随机实验</a></li><li><a href="chapter-03.html">第3章：统计学回顾</a></li><li><a href="chapter-04.html">第4章：图模型</a></li><li><a href="chapter-05.html">第5章：线性回归的作用</a></li><li><a href="chapter-06.html">第6章：分组与虚拟变量回归</a></li><li><a href="chapter-07.html">第7章：控制混杂因素之外</a></li><li><a href="chapter-08.html">第8章：工具变量</a></li><li><a href="chapter-09.html">第9章：不依从与局部平均处理效应</a></li><li><a href="chapter-10.html">第10章：匹配</a></li><li><a href="chapter-11.html">第11章：倾向得分</a></li><li><a href="chapter-12.html">第12章：双重稳健估计</a></li><li><a href="chapter-13.html">第13章：双重差分</a></li><li><a href="chapter-14.html">第14章：面板数据与固定效应</a></li><li><a href="chapter-15.html">第15章：合成控制</a></li><li><a href="chapter-16.html">第16章：断点回归设计</a></li><li class="chapter-group">第二部分：应用</li><li><a href="chapter-17.html">第17章：预测模型基础</a></li><li><a href="chapter-18.html">第18章：异质处理效应与个性化</a></li><li><a href="chapter-19.html">第19章：评价因果模型</a></li><li><a href="chapter-20.html">第20章：即插即用估计量</a></li><li><a href="chapter-21.html">第21章：元学习器</a></li><li><a href="chapter-22.html">第22章：去偏／正交机器学习</a></li><li><a href="chapter-23.html">第23章：效应异质性与非线性</a></li><li><a href="chapter-24.html">第24章：双重差分的发展与问题</a></li><li><a href="chapter-25.html" aria-current="page">第25章：合成双重差分</a><ul class="section-list"><li><a href="#面板数据的表示">面板数据的表示</a></li><li><a href="#回看did与合成控制">回看DiD与合成控制</a></li><li><a href="#将两者结合合成did">将两者结合：合成DiD</a></li><li><a href="#时间效应异质性与交错采用">时间效应异质性与交错采用</a></li><li><a href="#安慰剂方差估计">安慰剂方差估计</a></li></ul></li><li><a href="chapter-26.html">附录：去偏与预测</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">Brave and True · 中文</div><h1 id="第25章合成双重差分">第25章：合成双重差分</h1>
+<h2 id="面板数据的表示">面板数据的表示</h2>
+<p>在多个时期观测多个单位。在 <span class="math inline">\(D\)</span> 中，行是时间，列是单位： <span class="math display">\[D=\begin{pmatrix}0&amp;0&amp;0&amp;\cdots&amp;0&amp;0\\0&amp;0&amp;0&amp;\cdots&amp;0&amp;0\\\vdots&amp;\vdots&amp;\vdots&amp;&amp;\vdots&amp;\vdots\\0&amp;0&amp;0&amp;\cdots&amp;1&amp;1\\0&amp;0&amp;0&amp;\cdots&amp;1&amp;1\end{pmatrix}.\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">采用后出现1的列</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 受处理单位</p>
+</div>
+<p><strong>一次进入处理状态：</strong>单位一旦受处理，就不会返回未处理状态。这里的四块表示还要求受处理单位共用处理前／后的分界。这些是设计限制；因果识别仍需关于未处理结果的假设。交错采用将在后面通过子面板处理。</p>
+<h4 id="表示方法1合成控制">表示方法1：合成控制。</h4>
+<p>将观测组织为四块： <span class="math display">\[D=\begin{pmatrix}0&amp;0\\0&amp;1\end{pmatrix},\qquad
+Y=\begin{pmatrix}Y_{\mathrm{pre,co}}&amp;Y_{\mathrm{pre,tr}}\\Y_{\mathrm{post,co}}&amp;Y_{\mathrm{post,tr}}\end{pmatrix}.\]</span> pre/post表示处理前／后，co/tr表示对照／处理组。</p>
+<h4 id="表示方法2did">表示方法2：DiD。</h4>
+<p>使用长表，列分别为单位、时间、结果、是否属于处理组、是否已经开始受处理。</p>
+<p>观测到的四块与缺失的反事实为 <span class="math display">\[Y=\begin{pmatrix}Y(0)_{\mathrm{pre,co}}&amp;Y(0)_{\mathrm{pre,tr}}\\Y(0)_{\mathrm{post,co}}&amp;Y(1)_{\mathrm{post,tr}}\end{pmatrix},
+\qquad
+\operatorname{ATT}=\overline Y(1)_{\mathrm{post,tr}}-\underbrace{\overline Y(0)_{\mathrm{post,tr}}}_{\text{反事实}}.\]</span> 横线表示对受处理单位在处理后时期的单元格求平均。</p>
+<h2 id="回看did与合成控制">回看DiD与合成控制</h2>
+<p>DiD回归及其平行趋势限制为 <span class="math display">\[Y_{it}=\beta_0+\beta_1\mathrm{Post}_t+\beta_2\mathrm{Treated}_i
++\beta_3\mathrm{Treated}_i\mathrm{Post}_t+e_{it},\]</span> <span class="math display">\[E[Y(0)_{\mathrm{post,co}}-Y(0)_{\mathrm{pre,co}}]
+=E[Y(0)_{\mathrm{post,tr}}-Y(0)_{\mathrm{pre,tr}}].\]</span> 若没有处理，两组的平均变化相同。</p>
+<p><span class="math inline">\(\widehat\tau^{\mathrm{did}}\)</span> 是下列最小化问题中的处理系数： <span class="math display">\[\min_{\mu,\alpha,\beta,\tau}\sum_{i=1}^N\sum_{t=1}^T
+[Y_{it}-(\textcolor{blue}{\mu+\alpha_i}+\beta_t+\tau D_{it})]^2.\]</span> <span class="math display">\[\begin{aligned}
+\widetilde Y_{it}&amp;=Y_{it}-\overline Y_{i\cdot}-\overline Y_{\cdot t}+\overline Y_{\cdot\cdot},\\
+\widetilde D_{it}&amp;=D_{it}-\overline D_{i\cdot}-\overline D_{\cdot t}+\overline D_{\cdot\cdot}.
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">平衡面板中对 <span class="math inline">\(Y\)</span> 与 <span class="math inline">\(D\)</span> 去均值</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 固定效应最小二乘目标。</p>
+</div>
+<p>这个形式与合成控制相似，但没有权重。</p>
+<p>合成控制先用处理前结果拟合权重： <span class="math display">\[\widehat w^{\mathrm{sc}}=\operatorname*{argmin}_{w_{\mathrm{co}}}
+\|\overline y_{\textcolor{blue}{\mathrm{pre,tr}}}-Y_{\mathrm{pre,co}}w_{\mathrm{co}}\|_2^2,
+\quad \sum_{i\in\mathrm{co}}w_i=1,\quad w_i\ge0.\]</span> <span class="math inline">\(Y_{\mathrm{pre,co}}\)</span> 为 <span class="math inline">\(T_{\mathrm{pre}}\times N_{\mathrm{co}}\)</span>：行是时间，列是单位。<span class="math inline">\(w_{\mathrm{co}}\)</span> 为 <span class="math inline">\(N_{\mathrm{co}}\times1\)</span>。<span class="math inline">\(\overline y_{\mathrm{pre,tr}}\)</span> 的每一项是在某个处理前时点对处理组单位求平均。 <span style="color: #244DA8">让合成对照贴合处理组，这类似线性回归。</span> 对照单位的权重可以为零。</p>
+<p>处理后，用加权对照预测缺失的结果，再平均处理后的差值。相应的SC回归目标也写在下面： <span class="math display">\[\widehat Y(0)_{\mathrm{post,tr}}=Y_{\mathrm{post,co}}\widehat w^{\mathrm{sc}}_{\mathrm{co}},\qquad
+\widehat{\operatorname{ATT}}=\operatorname{average}_{t\in\mathrm{post}}
+[\overline y_{t,\mathrm{tr}}-\widehat Y(0)_{t,\mathrm{tr}}].\]</span> <span class="math display">\[\min_{\beta,\tau}\sum_{i=1}^N\sum_{t=1}^T
+[Y_{it}-(\beta_t+\tau D_{it})]^2\widehat w_i^{\mathrm{sc}},
+\qquad \widehat w_i^{\mathrm{sc}}=1/N_{\mathrm{tr}}\quad(i\in\mathrm{tr}).\]</span> <span style="color: #244DA8">与DiD相比，这个目标没有总体截距 <span class="math inline">\(\mu\)</span>，也没有单位固定效应 <span class="math inline">\(\alpha_i\)</span>。</span> 将差值解释为因果效应，需要合成比较在处理后的未处理结果上仍有效；处理前拟合接近本身并不能保证这一点。</p>
+<h4 id="我的图解">我的图解。</h4>
+<p>第一幅图中，平移对照组趋势来构造处理组的未处理轨迹，在这个例子里放大了效果。第二幅图用前事结果生成权重，组成虚拟的“未受处理的处理组”；再用这些权重计算后事均值，以两个均值之差作估计。</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-Chinese-figure-017.png" alt="image" /></p>
+</div>
+<h2 id="将两者结合合成did">将两者结合：合成DiD</h2>
+<p><span style="color: #C92B32"><span class="math inline">\(\star\)</span></span> 先并列两个组成部分： <span class="math display">\[\begin{array}{ll}
+\mathrm{SC}:&amp;\displaystyle\min_{\beta,\tau}\sum_{i,t}[Y_{it}-(\beta_t+\tau D_{it})]^2\widehat w_i^{\mathrm{sc}},\\[2mm]
+\mathrm{DiD}:&amp;\displaystyle\min_{\mu,\alpha,\beta,\tau}\sum_{i,t}[Y_{it}-(\mu+\alpha_i+\beta_t+\tau D_{it})]^2.
+\end{array}\]</span></p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">SC的权重与DiD的固定效应</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 合并，并加入时间权重。</p>
+</div>
+<p><span class="math inline">\(\widehat\tau^{\mathrm{sdid}}\)</span> 是以下目标中的处理系数： <span class="math display">\[\min_{\mu,\alpha,\beta,\tau}\sum_{i=1}^N\sum_{t=1}^T
+[Y_{it}-(\mu+\alpha_i+\beta_t+\tau D_{it})]^2
+\underbrace{\widehat w_i^{\mathrm{sdid}}}_{\textcolor{red}{\text{单位权重}}}
+\underbrace{\widehat\lambda_t^{\mathrm{sdid}}}_{\textcolor{red}{\text{时间权重}}}.\]</span></p>
+<h4 id="时间权重">时间权重。</h4>
+<p>用对照组处理前的结果，拟合它们处理后的平均结果： <span class="math display">\[(\widehat\lambda_0,\widehat\lambda_{\mathrm{pre}})
+=\operatorname*{argmin}_{\lambda_0,\lambda_{\mathrm{pre}}}
+\|\overline y_{\textcolor{blue}{\mathrm{post,co}}}-(\lambda_{\mathrm{pre}}Y_{\mathrm{pre,co}}+\lambda_0\mathbf1^{\mathsf T})\|_2^2,
+\quad \sum_{t\in\mathrm{pre}}\lambda_t=1,\quad\lambda_t\ge0.\]</span></p>
+<ul>
+<li><p><span class="math inline">\(Y_{\mathrm{pre,co}}\)</span>：<span class="math inline">\(T_{\mathrm{pre}}\times N_{\mathrm{co}}\)</span>，行是时间，列是单位。</p></li>
+<li><p><span class="math inline">\(\overline y_{\mathrm{post,co}}\)</span>：<span class="math inline">\(1\times N_{\mathrm{co}}\)</span>，对每个对照单位在处理后的时期求平均。</p></li>
+<li><p><span class="math inline">\(\lambda_{\mathrm{pre}}\)</span>：<span class="math inline">\(1\times T_{\mathrm{pre}}\)</span>，每个处理前时期一个权重。</p></li>
+</ul>
+<p>按这里的行向量写法，在矩阵上方加一行1来表示截距。拟合 <span class="math inline">\((\lambda_0,\lambda_{\mathrm{pre}})\)</span>，预测对照组的处理后均值：</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-Chinese-figure-018.png" alt="image" /></p>
+</div>
+<h4 id="单位权重">单位权重。</h4>
+<p>两种加权方向的联系：</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-Chinese-figure-019.png" alt="image" /></p>
+</div>
+<p><span class="math display">\[\begin{aligned}
+(\widehat w_0,\widehat w_{\mathrm{co}})
+=\operatorname*{argmin}_{w_0,w_{\mathrm{co}}}\big\{&amp;
+\|\overline y_{\textcolor{blue}{\mathrm{pre,tr}}}-(Y_{\mathrm{pre,co}}w_{\mathrm{co}}+w_0\mathbf1)\|_2^2\\
+&amp;+\zeta^2T_{\mathrm{pre}}\|w_{\mathrm{co}}\|_2^2\big\},\\
+\sum_{i\in\mathrm{co}}w_i&amp;=1,\quad w_i\ge0,\\
+\zeta&amp;=(N_{\mathrm{tr}}T_{\mathrm{post}})^{1/4}\widehat\sigma(\Delta_{it}),
+\qquad \Delta_{it}=Y_{it}-Y_{i,t-1}.
+\end{aligned}\]</span> 用对照组处理前结果的一阶差分估计 <span class="math inline">\(\widehat\sigma\)</span>。</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32"><span class="math inline">\(L_2\)</span> 惩罚倾向于让非零权重分布得更广</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\zeta^2T_{\mathrm{pre}}\|w_{\mathrm{co}}\|_2^2\)</span></p>
+</div>
+<p>在预测变量矩阵中加一列1： <span class="math display">\[X=[\,\mathbf1_{T_{\mathrm{pre}}}\ \ Y_{\mathrm{pre,co}}\,].\]</span> 拟合 <span class="math inline">\((w_0,w_{\mathrm{co}})\)</span>，截距不受单纯形约束，也不加惩罚。</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">有截距</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(w_0\)</span></p>
+</div>
+<p><span style="color: #244DA8">与SC相比：截距能改善对处理组轨迹的贴合，<span class="math inline">\(L_2\)</span> 惩罚则对对照权重作正则化。</span></p>
+<p>受处理单位与处理后时期分别使用均匀权重 <span class="math inline">\(1/N_{\mathrm{tr}}\)</span> 和 <span class="math inline">\(1/T_{\mathrm{post}}\)</span>。 <strong>我的直觉：</strong>起初我把 SDID 相比 SC 的特点理解为，只关注干预近期起效果的数据。从时间权重的目标看，实际是用对照组的处理前结果去贴合处理后平均结果，因此有帮助的较早时期也可以获得权重，并不按离干预日期的远近直接分配。</p>
+<h2 id="时间效应异质性与交错采用">时间效应异质性与交错采用</h2>
+<p>要分别估计每一期的效果，可以在不同子面板上重复运行SDID。0和1的下标标记原来的时期。</p>
+<h4 id="时间效应异质性"><span style="color: #C92B32">时间效应异质性。</span></h4>
+<p>完整矩阵对应第3、4期的平均ATT。将它拆开，就能分别估计两期：</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-Chinese-figure-020.png" alt="image" /></p>
+</div>
+<h4 id="交错采用"><span style="color: #C92B32">交错采用。</span></h4>
+<p>现在各单位开始受处理的时期不同。先按处理后的时期拆分：</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-Chinese-figure-021.png" alt="image" /></p>
+</div>
+<p>第4期有两个受处理单元格，第3期有一个，因此使用 <span class="math inline">\(2/3\)</span> 与 <span class="math inline">\(1/3\)</span> 的权重。每个子面板中的对照观测都须确实未受处理。</p>
+<p>也可以按受处理队列拆分，并保留从不受处理单位作对照：</p>
+<div class="center">
+<p><img src="../../assets/Brave-and-True-Chinese-figure-022.png" alt="image" /></p>
+</div>
+<p>例如，加利福尼亚受处理12年，另外3个单位各受处理8年： <span class="math display">\[\mathrm{ATT}_0\frac{12}{36}
++\left(\sum_{j=1}^{3}\mathrm{ATT}_j\right)\frac13\frac{3\times8}{36}.\]</span> 这些权重对应观测到的受处理“单位—时期”单元格平均效应。若目标人群不同，聚合权重也可能不同。</p>
+<h2 id="安慰剂方差估计">安慰剂方差估计</h2>
+<p>在例子中，SDID的误差条比SC更小：同时调整单位与时间差异，能够减少结果变异。这可以提高精度，但并不保证在所有设计中都比SC有更小的有效不确定性。只有一个受处理单位时，安慰剂推断尤其有用。</p>
+<p>依次假设各个对照单位受到了处理，用SDID估计它们的安慰剂ATT。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">安慰剂ATT估计</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 计算其方差，再构造近似置信区间。</p>
+</div>
+<p><span class="math display">\[\overline\tau^{\mathrm{pl}}=\frac1B\sum_{b=1}^B\widehat\tau^{(b)},\qquad
+\widehat V_\tau^{\mathrm{pl}}=\frac1B\sum_{b=1}^B
+(\widehat\tau^{(b)}-\overline\tau^{\mathrm{pl}})^2,\]</span> <span class="math display">\[\left[\widehat\tau^{\mathrm{sdid}}-z_{1-\alpha/2}\sqrt{\widehat V_\tau^{\mathrm{pl}}},\quad
+\widehat\tau^{\mathrm{sdid}}+z_{1-\alpha/2}\sqrt{\widehat V_\tau^{\mathrm{pl}}}\right].\]</span> 其中 <span class="math inline">\(z_{1-\alpha/2}\)</span> 是标准正态分位数。比较安慰剂效应的想法与SC相通。要让这个方差反映实际处理效应的不确定性，安慰剂单位与受处理单位的噪声特征须具有可比性。若有多个受处理单位，安慰剂分组应复制相同的组规模；普通加权回归的标准误不能替代这一步推断。</p>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-24.html">← 第24章：双重差分的发展与问题</a><a href="chapter-26.html">附录：去偏与预测 →</a></nav><div class="article book-downloads"><a href="../../Brave-and-True-Chinese.pdf">完整 PDF</a> · <a download href="../../Brave-and-True-Chinese.md">Markdown</a> · <a href="https://matheusfacure.github.io/python-causality-handbook/landing-page.html">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal_Inference_for_The_Brave_and_True/Chapter24-25.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"面板数据的表示": "representing-panel-data", "表示方法1合成控制": "representation-1-synthetic-control.", "表示方法2did": "representation-2-did.", "回看did与合成控制": "revisiting-did-and-synthetic-controls", "我的图解": "how-i-picture-the-comparison.", "将两者结合合成did": "combining-the-two-synthetic-did", "时间权重": "time-weights.", "单位权重": "unit-weights.", "时间效应异质性与交错采用": "time-effect-heterogeneity-and-staggered-adoption", "时间效应异质性": "time-effect-heterogeneity.", "交错采用": "staggered-adoption.", "安慰剂方差估计": "placebo-variance-estimation"}</script></body></html>

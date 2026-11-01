@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 8: Methods for Panel Data · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-08.html" aria-current="true">EN</a><a href="../zh/chapter-08.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html" aria-current="page">Lecture 8: Methods for Panel Data</a><ul class="section-list"><li><a href="#a-constant-treatment-effect-model">A constant treatment-effect model</a></li><li><a href="#the-two-way-model">The two-way model</a></li><li><a href="#interactive-panel-models">Interactive panel models</a></li><li><a href="#identification-through-exchangeability">Identification through exchangeability</a></li></ul></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-8-methods-for-panel-data">Lecture 8: Methods for Panel Data</h1>
+<p>Panel (longitudinal) data observe units <span class="math inline">\(i=1,\ldots,n\)</span> at times <span class="math inline">\(t=1,\ldots,T\)</span>. Arrange these observations in a matrix with units down the rows and time points <span class="math inline">\(t_1,t_2,\ldots,T\)</span> across the columns. <span class="math display">\[\begin{array}{c|cccc}
+ &amp;t=t_1&amp;t=t_2&amp;\cdots&amp;t=T\\\hline
+ i=1&amp;&amp;&amp;&amp;\\i=2&amp;&amp;&amp;&amp;\\\vdots&amp;&amp;&amp;&amp;\\i=n&amp;&amp;&amp;&amp;
+\end{array}\]</span></p>
+<h2 id="a-constant-treatment-effect-model">A constant treatment-effect model</h2>
+<p>Outcomes are <span class="math inline">\(Y_{it}\in\mathbb R\)</span> and treatment assignments are <span class="math inline">\(W_{it}\in\{0,1\}\)</span>. The basic model is <span class="math display">\[Y_{it}=Y_{it}(0)+W_{it}\tau,\qquad i=1,\ldots,n,\quad t=1,\ldots,T.
+\tag{8.1}\]</span> This very basic model leaves out treatment heterogeneity and treatment dynamics. Here the treatment effect is the same for all units and all times; a unit’s outcome at <span class="math inline">\(t\)</span> depends only on its treatment at <span class="math inline">\(t\)</span>, not on previous treatment. <span style="color: #C92B32"><span class="math inline">\(\tau\)</span> does not depend on <span class="math inline">\(i,t\)</span>; past times do not enter.</span></p>
+<h2 id="the-two-way-model">The two-way model</h2>
+<p><span class="math display">\[Y_{it}=\alpha_i+\beta_t+W_{it}\tau+\varepsilon_{it},
+\qquad E[\varepsilon\mid\alpha,\beta,W]=0.
+\tag{8.2}\]</span> <span style="color: #C92B32"><span class="math inline">\(\alpha_i\)</span> and <span class="math inline">\(\beta_t\)</span> are unit and time shifts.</span> <span style="color: #C92B32">Strict exogeneity conditions on the entire treatment path and fixed effects: decisions cannot respond to idiosyncratic errors in any period. It is stronger than contemporaneous mean exogeneity.</span></p>
+<p>For example, with two periods, let one group have treatment path <span class="math inline">\((0,0)\)</span> and another <span class="math inline">\((0,1)\)</span>. The closed-form difference-in-differences estimate is</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">DID</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> Difference of the two groups’ before–after differences.</p>
+</div>
+<p><span class="math display">\[\widehat\tau=\frac1{|\{i:W_{i2}=1\}|}\sum_{W_{i2}=1}(Y_{i2}-Y_{i1})
+-\frac1{|\{i:W_{i2}=0\}|}\sum_{W_{i2}=0}(Y_{i2}-Y_{i1}).\]</span></p>
+<h4 id="comments.">Comments.</h4>
+<p>A limitation is that with large <span class="math inline">\(n,T\)</span> and general treatment-assignment distributions, model (8.2) may fail. Analogously, OLS with more than two periods is sometimes also called DID, although the two-group before/after shortcut no longer describes the general OLS coefficient. An advantage is the intuitive parallel-trends requirement (units differ only in <span class="math inline">\(\alpha_i\)</span>); without parallel trends, it cannot be used. For a balanced panel, residualize on unit and time indicators: <span class="math inline">\(\widetilde W_{it}=W_{it}-\overline W_{i\cdot}-\overline W_{\cdot t}+\overline W_{\cdot\cdot}\)</span>, and similarly for <span class="math inline">\(Y\)</span>. If <span class="math inline">\(\sum_{it}\widetilde W_{it}^2&gt;0\)</span>,<span class="math display">\[\widehat\tau=\frac{\sum_{it}\widetilde W_{it}\widetilde Y_{it}}{\sum_{it}\widetilde W_{it}^2}.\]</span> Parallel trends here concern conditional mean paths rather than noisy realized outcomes.</p>
+<h4 id="supplement-modeling-the-noise-and-estimating-variance.">Supplement: modeling the noise and estimating variance.</h4>
+<p>Treat the row vectors <span class="math inline">\(\varepsilon_i=(\varepsilon_{i1},\ldots,\varepsilon_{iT})\)</span> as IID across units, with <span class="math inline">\(\operatorname{Var}[\varepsilon_i]=\Sigma\)</span>. Treating every <span class="math inline">\(\varepsilon_{it}\)</span> as independent is hard to justify and unreasonable. For <span class="math inline">\(T=2\)</span>, estimate the variance of the differences directly: <span class="math display">\[\widehat{\operatorname{Var}}[\widehat\tau]
+=\frac{\widehat{\operatorname{Var}}[Y_{i2}-Y_{i1}\mid W_{i2}=1]}{|\{i:W_{i2}=1\}|}
++\frac{\widehat{\operatorname{Var}}[Y_{i2}-Y_{i1}\mid W_{i2}=0]}{|\{i:W_{i2}=0\}|}.
+\tag{8.4}\]</span> This remains robust when errors within a row/unit are correlated.</p>
+<h2 id="interactive-panel-models">Interactive panel models</h2>
+<p>Consider the interactive panel model <span class="math display">\[Y_{it}=A_{i\cdot}B_{t\cdot}^{\mathsf T}+W_{it}\tau+\varepsilon_{it},
+ \qquad\mathbb E[\varepsilon\mid A,B,W]=0,\tag{8.5}\]</span> where <span class="math inline">\(A\in\mathbb R^{n\times k}\)</span>, <span class="math inline">\(B\in\mathbb R^{T\times k}\)</span> and <span class="math inline">\(k\)</span> is a rank parameter. Equivalently, <span class="math display">\[Y_{it}=L_{it}+W_{it}\tau+\varepsilon_{it}
+ \qquad\text{for a matrix of rank at most $k$ }L.\]</span></p>
+<h4 id="my-matrix-intuition.">My matrix intuition.</h4>
+<p>Place the <span class="math inline">\(A\)</span> values down the rows and the <span class="math inline">\(B\)</span> values across the columns. For rank one, their intersection has entry <span class="math inline">\(a_i b_t\)</span>; for <span class="math inline">\(k\ne1\)</span>, the entry is a sum <span class="math inline">\(a_{i1}b_{t1}+a_{i2}b_{t2}+\cdots\)</span>.</p>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-004.png" alt="image" /></p>
+</div>
+<p>To handle this model, consider synthetic control and synthetic differences-in-differences. Suppose <span class="math inline">\(W_{it}=1\)</span> exactly when <span class="math inline">\(i&gt;n_0\)</span> and <span class="math inline">\(t&gt;T_0\)</span>. The diagram partitions the outcome matrix at row <span class="math inline">\(n_0\)</span> and column <span class="math inline">\(T_0\)</span>, with only the bottom-right block treated.</p>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-005.png" alt="image" /></p>
+</div>
+<p>Fit the untreated units to the pretreatment trajectory of the treated group: <span class="math display">\[\sum_{i=1}^{n_0}\gamma_iY_{it}
+ \approx\alpha+\frac1{n-n_0}\sum_{i=n_0+1}^nY_{it},
+ \qquad t=1,\ldots,T_0.\]</span> <span style="color: #C92B32">The first group is never treated; the second is treated after <span class="math inline">\(T_0\)</span>.</span> The intercept <span class="math inline">\(\alpha\)</span> plays a role similar to a fixed effect. Choose weights by <span class="math display">\[\begin{aligned}
+ (\widehat\gamma,\widehat\alpha)\in
+ \operatorname*{arg\,min}_{\gamma&#39;,\alpha}\quad&amp;
+ \left\|\sum_{i=1}^{n_0}\gamma&#39;_iY_{i,1:T_0}
+ -\frac1{n-n_0}\sum_{i=n_0+1}^nY_{i,1:T_0}
+ -\alpha\mathbf1\right\|_2^2,\\
+ \text{subject to}\quad&amp;\sum_{i=1}^{n_0}\gamma&#39;_i=1,
+ \qquad\gamma&#39;_i\ge0.
+\end{aligned}
+\tag{8.7}\]</span> <span style="color: #C92B32">The purpose of <span class="math inline">\(\gamma_i\)</span> is to create parallel trends, so that the latent <span class="math inline">\(A_i\)</span> terms can be balanced.</span></p>
+<p>Finally, estimate the treatment coefficient in the weighted two-way model: <span class="math display">\[(\widehat\tau,\widehat\alpha,\widehat\beta)
+ \in\operatorname*{arg\,min}_{\tau&#39;,\alpha&#39;,\beta&#39;}
+ \sum_{i,t}\gamma_i
+ (Y_{it}-\alpha&#39;_i-\beta&#39;_t-W_{it}\tau&#39;)^2,\tag{8.8}\]</span> where <span class="math inline">\(\gamma_i=1/(n-n_0)\)</span> for <span class="math inline">\(i&gt;n_0\)</span>.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Treated-unit weights in the weighted regression</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span style="color: #C92B32"><span class="math inline">\(\gamma_i=1/(n-n_0)\)</span> for <span class="math inline">\(i&gt;n_0\)</span>.</span></p>
+</div>
+<p>The closed-form treatment coefficient is <span class="math display">\[\begin{aligned}
+ \widehat\tau={}&amp;\frac1{n-n_0}\sum_{i=n_0+1}^n
+ \left\{\frac1{T-T_0}\sum_{t=T_0+1}^TY_{it}
+ -\frac1{T_0}\sum_{t=1}^{T_0}Y_{it}\right\}\\
+ &amp;-\sum_{i=1}^{n_0}\gamma_i
+ \left\{\frac1{T-T_0}\sum_{t=T_0+1}^TY_{it}
+ -\frac1{T_0}\sum_{t=1}^{T_0}Y_{it}\right\}.
+\end{aligned}\]</span> <span style="color: #C92B32">This depends on <span class="math inline">\(T_0\)</span> and <span class="math inline">\(n\)</span>.</span> Under an appropriate large-panel asymptotic regime, <span class="math inline">\(n_0,n_1,T\to\infty\)</span>, the estimator is consistent. For consistency, pretreatment factors must reveal the directions relevant after treatment, with enough preperiod information and control of noise and weight concentration. A good preperiod fit alone is insufficient. Full synthetic DID also uses time weights and regularization; this display isolates the unit-weighting idea.</p>
+<h4 id="another-approach.">Another approach.</h4>
+<p>Synthetic control is not the only method for interactive fixed effects. For example, apply <span class="math inline">\(k\)</span>-means clustering to the rows of the outcome matrix <span class="math inline">\(Y\)</span>, then fit a time-varying baseline model separately for each group.</p>
+<h2 id="identification-through-exchangeability">Identification through exchangeability</h2>
+<p>Recall <span class="math inline">\(Y_{it}=Y_{it}(0)+W_{it}\tau\)</span>. A design-based assumption is <span class="math display">\[Y_{i\cdot}(0)\perp W_{i\cdot}\mid S_i,
+ \qquad S_i=\sum_{t=1}^TW_{it}.\tag{8.10}\]</span> One implication: consider a linear estimator <span class="math display">\[\widehat\tau=\sum_{i,t}\gamma_{it}Y_{it},\tag{8.11}\]</span> whose weight matrix depends only on <span class="math inline">\(W\)</span>. Under (8.10), the untreated potential outcomes are exchangeable within a value of <span class="math inline">\(S_i\)</span>, and <span class="math display">\[\mathbb E[\widehat\tau\mid W,\gamma]
+ =\sum_{i,t}\gamma_{it}\mathbb E[Y_{it}(0)\mid S_i]
+ +\tau\sum_{i,t}\gamma_{it}W_{it}.\]</span> Thus unbiasedness follows if <span class="math display">\[\sum_{i,t}\gamma_{it}W_{it}=1,
+ \qquad
+ \sum_{i:S_i=s}\gamma_{it}=0
+ \quad\text{for every }t\text{ and }s\in\mathcal S,\]</span> where <span class="math inline">\(\mathcal S\)</span> is the support of <span class="math inline">\(S_i\)</span>.</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">Within a stratum, the conditional expectation is constant</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(\sum_{i:S_i=s}\gamma_{it}=0\)</span> removes <span class="math inline">\(\sum_i\gamma_{it}E[Y_{it}(0)\mid S_i]\)</span>.</p>
+</div>
+<p>Assume IID rows and a common conditional mean <span class="math inline">\(E[Y_{it}(0)\mid S_i=s]=m_t(s)\)</span>. The criterion <span class="math inline">\(\sum_{it}\gamma_{it}^2\)</span> corresponds to conditionally uncorrelated homoskedastic cells. With within-unit covariance <span class="math inline">\(\Sigma_i\)</span>, use <span class="math inline">\(\sum_i\gamma_i^\mathsf T\Sigma_i\gamma_i\)</span>. Feasible balancing weights remain unbiased even if that working variance model is wrong.</p>
+<p>Choose <span class="math inline">\(\gamma\)</span> by minimizing variance under these unbiasedness constraints: <span class="math display">\[\begin{aligned}
+ \gamma\in\operatorname*{arg\,min}_{\gamma&#39;}\quad&amp;\sum_{i,t}(\gamma&#39;_{it})^2,\\
+ \text{subject to}\quad&amp;\sum_{i,t}\gamma&#39;_{it}W_{it}=1,
+ \quad\sum_{i:S_i=s}\gamma&#39;_{it}=0\quad\text{for all }s,t.
+\end{aligned}
+\tag{8.14}\]</span> <span style="color: #244DA8">Roughly, we need variation in <span class="math inline">\(W_{it}\)</span> among units with the same <span class="math inline">\(S_i\)</span>.</span></p>
+<h4 id="two-sets-of-identifying-restrictions.">Two sets of identifying restrictions.</h4>
+<p>Recall the two-way model <span class="math display">\[Y_{it}=\alpha_i+\beta_t+W_{it}\tau+\varepsilon_{it},
+ \qquad\mathbb E[\varepsilon\mid\alpha,\beta,W]=0.\tag{8.2, recalled}\]</span> The estimator (8.11) is also unbiased under this model if <span class="math display">\[\sum_t\gamma_{it}=0\ \text{for every }i,
+ \qquad\sum_i\gamma_{it}=0\ \text{for every }t,
+ \qquad\sum_{i,t}\gamma_{it}W_{it}=1.\]</span> <span style="color: #C92B32">The first two equalities cancel the fixed effects <span class="math inline">\(\alpha_i\)</span> and <span class="math inline">\(\beta_t\)</span>, and the third normalizes the treatment coefficient.</span></p>
+<p>Combine the restrictions to obtain a doubly robust estimator: minimize <span class="math inline">\(\sum_{i,t}\gamma_{it}^2\)</span> subject to <span class="math display">\[\sum_{i,t}\gamma_{it}W_{it}=1,
+ \qquad\sum_{i:S_i=s}\gamma_{it}=0\quad\text{for all }s,t,\]</span> <span class="math display">\[\sum_t\gamma_{it}=0\quad\text{for all }i,
+ \qquad\sum_i\gamma_{it}=0\quad\text{for all }t.\]</span> It is unbiased if either (8.2) or (8.10) holds.</p>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-07.html">← Lecture 7: Balancing Estimators</a><a href="chapter-09.html">Lecture 9: Instrumental variables regression →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"a-constant-treatment-effect-model": "常数处理效应模型", "the-two-way-model": "双向模型", "comments.": "理解", "supplement-modeling-the-noise-and-estimating-variance.": "补充噪声建模与方差估计", "interactive-panel-models": "交互效应面板模型", "my-matrix-intuition.": "我的矩阵直觉", "another-approach.": "其他方法", "identification-through-exchangeability": "通过可交换性识别", "two-sets-of-identifying-restrictions.": "两组识别约束"}</script></body></html>

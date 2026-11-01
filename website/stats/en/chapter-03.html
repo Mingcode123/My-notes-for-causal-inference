@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><a class="brand" href="../../index.html">Ming / Causal Inference Notes</a><div class="top-actions"><a href="chapter-03.html" aria-current="true">EN</a><a href="../zh/chapter-03.html">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">Contents</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="Close contents">×</button><nav aria-label="Chapters"><div class="book-links"><a href="../../brave/en/chapter-01.html">Brave and True</a><a href="../../stats/en/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">Lecture 1: Randomized Controlled Trials</a></li><li><a href="chapter-02.html">Lecture 2: Unconfoundedness and the Propensity Score</a></li><li><a href="chapter-03.html" aria-current="page">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</a><ul class="section-list"><li><a href="#two-characterizations-of-the-ate">Two characterizations of the ATE</a></li><li><a href="#the-augmented-ipw-estimator">The augmented IPW estimator</a></li><li><a href="#double-robustness">Double robustness</a></li><li><a href="#semiparametric-efficiency">Semiparametric efficiency</a></li><li><a href="#aipw-and-cross-fitting">AIPW and cross-fitting</a></li><li><a href="#confidence-intervals">Confidence intervals</a></li></ul></li><li><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity</a></li><li><a href="chapter-05.html">Lecture 5: Regression Discontinuity Designs</a></li><li><a href="chapter-06.html">Lecture 6: Finite-Sample Inference in RDDs</a></li><li><a href="chapter-07.html">Lecture 7: Balancing Estimators</a></li><li><a href="chapter-08.html">Lecture 8: Methods for Panel Data</a></li><li><a href="chapter-09.html">Lecture 9: Instrumental variables regression</a></li><li><a href="chapter-10.html">Lecture 10: Local average treatment effects</a></li><li><a href="chapter-11.html">Lecture 11: Policy learning</a></li><li><a href="chapter-12.html">Lecture 12: Evaluating dynamic policies</a></li><li><a href="chapter-13.html">Lecture 13: Structural equation modeling</a></li><li><a href="chapter-14.html">Lecture 14: Adaptive experiments</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · English</div><h1 id="lecture-3-efficient-treatment-effect-estimation-via-augmented-ipw">Lecture 3: Efficient Treatment Effect Estimation via Augmented IPW</h1>
+<p>Oracle IPW can have larger asymptotic variance than aggregation for discrete <span class="math inline">\(X\)</span>, as the preceding comparison shows.</p>
+<h2 id="two-characterizations-of-the-ate">Two characterizations of the ATE</h2>
+<ol>
+<li><p>Using <span class="math inline">\(e(x)=P(W_i=1\mid X_i=x)\)</span>, <span class="math inline">\(\tau=E[\widehat\tau^*_{\rm IPW}]\)</span>, where the oracle estimator is as above.</p></li>
+<li><p>Using <span class="math inline">\(\mu_{(w)}(x)=E[Y_i(w)\mid X_i=x]\)</span>, <span class="math display">\[\tau(x)=\mu_{(1)}(x)-\mu_{(0)}(x),\quad
+\tau=E[\mu_{(1)}(X_i)-\mu_{(0)}(X_i)],\]</span> which motivates <span class="math display">\[\widehat\tau_{\rm REG}=\frac1n\sum_i[\widehat\mu_{(1)}(X_i)-\widehat\mu_{(0)}(X_i)].\]</span></p></li>
+</ol>
+<h2 id="the-augmented-ipw-estimator">The augmented IPW estimator</h2>
+<p><span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AIPW}=\frac1n\sum_i\bigg[&amp;\widehat\mu_{(1)}(X_i)-\widehat\mu_{(0)}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}(X_i)}{\widehat e(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}(X_i)}{1-\widehat e(X_i)}\bigg].
+\end{aligned}\]</span></p>
+<h4 id="personal-intuition.">Personal intuition.</h4>
+<p><span style="color: #244DA8">First use <span class="math inline">\(\mu(x)\)</span> to estimate the outcome, and then use IPW on the regression residuals. IPW makes the covariate composition of the data “fair.”</span></p>
+<h2 id="double-robustness">Double robustness</h2>
+<p>AIPW is consistent if either the outcome regressions <span class="math inline">\(\widehat\mu_{(w)}(x)\)</span> are consistent or <span class="math inline">\(\widehat e(x)\)</span> is consistent. Here overlap and integrability are assumed, and the other nuisance estimate must remain well behaved. For fitted functions, the expectation argument below is conditional on an independent training fold as well as the displayed covariates. Cross-fitting supplies this separation.</p>
+<p>When <span class="math inline">\(\widehat\mu_{(w)}(x)\approx\mu_{(w)}(x)\)</span>, the regression average is consistent and the weighted residual terms have mean approximately zero because <span class="math display">\[E[Y_i-\widehat\mu_{(W_i)}(X_i)\mid X_i,W_i]\approx0.\]</span> The propensity term is held fixed by this conditioning. When instead <span class="math inline">\(\widehat e(x)\approx e(x)\)</span>, rearrange: <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AIPW}={}&amp;\frac1n\sum_i\left[\frac{W_iY_i}{\widehat e(X_i)}
+-\frac{(1-W_i)Y_i}{1-\widehat e(X_i)}\right]\\
+&amp;+\frac1n\sum_i\left[\widehat\mu_{(1)}(X_i)\left(1-\frac{W_i}{\widehat e(X_i)}\right)
+-\widehat\mu_{(0)}(X_i)\left(1-\frac{1-W_i}{1-\widehat e(X_i)}\right)\right].
+\end{aligned}\]</span> <span style="color: #244DA8">The first part is IPW.</span> <span style="color: #244DA8">The second has mean approximately zero since</span> <span class="math inline">\(E[1-W_i/\widehat e(X_i)\mid X_i]\approx0\)</span>; conditioning holds the fitted outcome regression fixed.</p>
+<h2 id="semiparametric-efficiency">Semiparametric efficiency</h2>
+<p>AIPW attains the semiparametric efficiency bound among regular estimators in this nonparametric model. When the nuisance functions are estimated sufficiently accurately, <span class="math display">\[\sqrt n(\widehat\tau_{\rm AIPW}-\widehat\tau^*_{\rm AIPW})\longrightarrow_p0,\]</span> where the starred estimator is oracle AIPW. This oracle estimator is just an IID average, so the central limit theorem also applies to the estimated version:</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8"><span class="math inline">\(\sqrt n(\widehat\tau_{\rm AIPW}-\widehat\tau^*_{\rm AIPW})\to_p0\)</span></span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> The oracle IID central limit theorem transfers to estimated AIPW.</p>
+</div>
+<p><span class="math display">\[\sqrt n(\widehat\tau_{\rm AIPW}-\tau)\Rightarrow N(0,V^*),\]</span> <span class="math display">\[V^*=\operatorname{Var}[\tau(X_i)]
++E\left[\frac{b_0^2(X_i)}{1-e(X_i)}\right]
++E\left[\frac{b_1^2(X_i)}{e(X_i)}\right].\]</span> <span style="color: #244DA8">This is a Cramer–Rao-type constraint: the best attainable variance among regular estimators.</span></p>
+<h2 id="aipw-and-cross-fitting">AIPW and cross-fitting</h2>
+<p>Randomly split the data into two halves, <span class="math inline">\(I_1\)</span> and <span class="math inline">\(I_2\)</span>. <span style="color: #244DA8">The annotation says to split the data and choose the halves at random.</span> Set <span class="math display">\[\widehat\tau_{\rm AIPW}=\frac{|I_1|}{n}\widehat\tau^{I_1}
++\frac{|I_2|}{n}\widehat\tau^{I_2},\]</span> <span class="math display">\[\begin{aligned}
+\widehat\tau^{I_1}=\frac1{|I_1|}\sum_{i\in I_1}\bigg[&amp;\widehat\mu_{(1)}^{I_2}(X_i)-\widehat\mu_{(0)}^{I_2}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}^{I_2}(X_i)}{\widehat e^{I_2}(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}^{I_2}(X_i)}{1-\widehat e^{I_2}(X_i)}\bigg].
+\end{aligned}\]</span> Asymptotically, we can ignore the specific properties of the chosen machine-learning adjustment method and instead rely on:</p>
+<ol>
+<li><p>Overlap: <span class="math inline">\(\eta&lt;e(x)&lt;1-\eta\)</span> for all <span class="math inline">\(x\in\mathcal X\)</span>, with <span class="math inline">\(\eta&gt;0\)</span>.</p></li>
+<li><p>Consistency of the nuisance estimators: <span class="math display">\[\sup_x|\widehat\mu_{(w)}^{I_2}(x)-\mu_{(w)}(x)|\longrightarrow_p0,
+\quad \sup_x|\widehat e^{I_2}(x)-e(x)|\longrightarrow_p0.\]</span> <span style="color: #244DA8">The chosen learning method must satisfy these consistency assumptions; consistency is not automatic for every method.</span></p></li>
+<li><p>Risk decay for the outcome and propensity models: <span class="math display">\[E[(\widehat\mu_{(w)}^{I_2}(X_i)-\mu_{(w)}(X_i))^2]\,
+E[(\widehat e^{I_2}(X_i)-e(X_i))^2]=o(1/n).\]</span> <span style="color: #244DA8">If both are <span class="math inline">\(\sqrt n\)</span>-consistent, the product is of order <span class="math inline">\(1/n^2\)</span>. A simple sufficient approach is for both regression adjustments to converge at <span class="math inline">\(o(n^{-1/4})\)</span> in RMSE.</span></p></li>
+</ol>
+<h4 id="proof.">Proof.</h4>
+<p>Write the oracle estimator as <span class="math inline">\(\widehat\tau^*=|I_1|\widehat\tau^{I_1,*}/n+|I_2|\widehat\tau^{I_2,*}/n\)</span>. To establish <span class="math inline">\(\sqrt n(\widehat\tau_{\rm AIPW}-\widehat\tau^*)\to_p0\)</span>, it suffices to show the corresponding result for the treated mean; the other components are analogous. Define <span class="math display">\[\widehat\tau^{I_1}=\widehat\mu^{I_1}_{(1)}-\widehat\mu^{I_1}_{(0)},\qquad
+\widehat\mu^{I_1}_{(1)}=\frac1{|I_1|}\sum_{i\in I_1}
+\left[\widehat\mu^{I_2}_{(1)}(X_i)+W_i\frac{Y_i-\widehat\mu^{I_2}_{(1)}(X_i)}{\widehat e^{I_2}(X_i)}\right].\]</span> Subtracting its oracle version gives <span class="math display">\[\begin{aligned}
+\widehat\mu^{I_1}_{(1)}-\widehat\mu^{I_1,*}_{(1)}
+={}&amp;\frac1{|I_1|}\sum_{i\in I_1}
+(\widehat\mu^{I_2}_{(1)}(X_i)-\mu_{(1)}(X_i))\left(1-\frac{W_i}{e(X_i)}\right)\\
+&amp;+\frac1{|I_1|}\sum_{i\in I_1}W_i(Y_i-\mu_{(1)}(X_i))
+\left(\frac1{\widehat e^{I_2}(X_i)}-\frac1{e(X_i)}\right)\\
+&amp;-\frac1{|I_1|}\sum_{i\in I_1}W_i(\widehat\mu^{I_2}_{(1)}(X_i)-\mu_{(1)}(X_i))
+\left(\frac1{\widehat e^{I_2}(X_i)}-\frac1{e(X_i)}\right).
+\end{aligned}\]</span> <span style="color: #244DA8">The first contribution has conditional variance <span class="math inline">\(o_p(1)/n\)</span>; the last is <span class="math inline">\(o_p(1/\sqrt n)\)</span>.</span> If <span class="math inline">\(T_1\)</span> is the first average and <span class="math inline">\(\mathcal D_2\)</span> its training data,<span class="math display">\[E[T_1\mid\mathcal D_2]=0,\qquad E[T_1^2\mid\mathcal D_2]\le\frac{E[(\widehat\mu_1(X)-\mu_1(X))^2\mid\mathcal D_2]}{\eta|I_1|}=o_p(n^{-1}).\]</span> Thus <span class="math inline">\(T_1=o_p(n^{-1/2})\)</span>. The second average is similar; Cauchy–Schwarz and the product-risk condition control the last.</p>
+<p>For <span class="math inline">\(K\)</span> folds, use nuisance estimates trained without the fold <span class="math inline">\(k(i)\)</span> containing observation <span class="math inline">\(i\)</span>: <span class="math display">\[\begin{aligned}
+\widehat\tau_{\rm AIPW}=\frac1n\sum_i\bigg[&amp;\widehat\mu_{(1)}^{(-k(i))}(X_i)-\widehat\mu_{(0)}^{(-k(i))}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}^{(-k(i))}(X_i)}{\widehat e^{(-k(i))}(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}^{(-k(i))}(X_i)}{1-\widehat e^{(-k(i))}(X_i)}\bigg].
+\end{aligned}\]</span></p>
+<h2 id="confidence-intervals">Confidence intervals</h2>
+<h4 id="supplement-terminology.">Supplement: terminology.</h4>
+<p>The ordinary likelihood score is <span class="math display">\[S(\theta)=\frac{d\log L(\theta)}{d\theta},\]</span> where <span class="math inline">\(L(\theta)\)</span> is the likelihood. The empirical variance of <span class="math inline">\(n\)</span> sample scores is <span class="math display">\[\frac1{n-1}\sum_i(S_\theta(O_i)-\overline S_\theta)^2.\]</span> With nuisance parameters, the efficient score removes the nuisance-score component. For the ATE, the centered AIPW summand <span class="math inline">\(\psi_i^*-\tau\)</span> below is the efficient influence function, and its variance is the efficiency bound; this differs from a raw likelihood score, whose variance is Fisher information.</p>
+<h4 id="variance-estimation.">Variance estimation.</h4>
+<p>Define the oracle summand <span class="math display">\[\psi_i^*=\mu_{(1)}(X_i)-\mu_{(0)}(X_i)
++\frac{W_i(Y_i-\mu_{(1)}(X_i))}{e(X_i)}
+-\frac{(1-W_i)(Y_i-\mu_{(0)}(X_i))}{1-e(X_i)}.\]</span> Its empirical variance converges to the efficient variance: <span class="math display">\[\frac1{n-1}\sum_i(\psi_i^*-\widehat\tau^*)^2\longrightarrow_p V^*.\]</span> Here <span class="math inline">\(\widehat\tau^*\)</span> is oracle AIPW.</p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">The non-cross-fitted oracle AIPW estimate</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span class="math inline">\(\widehat\tau^*\)</span> in <span class="math inline">\(\sum_i(\psi_i^*-\widehat\tau^*)^2/(n-1)\)</span>.</p>
+</div>
+<p>Replacing each nuisance function by the estimate trained outside <span class="math inline">\(k(i)\)</span> gives the cross-fitted summand <span class="math inline">\(\widehat\psi_i\)</span> and <span class="math display">\[\widehat V_{\rm AIPW}=\frac1{n-1}\sum_i(\widehat\psi_i-\widehat\tau_{\rm AIPW})^2\longrightarrow_p V^*.\]</span> The confidence interval drawn under a central normal probability region is</p>
+<div class="center">
+<p><img src="../../assets/STATS361-English-figure-002.png" alt="image" /></p>
+</div>
+<p>The interval has asymptotic coverage <span class="math inline">\(1-\alpha\)</span>:</p>
+<p><span class="math display">\[\widehat\tau_{\rm AIPW}\ \pm\ \frac1{\sqrt n}\Phi^{-1}(1-\alpha/2)\sqrt{\widehat V_{\rm AIPW}}.\]</span></p>
+</article><nav class="page-nav" aria-label="Previous and next chapter"><a href="chapter-02.html">← Lecture 2: Unconfoundedness and the Propensity Score</a><a href="chapter-04.html">Lecture 4: Estimating Treatment Heterogeneity →</a></nav><div class="article book-downloads"><a href="../../STATS361-English.pdf">Complete PDF</a> · <a download href="../../STATS361-English.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">Textbook</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture1-10.pdf">Original notes</a></div></main></div><script type="application/json" id="section-map">{"two-characterizations-of-the-ate": "ate-的两种表征", "the-augmented-ipw-estimator": "增广-ipw-估计量", "personal-intuition.": "个人直觉", "double-robustness": "双重稳健性", "semiparametric-efficiency": "半参数效率", "aipw-and-cross-fitting": "aipw-与交叉拟合", "proof.": "证明", "confidence-intervals": "置信区间", "supplement-terminology.": "补充术语", "variance-estimation.": "方差估计"}</script></body></html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第 13 讲：结构方程建模 · Ming</title><link rel="stylesheet" href="../../assets/reader.css?v=8f56ce169867"><script src="../../assets/math-config.js?v=f38a508d952b"></script><script defer src="../../vendor/mathjax/tex-svg.js"></script><script defer src="../../assets/reader.js?v=0c5e0e3e0768"></script></head><body><a class="skip" href="#main">跳至正文</a><header class="topbar"><a class="brand" href="../../index.html">Ming / 因果推断笔记</a><div class="top-actions"><a href="../en/chapter-13.html">EN</a><a href="chapter-13.html" aria-current="true">中文</a><button class="menu-button" aria-controls="chapter-navigation" aria-expanded="false">目录</button></div></header><div class="reader"><aside class="sidebar" id="chapter-navigation"><button class="mobile-close" aria-label="关闭目录">×</button><nav aria-label="章节目录"><div class="book-links"><a href="../../brave/zh/chapter-01.html">Brave and True</a><a href="../../stats/zh/chapter-01.html">STATS 361</a></div><h2>STATS 361</h2><ol class="chapter-list"><li><a href="chapter-01.html">第 1 讲：随机对照试验</a></li><li><a href="chapter-02.html">第 2 讲：无混杂性与倾向得分</a></li><li><a href="chapter-03.html">第 3 讲：通过增广 IPW 高效估计处理效应</a></li><li><a href="chapter-04.html">第 4 讲：估计处理效应的异质性</a></li><li><a href="chapter-05.html">第 5 讲：断点回归设计</a></li><li><a href="chapter-06.html">第 6 讲：断点回归的有限样本推断</a></li><li><a href="chapter-07.html">第 7 讲：平衡估计量</a></li><li><a href="chapter-08.html">第 8 讲：面板数据方法</a></li><li><a href="chapter-09.html">第 9 讲：工具变量回归</a></li><li><a href="chapter-10.html">第 10 讲：局部平均处理效应</a></li><li><a href="chapter-11.html">第 11 讲：策略学习</a></li><li><a href="chapter-12.html">第 12 讲：动态策略评估</a></li><li><a href="chapter-13.html" aria-current="page">第 13 讲：结构方程建模</a><ul class="section-list"><li><a href="#非参数-sem">非参数 SEM</a></li><li><a href="#do-calculus分离与图的修改">Do-calculus：分离与图的修改</a></li><li><a href="#三条规则">三条规则</a></li><li><a href="#例-1后门准则">例 1：后门准则</a></li><li><a href="#例-2前门准则">例 2：前门准则</a></li><li><a href="#例-3工具变量">例 3：工具变量</a></li><li><a href="#sem-与潜在结果">SEM 与潜在结果</a></li></ul></li><li><a href="chapter-14.html">第 14 讲：自适应实验</a></li></ol></nav></aside><main id="main" class="main"><article class="article"><div class="eyebrow">STATS 361 · 中文</div><h1 id="第-13-讲结构方程建模">第 13 讲：结构方程建模</h1>
+<p>SEM 指结构方程模型。回顾前面的方程 <span class="math inline">\(Y_i=\alpha+W_i\tau+\varepsilon_i\)</span>：设 <span class="math inline">\(W_i=w\)</span>，则观测到 <span class="math inline">\(Y_i(W_i=w)=\alpha+w\tau+\varepsilon_i\)</span>。</p>
+<h2 id="非参数-sem">非参数 SEM</h2>
+<p>设 <span class="math inline">\((X_1,\ldots,X_p)\)</span> 是 <span class="math inline">\(p\)</span> 个随机变量，联合分布为 <span class="math inline">\(P\)</span>。假设 <span class="math inline">\(P\)</span> 可以用有向无环图（DAG）<span class="math inline">\(G\)</span> 表示，即 <span class="math display">\[P(X_1,\ldots,X_p)=\prod_{j=1}^p P(X_j\mid\operatorname{pa}_j),\tag{13.2}\]</span> 其中 <span class="math inline">\(\operatorname{pa}_j\)</span> 是图 <span class="math inline">\(G\)</span> 中 <span class="math inline">\(X_j\)</span> 的父节点集合。等价地， <span class="math display">\[\operatorname{pa}_j=\{X_i:E_{ij}=1\},\]</span> <span class="math inline">\(E_{ij}\)</span> 表示是否存在边 <span class="math inline">\(X_i\to X_j\)</span>。进一步假设存在确定性函数 <span class="math inline">\(f_j\)</span>，<span class="math inline">\(j=1,\ldots,p\)</span>，使得 <span class="math display">\[X_j=f_j(\operatorname{pa}_j,\varepsilon_j),\qquad
+ \varepsilon_j\sim F_j,\quad\text{相互独立}.\tag{13.3}\]</span> <span style="color: #C92B32">SEM／DAG 用父节点和噪声来规定每个节点。</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">即使上游父节点的取值改变，<span class="math inline">\(f_j(\cdot)\)</span> 也不改变。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(X_j=f_j(\operatorname{pa}_j,\varepsilon_j)\)</span></p>
+</div>
+<p><span style="color: #244DA8">这样有了具体含义：<span class="math inline">\(f_j\)</span> 可以看作给定父节点时 <span class="math inline">\(X_j\)</span> 的分布索引。</span></p>
+<p>因果查询从外部设置某些节点的取值，考察其他节点的分布怎样改变。对不相交的节点集 <span class="math inline">\(W,Y\subset X\)</span>，把设置 <span class="math inline">\(W=w\)</span> 对 <span class="math inline">\(Y\)</span> 的影响写为 <span class="math display">\[P[Y\mid\operatorname{do}(W=w)].\]</span> 在 (13.3) 中，删除对应于 <span class="math inline">\(W\)</span> 的方程，并将其他方程中的 <span class="math inline">\(W\)</span> 替换为 <span class="math inline">\(w\)</span>。对 <span class="math inline">\(X_j\)</span> 的干预，对离散变量，截断分解为 <span class="math display">\[P[X\mid\operatorname{do}(X_j=x_j)]
+ =\begin{cases}
+ \displaystyle\frac{P[X]}{P[X_j=x_j\mid\operatorname{pa}_j]},&amp;X_j=x_j,\\
+ 0,&amp;\text{其他情况}.
+ \end{cases}\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">1?</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 分母 <span class="math inline">\(P[X_j=x_j\mid\operatorname{pa}_j]\)</span></p>
+</div>
+<p>被强制设置的节点在 <span class="math inline">\(x_j\)</span> 处的新概率质量是 <span class="math inline">\(1\)</span>。分母的作用是移除旧的观测机制，不能把这个分母换成 <span class="math inline">\(1\)</span>。</p>
+<h2 id="do-calculus分离与图的修改">Do-calculus：分离与图的修改</h2>
+<p>对互不相交的节点集 <span class="math inline">\(X,Y,Z\)</span>，考虑一条连接 <span class="math inline">\(X\)</span> 中某节点与 <span class="math inline">\(Y\)</span> 中某节点的无向路径 <span class="math inline">\(p\)</span>。若路径中存在节点 <span class="math inline">\(W\)</span> 满足下列任一条件，路径就被 <span class="math inline">\(Z\)</span> 阻断：</p>
+<ol>
+<li><p><span class="math inline">\(W\)</span> 是路径 <span class="math inline">\(p\)</span> 上的 collider，且 <span class="math inline">\(W\)</span> 本身及其任何后代都不在 <span class="math inline">\(Z\)</span> 中；或</p></li>
+<li><p><span class="math inline">\(W\)</span> 不是路径 <span class="math inline">\(p\)</span> 上的 collider，且 <span class="math inline">\(W\in Z\)</span>。</p></li>
+</ol>
+<p>两幅路径示意图如下（实线箭头是因果边；虚线箭头连接批注）：</p>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-008.png" alt="image" /></p>
+</div>
+<p>当 <span class="math inline">\(Z\)</span> 阻断两个节点集之间的每条路径时，才称它将二者 <span class="math inline">\(d\)</span>-分离。</p>
+<p>若 <span class="math inline">\(Z\)</span> 将 <span class="math inline">\(X\)</span> 和 <span class="math inline">\(Y\)</span> <span class="math inline">\(d\)</span>-分离，则 (13.2) 推出 <span class="math inline">\(X\perp Y\mid Z\)</span>，记为 <span class="math display">\[(X\perp Y\mid Z)_G.\]</span> 图的记号：</p>
+<ul>
+<li><p><span class="math inline">\(G_{\overline X}\)</span>：删除指向 <span class="math inline">\(X\)</span> 的入边。</p></li>
+<li><p><span class="math inline">\(G_{\underline X}\)</span>：删除从 <span class="math inline">\(X\)</span> 出发的出边。</p></li>
+<li><p><span class="math inline">\(G_{\underline X\overline Z}\)</span>：删除从 <span class="math inline">\(X\)</span> 出发的边，以及指向 <span class="math inline">\(Z\)</span> 的边。</p></li>
+</ul>
+<h2 id="三条规则">三条规则</h2>
+<p><span style="color: #C92B32"><span class="math inline">\(\operatorname{do}(X=x)\)</span> 删除入边，所以在 <span class="math inline">\(X\)</span> 上方加横线。</span>对互不相交的节点集 <span class="math inline">\(X,Y,Z,W\)</span>：</p>
+<ol>
+<li><p><strong>观测的插入／删除。</strong>若 <span class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline X}},\]</span> 则 <span class="math display">\[P[Y\mid\operatorname{do}(X=x),Z=z,W=w]
+ =P[Y\mid\operatorname{do}(X=x),W=w].\]</span></p></li>
+<li><p><strong>干预与观测的交换。</strong>若 <span class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline X\underline Z}},\]</span> 则 <span class="math display">\[P[Y\mid\operatorname{do}(X=x),\operatorname{do}(Z=z),W=w]
+ =P[Y\mid\operatorname{do}(X=x),Z=z,W=w].\]</span></p></li>
+<li><p><strong>干预的插入／删除。</strong>若 <span class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline X\overline{Z(W)}}},\]</span> 其中 <span class="math inline">\(Z(W)\)</span> 是 <span class="math inline">\(Z\)</span> 中在 <span class="math inline">\(G_{\overline X}\)</span> 内不属于任何 <span class="math inline">\(W\)</span> 节点之祖先的那些节点，则 <span class="math display">\[P[Y\mid\operatorname{do}(X=x),\operatorname{do}(Z=z),W=w]
+ =P[Y\mid\operatorname{do}(X=x),W=w].\]</span></p></li>
+</ol>
+<p><strong>我的简记。</strong></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">共同的 <span class="math inline">\(\operatorname{do}(X=x)\)</span>，以及额外的上横线／下横线。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 上面的三条 do-calculus 规则。</p>
+</div>
+<p><span style="color: #C92B32">三个式中都有 <span class="math inline">\(\operatorname{do}(X=x)\)</span>；<span class="math inline">\(\overline X\)</span> 提供 <span class="math inline">\(\operatorname{do}(X=x)\)</span> 条件。之后，在相应分离条件成立时，删掉 <span class="math inline">\(Z\)</span> 的出边，就可以把“do <span class="math inline">\(Z\)</span>”换成“control <span class="math inline">\(Z\)</span>”；删掉 <span class="math inline">\(Z(W)\)</span> 的入边，则“do <span class="math inline">\(Z\)</span>”相当于没 do。<span class="math inline">\(Z(W)\)</span> 是 <span class="math inline">\(Z\)</span> 中不具有上述被排除的 <span class="math inline">\(W\)</span> 祖先关系的部分。</span></p>
+<p>反复使用 do-calculus，将因果查询化简为关于 <span class="math inline">\(P\)</span> 的可观测查询：表达式中不再有 do 算子，只依赖观测到的随机变量。Do-calculus 是完备的：如果无法把某个因果查询化为这样的观测表达式，那么在给定的 SEM 框架下，该查询就不能非参数识别。</p>
+<p>完备性说的是：在指定因果模型和可观测变量集合中，不存在任何有效化简。某次尝试失败本身不能证明不可识别。调整公式还需要相应的支持条件。</p>
+<h2 id="例-1后门准则">例 1：后门准则</h2>
+<p>取互不相交的节点集 <span class="math inline">\(X,Y,W\)</span>，查询 <span class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>。假设 <span class="math inline">\(X\)</span> 不包含 <span class="math inline">\(W\)</span> 的任何后代，并且删除 <span class="math inline">\(W\)</span> 的出边后，<span class="math inline">\(X\)</span> 将 <span class="math inline">\(W\)</span> 与 <span class="math inline">\(Y\)</span> <span class="math inline">\(d\)</span>-分离： <span class="math display">\[(Y\perp W\mid X)_{G_{\underline W}}.\tag{13.8}\]</span> 则 <span class="math display">\[\begin{aligned}
+ P[Y\mid\operatorname{do}(W=w)]
+ &amp;=\sum_xP[X=x\mid\operatorname{do}(W=w)]
+ P[Y\mid X=x,\operatorname{do}(W=w)]\\
+ &amp;=\sum_xP[X=x]P[Y\mid X=x,\operatorname{do}(W=w)]\\
+ &amp;=\sum_xP[X=x]P[Y\mid X=x,W=w].
+\end{aligned}
+\tag{13.9}\]</span> <span style="color: #C92B32">第二个等号使用了 <span class="math inline">\(X\)</span> 不在 <span class="math inline">\(W\)</span> 下游的事实；最后一个等号使用规则 2。第一次替换与 <span class="math inline">\((X\perp W)_{G_{\overline W}}\)</span> 联系起来。</span></p>
+<h4 id="我对图条件的理解">我对图条件的理解。</h4>
+<p>把 <span class="math inline">\(W\)</span> 和 <span class="math inline">\(Y\)</span> 看成单个节点。删除 <span class="math inline">\(W\)</span> 的出边，就去掉了它对 <span class="math inline">\(Y\)</span> 的下游因果影响；剩下的依赖关系，就是调整集合必须阻断的部分。<span style="color: #C92B32">若 <span class="math inline">\(X\)</span> 阻断 <span class="math inline">\(W\)</span> 与 <span class="math inline">\(Y\)</span> 之间所有指向 <span class="math inline">\(W\)</span> 的路径，就阻断了后门路径。</span></p>
+<p>假设 <span class="math inline">\(W\)</span> 和 <span class="math inline">\(Y\)</span> 是单个节点，而且在 <span class="math inline">\(G\)</span> 中，<span class="math inline">\(W\)</span> 除了 <span class="math inline">\(Y\)</span> 以外没有其他后代。剪掉 <span class="math inline">\(W\)</span> 的出边，就去掉其下游影响。这时 (13.8) 变为 <span class="math display">\[F_Y(w)\perp W\mid X,\qquad
+ F_Y(w)=f_Y(w,X,\varepsilon_Y).\tag{13.10}\]</span></p>
+<div class="note-arrow" data-ink="blue" style="color: #244DA8">
+<p><span style="color: #244DA8">从图上推断；一个具体的条件独立论证。</span> <span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 式 (13.10) 中的 <span class="math inline">\(F_Y(w)\perp W\mid X\)</span></p>
+</div>
+<p><span style="color: #C92B32">在 <span class="math inline">\(X_j=f_j(\operatorname{pa}_j,\varepsilon_j)\)</span> 中，除 <span class="math inline">\(w\)</span> 以外的因素都还没有被指定。</span></p>
+<h2 id="例-2前门准则">例 2：前门准则</h2>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-009.png" alt="image" /></p>
+</div>
+<p>我们要得到 <span class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>。由于 <span class="math inline">\(U\)</span> 不可观测，不能使用 <span class="math inline">\(X=U\)</span> 作后门调整。但假设 <span class="math inline">\(Z\)</span> 完全中介了 <span class="math inline">\(W\)</span> 对 <span class="math inline">\(Y\)</span> 的影响，并且不受 <span class="math inline">\(U\)</span> 影响。 <span class="math display">\[\begin{aligned}
+ P[Y\mid\operatorname{do}(W=w)]
+ &amp;=\sum_zP[Z=z\mid\operatorname{do}(W=w)]
+ P[Y\mid Z=z,\operatorname{do}(W=w)]\\
+ &amp;=\sum_zP[Z=z\mid W=w]
+ P[Y\mid Z=z,\operatorname{do}(W=w)].
+\end{aligned}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32"><span class="math inline">\(W\)</span> 与 <span class="math inline">\(Z\)</span> 之间没有后门路径。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(Z\)</span> 对应的项中，将 <span class="math inline">\(\operatorname{do}(W=w)\)</span> 换为 <span class="math inline">\(W=w\)</span>。</p>
+</div>
+<p>接着， <span class="math display">\[\begin{aligned}
+ P[Y\mid Z=z,\operatorname{do}(W=w)]
+ &amp;=P[Y\mid\operatorname{do}(Z=z),\operatorname{do}(W=w)]
+ &amp;&amp;\text{\textcolor{red}{（规则 2）}}\\
+ &amp;=P[Y\mid\operatorname{do}(Z=z)]&amp;&amp;\text{\textcolor{red}{（规则 3）}}\\
+ &amp;=\sum_{w&#39;}P[W=w&#39;]P[Y\mid Z=z,W=w&#39;]&amp;&amp;\text{\textcolor{red}{（后门）}}.
+\end{aligned}\]</span> 合并各步，得到 <span class="math display">\[P[Y\mid\operatorname{do}(W=w)]
+ =\sum_zP[Z=z\mid W=w]
+ \sum_{w&#39;}P[W=w&#39;]P[Y\mid Z=z,W=w&#39;].\tag{13.11}\]</span></p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32"><span class="math inline">\(W\to Y\)</span> 的整体效应。</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span class="math inline">\(W\to Z\)</span>：<span class="math inline">\(P(Z=z\mid W=w)\)</span>；<span class="math inline">\(Z\to Y\)</span>：<span class="math inline">\(\sum_{w\prime}P(w\prime)P(Y\mid z,w\prime)\)</span></p>
+</div>
+<p><strong>我的观察：</strong>虽然这里直接描述的是 <span class="math inline">\(\operatorname{do}(W=w)\)</span> 干预，仍然需要对观测分布 <span class="math inline">\(P[W=w&#39;]\)</span> 积分。</p>
+<div class="note-arrow" data-ink="black" style="color: #000000">
+<p><span style="color: #000000">即使干预 <span class="math inline">\(W\)</span>，也需要对观测分布积分。</span> <span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 式 (13.11) 中的 <span class="math inline">\(P[W=w&#39;]\)</span> 项。</p>
+</div>
+<h2 id="例-3工具变量">例 3：工具变量</h2>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-010.png" alt="image" /></p>
+</div>
+<p>希望估计 <span class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>。在这张图里，仅靠 do-calculus 不能识别完整的干预分布；工具变量并未消除 <span class="math inline">\(W\)</span> 与 <span class="math inline">\(Y\)</span> 之间的未观测混杂。</p>
+<p>对 LATE 分析，仅有图还不够；单调性是额外的假设。即使这样，也可能只能识别 LATE 等非标准因果量。而把单调性插入 SEM 本身也很复杂。</p>
+<h2 id="sem-与潜在结果">SEM 与潜在结果</h2>
+<p>在简单的双节点图 <span class="math inline">\(W\to Y\)</span> 中，两种表述相同：潜在结果 <span class="math inline">\(Y_i(w)\)</span> 与 SEM 中的 <span class="math inline">\(f_Y(w,\varepsilon_Y)\)</span> 可以一一映射。</p>
+<p>更一般地，两种表述有何不同？潜在结果记号问的是：若将指定变量设为某些取值，<span class="math inline">\(Y\)</span> 会是多少。SEM 更灵活，可以表达嵌套操作。对于同时包含 <span class="math inline">\(W\to Z\to Y\)</span> 和 <span class="math inline">\(W\to Y\)</span> 的图，定义 <span class="math display">\[Z(w):=f_Z(w,\varepsilon_Z).\]</span></p>
+<div class="center">
+<p><img src="../../assets/STATS361-Chinese-figure-011.png" alt="image" /></p>
+</div>
+<p>嵌套反事实为 <span class="math display">\[Y(0,Z(1))
+ =f_Y\bigl(w=0,z=f_Z(w=1,\varepsilon_Z),\varepsilon_Y\bigr).\]</span> <span style="color: #C92B32">不同的潜在设置可以放在一起讨论；Potential Outcome 不作图也能表达吗？</span></p>
+<p>SEM 能识别这种嵌套操作的因果效应吗？这种额外能力是缺陷，还是说更弱的潜在结果模型过于受限？</p>
+<div class="note-arrow" data-ink="red" style="color: #C92B32">
+<p><span style="color: #C92B32">可识别？</span> <span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 嵌套反事实 <span class="math inline">\(Y(0,Z(1))\)</span>。</p>
+</div>
+<p>潜在结果也可用 <span class="math inline">\(Y(0,Z(1))\)</span> 表达它；仅仅定义这个嵌套变量并不需要画图。识别依赖实质性假设，而不是记号的选择。</p>
+<p>若图中节点均可观测、结构误差相互独立且支持充分，则 <span class="math inline">\(E[Y(0,Z(1))]=\int E[Y\mid W=0,Z=z]\,dP(Z=z\mid W=1)\)</span>。这里使用了该 SEM 提供的跨世界独立性；中介与结果之间的潜在混杂或更弱的假设可能使它失效。</p>
+</article><nav class="page-nav" aria-label="前后章节"><a href="chapter-12.html">← 第 12 讲：动态策略评估</a><a href="chapter-14.html">第 14 讲：自适应实验 →</a></nav><div class="article book-downloads"><a href="../../STATS361-Chinese.pdf">完整 PDF</a> · <a download href="../../STATS361-Chinese.md">Markdown</a> · <a href="https://web.stanford.edu/~swager/stats361.pdf">教材</a> · <a href="https://github.com/Mingcode123/My-notes-for-causal-inference/blob/9e8233e/note_for_Causal%20_inference_STATS_361/Lecture11-14.pdf">原始笔记</a></div></main></div><script type="application/json" id="section-map">{"非参数-sem": "nonparametric-sems", "do-calculus分离与图的修改": "the-do-calculus-separation-and-graph-modifications", "三条规则": "the-three-rules", "例-1后门准则": "example-1-the-back-door-criterion", "我对图条件的理解": "my-interpretation-of-the-graphical-condition.", "例-2前门准则": "example-2-the-front-door-criterion", "例-3工具变量": "example-3-instrumental-variables", "sem-与潜在结果": "sems-and-potential-outcomes"}</script></body></html>
