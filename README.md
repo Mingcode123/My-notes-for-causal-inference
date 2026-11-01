@@ -8,7 +8,7 @@ These links contain my personal notes on studying causal inference, and I’m de
 
 ## Read and download
 
-[Open the local reading site](website/index.html).
+[Read online](https://mingcode123.github.io/My-notes-for-causal-inference/website/) · [Offline website files](website/index.html).
 
 | Textbook | English PDF | English Markdown | Chinese PDF | Chinese Markdown |
 |---|---|---|---|---|
@@ -109,7 +109,7 @@ Expand a textbook to browse its chapters. Each link opens the corresponding sect
 
 ## 阅读与下载
 
-[打开本地阅读网站](website/index.html)。
+[在线阅读](https://mingcode123.github.io/My-notes-for-causal-inference/website/) · [离线网站文件](website/index.html)。
 
 | 教材 | 英文 PDF | 英文 Markdown | 中文 PDF | 中文 Markdown |
 |---|---|---|---|---|
