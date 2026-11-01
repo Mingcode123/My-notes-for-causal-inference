@@ -1,4 +1,20 @@
-# Local PDF rendering and LaTeX build intermediates
+# Local rendering and build intermediates
 /tmp/
 __pycache__/
 *.pyc
+
+# Local sources, tools, reviews, historical editions, and original backups
+/english/
+/output/
+/local-archive/
+/note_for_Causal _inference_STATS_361/
+/note_for_Causal_Inference_for_The_Brave_and_True/
+
+# LaTeX stays local
+*.tex
+*.ltx
+*.latex
+*.sty
+*.cls
+*.bib
+*.bst

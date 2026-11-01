@@ -4,9 +4,9 @@ Lectures 1–14 · Reviewed English edition
 
 Original black, red, and blue ink is retained in color spans and diagrams. Purple marks errors in the original note; orange marks qualifications or unresolved readings. Recognition and translation errors are fixed directly. Arrows show the author’s pointing relations in a reflowed English layout.
 
-**Color rendering:** GitHub strips CSS colors from prose. The labeled review blocks remain readable there; use the [PDF](STATS361-English.pdf) or [HTML preview](english/reviewed/STATS361-English.html) to see prose colors. Mathematical source remains editable in this Markdown file; diagram PNGs preserve the original arrow colors.
+**Color rendering:** GitHub strips CSS colors from prose. The labeled review blocks remain readable there; use the [PDF](STATS361-English.pdf) to see prose colors. Mathematical source remains editable in this Markdown file; diagram PNGs preserve the original arrow colors.
 
-Source coverage: 89 scanned pages. See the companion findings JSON and coverage Markdown for the audit trail.
+Source coverage: 89 scanned pages.
 
 ---
 
@@ -266,7 +266,7 @@ then
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-001.png)
+![image](assets/STATS361-English-figure-001.png)
 
 </div>
 
@@ -604,7 +604,7 @@ The confidence interval drawn under a central normal probability region is
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-002.png)
+![image](assets/STATS361-English-figure-002.png)
 
 </div>
 
@@ -1115,7 +1115,7 @@ The sketch shows a weight profile with a negative spike just to the left of the 
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-003.png)
+![image](assets/STATS361-English-figure-003.png)
 
 </div>
 
@@ -1563,7 +1563,7 @@ Place the $`A`$ values down the rows and the $`B`$ values across the columns. Fo
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-004.png)
+![image](assets/STATS361-English-figure-004.png)
 
 </div>
 
@@ -1571,7 +1571,7 @@ To handle this model, consider synthetic control and synthetic differences-in-di
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-005.png)
+![image](assets/STATS361-English-figure-005.png)
 
 </div>
 
@@ -1783,7 +1783,7 @@ Hence
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-006.png)
+![image](assets/STATS361-English-figure-006.png)
 
 </div>
 
@@ -2304,7 +2304,7 @@ The drawing plots $`c(z)`$ against $`z`$ with an open dot at the left limit and 
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-007.png)
+![image](assets/STATS361-English-figure-007.png)
 
 </div>
 
@@ -3288,7 +3288,7 @@ The two path sketches (solid arrows are causal; dashed arrows link annotations):
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-008.png)
+![image](assets/STATS361-English-figure-008.png)
 
 </div>
 
@@ -3410,7 +3410,7 @@ F_Y(w)\perp W\mid X,\qquad
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-009.png)
+![image](assets/STATS361-English-figure-009.png)
 
 </div>
 
@@ -3456,7 +3456,7 @@ P[Y\mid\operatorname{do}(W=w)]
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-010.png)
+![image](assets/STATS361-English-figure-010.png)
 
 </div>
 
@@ -3477,7 +3477,7 @@ Z(w):=f_Z(w,\varepsilon_Z).
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-011.png)
+![image](assets/STATS361-English-figure-011.png)
 
 </div>
 
@@ -3790,7 +3790,7 @@ Substitute the arm-count bound in the regret definition:
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-English-figure-012.png)
+![image](assets/STATS361-English-figure-012.png)
 
 </div>
 

@@ -4,7 +4,7 @@
 
 黑、红、蓝对应原笔颜色。紫色标注原笔记错误；橙色标注补充条件或待确认问题。识别和翻译错误直接改正。保留原公式、个人直觉与箭头关系。
 
-**颜色显示：** GitHub会去掉正文CSS颜色；完整颜色请看[PDF](STATS361-Chinese.pdf)或[HTML预览](english/reviewed/STATS361-Chinese.html)。公式可直接编辑，图像保留原箭头颜色。中英文使用同一套校注编号。
+**颜色显示：** GitHub会去掉正文CSS颜色；完整颜色请看[PDF](STATS361-Chinese.pdf)。公式可直接编辑，图像保留原箭头颜色。中英文使用同一套校注编号。
 
 ---
 
@@ -264,7 +264,7 @@ V_{\rm AGG}&=\operatorname{Var}[\tau(X_i)]
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-001.png)
+![image](assets/STATS361-Chinese-figure-001.png)
 
 </div>
 
@@ -602,7 +602,7 @@ S(\theta)=\frac{d\log L(\theta)}{d\theta},
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-002.png)
+![image](assets/STATS361-Chinese-figure-002.png)
 
 </div>
 
@@ -1113,7 +1113,7 @@ I_B(\gamma)=\sup_{|\mu_{(w)}''|\leq B}
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-003.png)
+![image](assets/STATS361-Chinese-figure-003.png)
 
 </div>
 
@@ -1563,7 +1563,7 @@ Y_{it}=L_{it}+W_{it}\tau+\varepsilon_{it}
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-004.png)
+![image](assets/STATS361-Chinese-figure-004.png)
 
 </div>
 
@@ -1571,7 +1571,7 @@ Y_{it}=L_{it}+W_{it}\tau+\varepsilon_{it}
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-005.png)
+![image](assets/STATS361-Chinese-figure-005.png)
 
 </div>
 
@@ -1783,7 +1783,7 @@ Y_i=\alpha+W_i\tau+\varepsilon_i,\qquad\varepsilon_i\perp Z_i,
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-006.png)
+![image](assets/STATS361-Chinese-figure-006.png)
 
 </div>
 
@@ -2304,7 +2304,7 @@ c_-(z)=\lim_{a\uparrow z}c(a).
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-007.png)
+![image](assets/STATS361-Chinese-figure-007.png)
 
 </div>
 
@@ -3288,7 +3288,7 @@ p^{\operatorname{do}(X_j=x_j)}(x)
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-008.png)
+![image](assets/STATS361-Chinese-figure-008.png)
 
 </div>
 
@@ -3410,7 +3410,7 @@ F_Y(w)\perp W\mid X,\qquad
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-009.png)
+![image](assets/STATS361-Chinese-figure-009.png)
 
 </div>
 
@@ -3456,7 +3456,7 @@ P[Y\mid\operatorname{do}(W=w)]
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-010.png)
+![image](assets/STATS361-Chinese-figure-010.png)
 
 </div>
 
@@ -3477,7 +3477,7 @@ Z(w):=f_Z(w,\varepsilon_Z).
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-011.png)
+![image](assets/STATS361-Chinese-figure-011.png)
 
 </div>
 
@@ -3790,7 +3790,7 @@ P\left(|\overline Y'_{kj}-\mu_k|>b\sqrt{4\log T/j}\right)
 
 <div class="center">
 
-![image](english/reviewed/assets/STATS361-Chinese-figure-012.png)
+![image](assets/STATS361-Chinese-figure-012.png)
 
 </div>
 

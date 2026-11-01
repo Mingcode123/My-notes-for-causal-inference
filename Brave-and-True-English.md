@@ -4,9 +4,9 @@ Chapters 1–25 and Appendix · Reviewed English edition
 
 Original black, red, and blue ink is retained in color spans and diagrams. Purple marks errors in the original note; orange marks qualifications or unresolved readings. Recognition and translation errors are fixed directly. Arrows show the author’s pointing relations in a reflowed English layout.
 
-**Color rendering:** GitHub strips CSS colors from prose. The labeled review blocks remain readable there; use the [PDF](Brave-and-True-English.pdf) or [HTML preview](english/reviewed/Brave-and-True-English.html) to see prose colors. Mathematical source remains editable in this Markdown file; diagram PNGs preserve the original arrow colors.
+**Color rendering:** GitHub strips CSS colors from prose. The labeled review blocks remain readable there; use the [PDF](Brave-and-True-English.pdf) to see prose colors. Mathematical source remains editable in this Markdown file; diagram PNGs preserve the original arrow colors.
 
-Source coverage: 54 scanned pages. See the companion findings JSON and coverage Markdown for the audit trail.
+Source coverage: 54 scanned pages.
 
 ---
 
@@ -124,7 +124,7 @@ Confounding bias may involve proxy confounders and variables that cannot be dire
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-001.png)
+![image](assets/Brave-and-True-English-figure-001.png)
 
 Source p. 3: chain, fork, collider; followed by confounding and the two bad-control graphs.
 
@@ -185,7 +185,7 @@ where $`A_i`$ is ability. The omitted-variable calculation is
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-002.png)
+![image](assets/Brave-and-True-English-figure-002.png)
 
 Source p. 4: binary-treatment regression (negative slope as drawn).
 
@@ -321,7 +321,7 @@ The accompanying graph has $`X\to T_1\to Y\to T_2`$, and $`X\to T_2`$. <span sty
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-003.png)
+![image](assets/Brave-and-True-English-figure-003.png)
 
 Source p. 6: good precision control, treatment predictor, and bad controls (red circles).
 
@@ -398,7 +398,7 @@ With a weak correlation between $`T`$ and $`Z`$, estimates differ between OLS an
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-004.png)
+![image](assets/Brave-and-True-English-figure-004.png)
 
 Source pp. 7–8: instrument, treatment, confounder and outcome.
 
@@ -620,7 +620,7 @@ Replace matching distance with $`p(X)`$. The author comments, “this is not ver
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-005.png)
+![image](assets/Brave-and-True-English-figure-005.png)
 
 Source p. 13: propensity-score sketch and the original double arrow (qualified in the review).
 
@@ -817,7 +817,7 @@ The sketch shows several parallel purchase-versus-cost lines. A fixed-effects mo
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-006.png)
+![image](assets/Brave-and-True-English-figure-006.png)
 
 Source p. 18: parallel within-city purchase–cost lines (blue).
 
@@ -887,7 +887,7 @@ with the reminder that California’s effect is negative. <span style="color: #2
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-007.png)
+![image](assets/Brave-and-True-English-figure-007.png)
 
 Source p. 20: extrapolation versus a convex-hull restriction (schematic source geometry).
 
@@ -983,7 +983,7 @@ The continuation says a large $`p`$-value means nonsignificance and a smaller ef
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-008.png)
+![image](assets/Brave-and-True-English-figure-008.png)
 
 Source pp. 22–23: black potential curves; red observed curve switches at the cutoff.
 
@@ -1159,7 +1159,7 @@ S_{\hat\beta_1}=\sqrt{\frac{\sum_i\hat\varepsilon_i^2}{(n-2)\sum_i(t_i-\bar t)^2
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-009.png)
+![image](assets/Brave-and-True-English-figure-009.png)
 
 Source pp. 27–28: cumulative slope (left) and gain against a straight reference (right).
 
@@ -1394,7 +1394,7 @@ The flowchart crosses the two outcome models over to the opposite groups, constr
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-010.png)
+![image](assets/Brave-and-True-English-figure-010.png)
 
 Source pp. 32–33: S-, T- and X-learner pointing relations.
 
@@ -1533,7 +1533,7 @@ For prediction, obtain $`\hat T'`$ from the five LGBM models given $`X`$. The ha
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-011.png)
+![image](assets/Brave-and-True-English-figure-011.png)
 
 Source pp. 37–38: cross-prediction, residuals, and the unfinished final learner.
 
@@ -1649,7 +1649,7 @@ The sales-versus-price sketch has two downward-sloping nonlinear curves for type
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-012.png)
+![image](assets/Brave-and-True-English-figure-012.png)
 
 Source pp. 39–40: latent versus conversion rankings, saturation, and type/price dependence.
 
@@ -1711,7 +1711,7 @@ The price transformation is a tentative modeling idea; the handwritten exponent 
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-013.png)
+![image](assets/Brave-and-True-English-figure-013.png)
 
 Schematic reconstruction of the handwritten trajectories; no numerical data are implied.
 
@@ -1831,7 +1831,7 @@ The second member of each comparison is the control. **Author’s intuition:** i
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-014.png)
+![image](assets/Brave-and-True-English-figure-014.png)
 
 </div>
 
@@ -2120,7 +2120,7 @@ The DiD sketch shifts a trajectory into a parallel comparison; the handwritten c
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-015.png)
+![image](assets/Brave-and-True-English-figure-015.png)
 
 Schematic reconstructions of the author’s sketches.
 
@@ -2161,7 +2161,7 @@ The active replacement sketch at the bottom of p. 8 multiplies along the time di
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-016.png)
+![image](assets/Brave-and-True-English-figure-016.png)
 
 </div>
 
@@ -2171,7 +2171,7 @@ The small diagram at the top of p. 10 connects control/pre to control/post by $`
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-English-figure-017.png)
+![image](assets/Brave-and-True-English-figure-017.png)
 
 </div>
 

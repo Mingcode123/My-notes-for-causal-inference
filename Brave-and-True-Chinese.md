@@ -4,7 +4,7 @@
 
 黑、红、蓝对应原笔颜色。紫色标注原笔记错误；橙色标注补充条件或待确认问题。识别和翻译错误直接改正。保留原公式、个人直觉与箭头关系。
 
-**颜色显示：** GitHub会去掉正文CSS颜色；完整颜色请看[PDF](Brave-and-True-Chinese.pdf)或[HTML预览](english/reviewed/Brave-and-True-Chinese.html)。公式可直接编辑，图像保留原箭头颜色。中英文使用同一套校注编号。
+**颜色显示：** GitHub会去掉正文CSS颜色；完整颜色请看[PDF](Brave-and-True-Chinese.pdf)。公式可直接编辑，图像保留原箭头颜色。中英文使用同一套校注编号。
 
 ---
 
@@ -122,7 +122,7 @@ $`A\to B`$ 表示 $`A`$ 影响 $`B`$；依赖关系沿箭头传递。
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-001.png)
+![image](assets/Brave-and-True-Chinese-figure-001.png)
 
 原扫描第3页：链、叉、碰撞点；下方依次为混杂及两种不当控制。
 
@@ -183,7 +183,7 @@ k=\frac{\operatorname{Cov}(Y_i,\widetilde T_i)}{\operatorname{Var}(\widetilde T_
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-002.png)
+![image](assets/Brave-and-True-Chinese-figure-002.png)
 
 原扫描第4页：二元处理回归，保留原图的负斜率。
 
@@ -319,7 +319,7 @@ E[Y_{i1}\mid Y_{i1}>0]-E[Y_{i0}\mid Y_{i0}>0]
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-003.png)
+![image](assets/Brave-and-True-Chinese-figure-003.png)
 
 原扫描第6页：改善精度的控制、处理变量的预测因素，以及红圈标出的不当控制。
 
@@ -396,7 +396,7 @@ k=\frac{E[Y\mid Z=1]-E[Y\mid Z=0]}{E[T\mid Z=1]-E[T\mid Z=0]}.
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-004.png)
+![image](assets/Brave-and-True-Chinese-figure-004.png)
 
 原扫描第7–8页：工具变量、处理、混杂因素与结果。
 
@@ -618,7 +618,7 @@ E[Y\mid X,T=1]-E[Y\mid X,T=0]
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-005.png)
+![image](assets/Brave-and-True-Chinese-figure-005.png)
 
 原扫描第13页：倾向得分图及原有双向箭头，其含义在校注中加以限定。
 
@@ -815,7 +815,7 @@ Y_{it}-\bar Y_i&=\beta(X_{it}-\bar X_i)+\gamma(U_i-\bar U_i)+(e_{it}-\bar e_i),\
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-006.png)
+![image](assets/Brave-and-True-Chinese-figure-006.png)
 
 原扫描第18页：各城市内部平行的购买量—成本直线，保留蓝色。
 
@@ -885,7 +885,7 @@ p=\frac1N\sum_j\mathbf1\{\hat\tau_{\mathrm{California}}>\hat\tau_j\},
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-007.png)
+![image](assets/Brave-and-True-Chinese-figure-007.png)
 
 原扫描第20页：外推与凸包约束，按原图几何关系示意。
 
@@ -981,7 +981,7 @@ K(R,c,h)=\mathbf1\{|R-c|<h\}\left(1-\frac{|R-c|}{h}\right).
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-008.png)
+![image](assets/Brave-and-True-Chinese-figure-008.png)
 
 原扫描第22–23页：黑色为潜在结果曲线；红色观测曲线在阈值处切换。
 
@@ -1157,7 +1157,7 @@ S_{\hat\beta_1}=\sqrt{\frac{\sum_i\hat\varepsilon_i^2}{(n-2)\sum_i(t_i-\bar t)^2
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-009.png)
+![image](assets/Brave-and-True-Chinese-figure-009.png)
 
 原扫描第27–28页：左为累计斜率，右为累计增益与直线基准。
 
@@ -1392,7 +1392,7 @@ Y_i^*=(Y_i-\bar Y)\frac{T_i-M(T_i)}{\{T_i-M(T_i)\}^2},
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-010.png)
+![image](assets/Brave-and-True-Chinese-figure-010.png)
 
 原扫描第32–33页：S、T、X 三种学习器的指向关系。
 
@@ -1531,7 +1531,7 @@ Y_i=\hat M_Y(X_i)+\tau(X_i)\{T_i-\hat M_T(X_i)\}+\hat\varepsilon_i.
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-011.png)
+![image](assets/Brave-and-True-Chinese-figure-011.png)
 
 原扫描第37–38页：交叉预测、残差与尚未完成的最终学习器。
 
@@ -1647,7 +1647,7 @@ Y_{\mathrm{latent}}&\sim N(-4.5+0.001\,\mathrm{income}+\mathrm{nudge}
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-012.png)
+![image](assets/Brave-and-True-Chinese-figure-012.png)
 
 原扫描第39–40页：潜在尺度与转化尺度的排序、饱和效应，以及类型／价格依赖。
 
@@ -1709,7 +1709,7 @@ Y_{\mathrm{latent}}&\sim N(-4.5+0.001\,\mathrm{income}+\mathrm{nudge}
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-013.png)
+![image](assets/Brave-and-True-Chinese-figure-013.png)
 
 按手绘轨迹重建的示意图，不代表具体数值数据。
 
@@ -1829,7 +1829,7 @@ y_{it}=\tau D_{it}+\gamma_i+e_{it}.
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-014.png)
+![image](assets/Brave-and-True-Chinese-figure-014.png)
 
 </div>
 
@@ -2118,7 +2118,7 @@ DiD图将轨迹平移，构造平行比较；手写批注说，这在图示例�
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-015.png)
+![image](assets/Brave-and-True-Chinese-figure-015.png)
 
 按原笔记草图重建的示意图。
 
@@ -2159,7 +2159,7 @@ DiD图将轨迹平移，构造平行比较；手写批注说，这在图示例�
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-016.png)
+![image](assets/Brave-and-True-Chinese-figure-016.png)
 
 </div>
 
@@ -2169,7 +2169,7 @@ DiD图将轨迹平移，构造平行比较；手写批注说，这在图示例�
 
 <div class="center">
 
-![image](english/reviewed/assets/Brave-and-True-Chinese-figure-017.png)
+![image](assets/Brave-and-True-Chinese-figure-017.png)
 
 </div>
 
