@@ -1,0 +1,4455 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>STATS 361：因果推断笔记</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      color: light-dark(#1a1a1a, #fdfdfd);
+      background-color: #fdfdfd;
+      background-color: light-dark(#fdfdfd, #1a1a1a);
+      color-scheme: light dark;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a, a:visited {
+      color: inherit;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid;
+      border-color: #e6e6e6;
+      border-color: light-dark(#e6e6e6, #4c4c4c);
+      color: #606060;
+      color: light-dark(#606060, #b6b6b6);
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid currentColor;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid currentColor;
+      border-bottom: 1px solid currentColor;
+    }
+    th {
+      border-top: 1px solid currentColor;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <script defer=""
+  src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"
+  type="text/javascript"></script>
+<style>body{max-width:960px;margin:3rem auto;padding:0 1.5rem;font:18px/1.6 Georgia,serif}img{max-width:100%;height:auto}.review-note{border-top:1px solid;border-bottom:1px solid;padding:.8em 0;margin:1.2em 0}.original-ink{margin:.6em 0}blockquote{margin-left:1.2em}h1,h2{line-height:1.25}pre{overflow:auto}</style></head>
+<body><p><strong>Color preview of the reviewed Markdown.</strong> Formulas require MathJax network access; the PDF is self-contained.</p>
+<header id="title-block-header">
+<h1 class="title">STATS 361：因果推断笔记</h1>
+</header>
+<h1 id="第-1-讲随机对照试验">第 1 讲：随机对照试验</h1>
+<p><em>原扫描页码：Lecture1-10.pdf，第 2、1、3 页；阅读顺序：先第 2
+页正文，再第 1 页补充，最后第 3 页。</em></p>
+<p>在随机对照试验（RCT）中，用回归分析平均处理效应，是为了减小方差；ATE
+的识别并不依赖回归。</p>
+<blockquote>
+<p><span style="color: #000000">RCT 中的回归（第 2 页）</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+减小方差；ATE 的识别来自随机分配。</p>
+</blockquote>
+<p><span class="math display">\[\Delta_i=Y_i(1)-Y_i(0),\qquad
+\tau=E[Y_i(1)-Y_i(0)].\]</span> 用均值差估计量估计 <span
+class="math inline">\(\tau\)</span>，并进行统计推断： <span
+class="math display">\[\widehat\tau_{\rm
+DM}=\frac1{n_1}\sum_{W_i=1}Y_i-\frac1{n_0}\sum_{W_i=0}Y_i,
+\qquad n_w=|\{i:W_i=w\}|.\]</span>
+笔记标注：该估计量是一致且无偏的。</p>
+<blockquote>
+<p><span style="color: #244DA8">均值差（第 2 页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span
+class="math inline">\(\widehat\tau_{\rm DM}\)</span></p>
+</blockquote>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-002）：抽样与处理分配条件</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 2 页</em></p>
+<p>在上述随机分配设定下，两组均非空时，均值差是无偏的；总体一致性与正态极限还需要独立同分布抽样及有限二阶矩。下面的平衡分配方差公式专指
+<span
+class="math inline">\(P(W=1)=1/2\)</span>，并假设协变量已中心化，即
+<span class="math inline">\(E[X]=0\)</span>。一般方差为 <span
+class="math inline">\(\operatorname{Var}(Y(1))/e+\operatorname{Var}(Y(0))/(1-e)\)</span>。中心化也解释了后面的
+OLS 分解。在仅有上述矩条件时，分解旁的 <span
+class="math inline">\(N(0,\cdot/n_w)\)</span>
+是渐近近似，而非有限样本下的精确分布。参见讲义式
+(1.6)、(1.8)–(1.13)。</p>
+</div>
+<h4 id="补充假设">补充：假设。</h4>
+<p><span class="math display">\[Y_i=Y_i(W_i),\qquad
+W_i\perp\{Y_i(0),Y_i(1)\}.\]</span> 第一个式子标为
+SUTVA，第二个是处理的随机分配。SUTVA
+即稳定单位处理值假设；原笔记简述为：（1）单位稳定，实验单位之间相互独立；（2）只有一个处理水平／版本。</p>
+<blockquote>
+<p><span style="color: #000000"><span
+class="math inline">\(Y_i=Y_i(W_i)\)</span>；SUTVA</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+稳定单位处理值假设：左页补充中的两项解释（第 1 页）。</p>
+</blockquote>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-001）：SUTVA 不等于统计独立</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 1 页</em></p>
+<p>SUTVA
+要求单位之间没有干扰，且每种指定处理没有隐藏版本。它不要求结果在统计上相互独立，也允许这里的
+<span class="math inline">\(0,1\)</span>
+两种处理取值。独立抽样是另外的假设。原笔记的“单一处理水平”宜改为“每一种处理都有定义明确的版本”。参见<a
+href="https://web.stanford.edu/~swager/stats361.pdf">讲义</a>印刷页码第
+2–3 页的讨论与脚注。</p>
+</div>
+<h2 id="线性结果模型与方差缩减">线性结果模型与方差缩减</h2>
+<p><span
+class="math display">\[Y_i(w)=c_{(w)}+X_i\beta_{(w)}+\varepsilon_i(w),\quad
+E[\varepsilon_i(w)\mid X_i]=0,\quad
+\operatorname{Var}[\varepsilon_i(w)\mid X_i]=b^2.\]</span> <span
+style="color: #244DA8">两种处理状态分别拟合各自的系数。</span>记 <span
+class="math inline">\(A=\operatorname{Var}[X]\)</span>，<span
+style="color: #244DA8"><span
+class="math inline">\(\|v\|_A^2=v&#39;Av\)</span></span>。笔记中的方差为
+<span class="math display">\[V_{\rm
+DM}=4b^2+\|\beta_{(0)}+\beta_{(1)}\|_A^2
++\|\beta_{(0)}-\beta_{(1)}\|_A^2.\]</span> 另有 <span
+class="math display">\[\tau=c_{(1)}-c_{(0)}+E[X](\beta_{(1)}-\beta_{(0)}),\qquad
+\widehat\tau_{\rm OLS}=\widehat c_{(1)}-\widehat c_{(0)}
++\overline X(\widehat\beta_{(1)}-\widehat\beta_{(0)}).\]</span>
+笔记给出的误差分解为 <span class="math display">\[\begin{align*}
+\widehat\tau_{\rm OLS}-\tau={}&amp;(\widehat c_{(1)}-c_{(1)})-(\widehat
+c_{(0)}-c_{(0)})
++\overline X(\beta_{(1)}-\beta_{(0)})\\
+&amp;+\overline
+X(\widehat\beta_{(1)}-\widehat\beta_{(0)}-\beta_{(1)}+\beta_{(0)}).
+\end{align*}\]</span> 前两项分别标注为 <span
+class="math inline">\(N(0,b^2/n_1)\)</span>、<span
+class="math inline">\(N(0,b^2/n_0)\)</span>；第三项标注为 <span
+class="math inline">\(N(0,\|\beta_{(1)}-\beta_{(0)}\|_A^2/n)\)</span>；最后一项是
+<span class="math inline">\(O_p(1/n)\)</span>。<span
+style="color: #244DA8">页边批注：斜率估计带来的不确定性趋于零。</span>因此
+<span class="math display">\[\sqrt n(\widehat\tau_{\rm
+OLS}-\tau)\Rightarrow N(0,V_{\rm OLS}),\qquad
+V_{\rm OLS}=4b^2+\|\beta_{(0)}-\beta_{(1)}\|_A^2,\]</span> <span
+class="math display">\[V_{\rm DM}=V_{\rm
+OLS}+\|\beta_{(0)}+\beta_{(1)}\|_A^2.\]</span></p>
+<h2 id="一般结果回归下的-ols">一般结果回归下的 OLS</h2>
+<p>下一页说明：在该模型中，OLS 比均值差更好。设 <span
+class="math display">\[Y_i(w)=\mu_{(w)}(X_i)+\varepsilon_i(w),\quad
+E[\varepsilon_i(w)\mid X_i]=0,\quad
+\operatorname{Var}[\varepsilon_i(w)\mid X_i]=b^2.\]</span>
+对于均值差估计量， <span class="math display">\[\sqrt
+n(\widehat\tau_{\rm DM}-\tau)\Rightarrow N(0,V_{\rm DM}),\quad
+V_{\rm DM}=4b^2+2\operatorname{Var}[\mu_{(0)}(X_i)]
++2\operatorname{Var}[\mu_{(1)}(X_i)].\]</span> 对于 OLS，Huber–White
+方差计算从总体投影出发： <span
+class="math display">\[(c^*_{(w)},\beta^*_{(w)})=arg\min_{c,\beta}
+E[(Y_i(w)-X_i\beta-c)^2].\]</span> 笔记写为 <span
+class="math display">\[\sqrt{n_w}\left\{\begin{pmatrix}\widehat
+c_{(w)}\\\widehat\beta_{(w)}\end{pmatrix}
+-\begin{pmatrix}c^*_{(w)}\\\beta^*_{(w)}\end{pmatrix}\right\}
+\Rightarrow
+N\left(0,\begin{pmatrix}\operatorname{MSE}^*_{(w)}&amp;0\\0&amp;\cdots\end{pmatrix}\right),\]</span>
+其中 <span
+class="math inline">\(c^*_{(w)}=E[Y_i(w)]\)</span>，并定义</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-003）：错设回归的协方差矩阵不一定为分块对角阵</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 3 页</em></p>
+<p>非对角块为零不能由 <span class="math inline">\(E[X]=0\)</span>
+推出。令 <span class="math inline">\(q=(1,X&#39;)&#39;\)</span>、<span
+class="math inline">\(r_w=Y(w)-c_w^*-X\beta_w^*\)</span>、<span
+class="math inline">\(Q=E[qq&#39;]\)</span>，则协方差矩阵为 <span
+class="math display">\[Q^{-1}E[r_w^2qq&#39;]Q^{-1}.\]</span>
+截距与斜率之间的协方差块为 <span
+class="math inline">\(E[r_w^2X]A^{-1}\)</span>（行列方向相应调整）；条件均值模型错设时，它一般不为零。投影正交性给出的是
+<span class="math inline">\(E[r_wX]=0\)</span>，而非 <span
+class="math inline">\(E[r_w^2X]=0\)</span>。截距方差 <span
+class="math inline">\(E[r_w^2]\)</span>
+和随后平衡试验下的方差缩减恒等式仍成立。这是原扫描中可见的错误，讲义式
+(1.16) 也有同样问题，并非识别错误。</p>
+</div>
+<p><span
+class="math display">\[\operatorname{MSE}^*_{(w)}=E[(Y_i(w)-X_i\beta^*_{(w)}-c^*_{(w)})^2].\]</span>
+由此得到 <span class="math display">\[\sqrt n(\widehat\tau_{\rm
+OLS}-\tau)\Rightarrow N(0,V_{\rm OLS}),\qquad
+V_{\rm OLS}=V_{\rm DM}-\|\beta^*_{(0)}+\beta^*_{(1)}\|_A^2.\]</span>
+<span style="color: #C92B32"><span class="math inline">\(V_{\rm
+OLS}&lt;V_{\rm DM}\)</span> 总是成立。</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-004）：方差不会增大，但不一定严格减小</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 3 页</em></p>
+<p>前面的恒等式只能推出 <span class="math inline">\(V_{\rm OLS}\le
+V_{\rm DM}\)</span>。当 <span
+class="math inline">\(\|\beta_0^*+\beta_1^*\|_A^2=0\)</span>
+时等号成立；若 <span class="math inline">\(A\)</span> 非奇异，等价于
+<span
+class="math inline">\(\beta_0^*+\beta_1^*=0\)</span>。两组斜率非零但互为相反数，就会出现相等的情况。严格缩减要求上述平方范数为正。这可以直接由两个方差相减得到。</p>
+</div>
+<h4 id="个人理解">个人理解。</h4>
+<p>OLS 可以看作 <span class="math display">\[\widehat\tau_{\rm
+OLS}=\frac1n\sum_{i=1}^n
+\{(\widehat c_{(1)}+X_i\widehat\beta_{(1)})
+-(\widehat c_{(0)}+X_i\widehat\beta_{(0)})\}
+=\frac1n\sum_i[\widehat\mu_{(1)}(X_i)-\widehat\mu_{(0)}(X_i)].\]</span>
+<span style="color: #244DA8">这里 <span
+class="math inline">\(\widehat\mu_{(w)}(x)\)</span> 是 OLS 在 <span
+class="math inline">\(x\)</span>
+处的拟合值，也可以换成其他方法。</span></p>
+<h1 id="第-2-讲无混杂性与倾向得分">第 2 讲：无混杂性与倾向得分</h1>
+<p><em>原扫描页码：Lecture1-10.pdf，第 5、4、7、6 页；第 4 页承接第 5
+页底部，第 6 页补充第 7 页。</em></p>
+<p>无混杂性：目的是消除混杂因素的影响。倾向得分：给定协变量后接受处理的概率。</p>
+<h2 id="汇总各组的均值差估计">汇总各组的均值差估计</h2>
+<p><span
+style="color: #C92B32">直接按照概率加权。</span>对离散且取数值的 <span
+class="math inline">\(X_i\)</span>，假设 <span
+class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i=x,\qquad
+x\in\mathcal X.\]</span> <span style="color: #244DA8">这里 <span
+class="math inline">\(x\)</span> 是分组变量。</span>定义各组的 ATE：
+<span class="math display">\[\tau(x)=E[Y_i(1)-Y_i(0)\mid
+X_i=x].\]</span> 则 <span class="math display">\[\begin{align*}
+\widehat\tau_{\rm AGG}&amp;=\sum_{x\in\mathcal
+X}\frac{n_x}{n}\widehat\tau(x),\\
+\widehat\tau(x)&amp;=\frac1{n_{x1}}\sum_{X_i=x,W_i=1}Y_i
+-\frac1{n_{x0}}\sum_{X_i=x,W_i=0}Y_i,\\
+n_x&amp;=|\{i:X_i=x\}|,\qquad
+n_{xw}=|\{i:X_i=x,W_i=w\}|.
+\end{align*}\]</span> 令 <span class="math inline">\(e(x)=P(W_i=1\mid
+X_i=x)\)</span>。组内的极限分布为 <span
+class="math display">\[\begin{align*}
+\sqrt{n_x}(\widehat\tau(x)-\tau(x))
+&amp;\Rightarrow N\left(0,
+\frac{\operatorname{Var}[Y_i(0)\mid X_i=x]}{1-e(x)}
++\frac{\operatorname{Var}[Y_i(1)\mid X_i=x]}{e(x)}\right)\\
+&amp;=N\left(0,\frac{b^2(x)}{e(x)(1-e(x))}\right),
+\end{align*}\]</span>
+第二个等号使用了原笔记中两种处理状态具有相同条件方差的假设。原定义一行写作
+<span class="math inline">\(\widehat\pi(x)=P(X_i=x)=n_x/n\)</span>。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-005）：总体分层概率与经验分层概率</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 5 页</em></p>
+<p>总体概率质量应记为 <span
+class="math inline">\(\pi(x)=P(X_i=x)\)</span>，其估计为 <span
+class="math inline">\(\widehat\pi(x)=n_x/n\)</span>；有限样本中二者通常不相等。后面的
+<span class="math inline">\(\widehat\pi(x)-\pi(x)\)</span>
+已经要求区分二者。以下展开按这两个不同定义理解。固定分层数下的中心极限定理还需要：层数有限、各层总体概率为正、层内处理重叠，以及有限条件二阶矩。参见讲义式
+(2.3)–(2.7)。</p>
+</div>
+<p>于是 <span class="math display">\[\begin{align*}
+\widehat\tau_{\rm AGG}={}&amp;\sum_x\pi(x)\tau(x)
++\sum_x\pi(x)(\widehat\tau(x)-\tau(x))\\
+&amp;+\sum_x(\widehat\pi(x)-\pi(x))\tau(x)
++\sum_x(\widehat\pi(x)-\pi(x))(\widehat\tau(x)-\tau(x)).
+\end{align*}\]</span> <span style="color: #244DA8">第一项是 <span
+class="math inline">\(\tau\)</span>。</span><span
+style="color: #244DA8">第二项标注为渐近正态，其方差为</span></p>
+<div class="original-ink" style="color: #244DA8" data-ink="blue"
+aria-label="Original blue ink">
+<p><span
+class="math display">\[\sum_x\pi^2(x)\operatorname{Var}[\widehat\tau(x)].\]</span></p>
+</div>
+<p><span style="color: #244DA8">第三项的方差是 <span
+class="math inline">\(n^{-1}\operatorname{Var}[\tau(X_i)]\)</span>，最后一项为
+<span
+class="math inline">\(O_p(1/n)\)</span>。</span>沿箭头接到左页，</p>
+<blockquote>
+<p><span style="color: #000000">汇总估计量的四项展开（第 5 页）</span>
+<span class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+汇总估计量的方差 <span class="math inline">\(V_{\rm AGG}\)</span>（第 4
+页）。</p>
+</blockquote>
+<p><span class="math display">\[\sqrt n(\widehat\tau_{\rm
+AGG}-\tau)\Rightarrow N(0,V_{\rm AGG}),\]</span> <span
+class="math display">\[\begin{align*}
+V_{\rm AGG}&amp;=\operatorname{Var}[\tau(X_i)]
++\sum_{x\in\mathcal X}\pi^2(x)\frac1{\pi(x)}
+\frac{b^2(x)}{e(x)(1-e(x))}\\
+&amp;=\operatorname{Var}[\tau(X_i)]
++E\left[\frac{b^2(X_i)}{e(X_i)(1-e(X_i))}\right].
+\end{align*}\]</span></p>
+<h2 id="连续协变量与倾向得分">连续协变量与倾向得分</h2>
+<p>给定 <span class="math inline">\(X_i\)</span> 后，<span
+class="math inline">\(W_i\)</span> 不能“偷看”<span
+class="math inline">\(Y_i\)</span>：这是作者对无混杂性的直觉理解。若
+<span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,
+\quad e(x)=P(W_i=1\mid X_i=x),\]</span> 则 <span
+class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid
+e(X_i).\]</span></p>
+<h4 id="补充图示与计算">补充图示与计算。</h4>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-001.png" alt="image" /></p>
+</div>
+<p>图下方的证明写作 <span class="math display">\[\begin{align*}
+&amp;P(W_i=w\mid\{Y_i(0),Y_i(1)\},e(X_i))\\
+&amp;\quad=\int_{\mathcal X}P(W_i=w\mid\{Y_i(0),Y_i(1)\},X_i=x)
+P(X_i=x\mid e(X_i))\,dx\\
+&amp;\quad=\int_{\mathcal X}P(W_i=w\mid X_i=x)P(X_i=x\mid e(X_i))\,dx\\
+&amp;\quad=e(X_i)\mathbf1_{\{w=1\}}+(1-e(X_i))\mathbf1_{\{w=0\}}.
+\end{align*}\]</span> <span style="color: #244DA8">页边标注：“Lebesgue
+积分”。</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-006）：倾向得分证明中的条件集合</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 6 页</em></p>
+<p>令 <span class="math inline">\(\mathcal
+Y=(Y(0),Y(1))\)</span>。迭代期望中的积分一开始必须使用 <span
+class="math inline">\(dP(X\mid\mathcal Y,e(X))\)</span>，而非 <span
+class="math inline">\(dP(X\mid e(X))\)</span>。无混杂性把被积函数化为
+<span class="math inline">\(P(W=w\mid
+X)\)</span>；它在每个倾向得分的等值集合上为常数。无论剩余条件分布是什么，对这一常数积分都得到所需结论。对于连续
+<span
+class="math inline">\(X\)</span>，应使用正则条件概率测度，而不能把点概率
+<span class="math inline">\(P(X=x\mid\cdot)\,dx\)</span>
+当作积分测度。可对照讲义命题 2.1 中条件集合正确的证明。</p>
+</div>
+<h2 id="按倾向得分分层">按倾向得分分层</h2>
+<ol>
+<li><p>排序，使 <span class="math inline">\(\widehat
+e(X_{i_1})\leq\widehat e(X_{i_2})\leq\cdots\leq\widehat
+e(X_{i_n})\)</span>。</p></li>
+<li><p>将样本分为 <span class="math inline">\(J\)</span>
+层，在每一层内估计均值差。若 <span class="math inline">\(I_j\)</span>
+包含排序后第 <span
+class="math inline">\(\lfloor(j-1)n/J\rfloor+1\)</span> 到第 <span
+class="math inline">\(\lfloor jn/J\rfloor\)</span>
+个样本，则原页的简写公式可表示为 <span
+class="math display">\[\widehat\tau_j=\frac{\sum_{i\in
+I_j}W_iY_i}{\sum_{i\in I_j}W_i}
+-\frac{\sum_{i\in I_j}(1-W_i)Y_i}{\sum_{i\in I_j}(1-W_i)}.\]</span></p>
+<blockquote>
+<p><span style="color: #244DA8">使处理组与对照组更相似（第 7 页）</span>
+<span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span>
+按 <span class="math inline">\(\widehat e(X_i)\)</span>
+排序，并按倾向得分分层。</p>
+</blockquote></li>
+<li><p>对各层估计取平均：<span class="math inline">\(\widehat\tau_{\rm
+STRAT}=J^{-1}\sum_{j=1}^J\widehat\tau_j\)</span>。<span
+style="color: #244DA8">笔记标注其具有一致性。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-007）：分层区间需要逐渐缩小</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 7 页</em></p>
+<p>若只用固定数量的宽倾向得分区间，一般仍会留下混杂。一致性要求分层越来越细，每层有足够的处理组和对照组样本，满足重叠性，且倾向得分估计足够准确。讲义明确要求
+<span class="math inline">\(\widehat e\)</span> 一致收敛，并且 <span
+class="math inline">\(J\)</span> 随 <span
+class="math inline">\(n\)</span>
+以适当速度增长。这里各层样本量近似相等，因此使用等权平均。</p>
+</div></li>
+</ol>
+<h2 id="逆倾向得分加权">逆倾向得分加权</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 9、8、10 页；第 8 页给出第 9
+页方差计算所用的模型。</em></p>
+<p><span class="math display">\[\widehat\tau_{\rm
+IPW}=\frac1n\sum_{i=1}^n
+\left\{\frac{W_iY_i}{\widehat e(X_i)}-\frac{(1-W_i)Y_i}{1-\widehat
+e(X_i)}\right\}.\]</span> 理想的 IPW（oracle IPW）假定完全知道 <span
+class="math inline">\(e(x)\)</span>： <span
+class="math display">\[\widehat\tau^*_{\rm IPW}=\frac1n\sum_i
+\left\{\frac{W_iY_i}{e(X_i)}-\frac{(1-W_i)Y_i}{1-e(X_i)}\right\}.\]</span>
+假设满足重叠性：所有 <span class="math inline">\(x\in\mathcal X\)</span>
+上均有 <span class="math inline">\(\eta\leq e(x)\leq1-\eta\)</span>，且
+<span class="math inline">\(|Y_i|&lt;M\)</span>。若 <span
+class="math display">\[\sup_{x\in\mathcal X}|e(x)-\widehat
+e(x)|=O_p(a_n)\longrightarrow0,\]</span> 笔记给出 <span
+class="math display">\[|\widehat\tau_{\rm IPW}-\widehat\tau^*_{\rm
+IPW}|=O_p(a_nM/\eta).\]</span> <span
+style="color: #244DA8">因此，理想估计量的一致性可以传递给使用估计倾向得分的
+IPW。</span>另外， <span class="math display">\[E[\widehat\tau^*_{\rm
+IPW}]=E[Y_i(1)-Y_i(0)]=\tau.\]</span> <span
+style="color: #244DA8">满足重叠性时，理想 IPW 的收敛尺度是 <span
+class="math inline">\(1/\sqrt n\)</span>。</span></p>
+<h4 id="方差计算左页补充的模型">方差计算：左页补充的模型。</h4>
+<p>左页给出 <span class="math display">\[\begin{align*}
+Y_i(0)&amp;=c(X_i)-(1-e(X_i))\tau(X_i)+\varepsilon_i(0),\\
+Y_i(1)&amp;=c(X_i)+e(X_i)\tau(X_i)+\varepsilon_i(1),\\
+E[\varepsilon_i(w)\mid X_i]&amp;=0,\qquad
+\operatorname{Var}[\varepsilon_i(w)\mid X_i=x]=b^2(x).
+\end{align*}\]</span> 随后笔记写为</p>
+<blockquote>
+<p><span style="color: #000000">第 8 页补充的结果模型</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 第 9
+页理想 IPW 的方差 <span class="math inline">\(V_{\rm
+IPW^*}\)</span>。</p>
+</blockquote>
+<p><span class="math display">\[\begin{align*}
+n\operatorname{Var}[\widehat\tau^*_{\rm IPW}]
+=V_{\rm IPW^*}
+={}&amp;E\left[\frac{c^2(X_i)}{e(X_i)(1-e(X_i))}\right]
++\operatorname{Var}[\tau(X_i)]\\
+&amp;+E\left[\frac{b^2(X_i)}{e(X_i)(1-e(X_i))}\right],\\
+\sqrt n(\widehat\tau^*_{\rm IPW}-\tau)&amp;\Rightarrow N(0,V_{\rm
+IPW^*}).
+\end{align*}\]</span></p>
+<h4 id="个人比较">个人比较。</h4>
+<p><span class="math inline">\(c(x)\)</span> 描述的是 <span
+class="math inline">\(X\)</span> 与 <span
+class="math inline">\(Y\)</span> 的关系，而不是 <span
+class="math inline">\(X\)</span> 与 <span class="math inline">\(\Delta
+Y\)</span> 的关系。与分组汇总相比， <span class="math display">\[V_{\rm
+IPW^*}=V_{\rm
+AGG}+E\left[\frac{c^2(X_i)}{e(X_i)(1-e(X_i))}\right].\]</span></p>
+<blockquote>
+<p><span style="color: #244DA8"><span class="math inline">\(V_{\rm
+IPW^*}-V_{\rm AGG}\)</span>（第 10 页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span
+style="color: #244DA8">除非 <span class="math inline">\(c(X_i)\)</span>
+处处为零，否则理想 IPW 的方差比汇总估计更大。</span></p>
+</blockquote>
+<p>与线性模型相比：IPW 基于 <span
+class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid
+X_i\)</span>，线性模型则依赖线性关系。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-009）：方差比较与因果识别</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 10 页</em></p>
+<p>在重叠性和有限矩条件下，恰当且仅当 <span
+class="math inline">\(c(X)=0\)</span> 几乎处处成立时，额外方差为零；若
+<span
+class="math inline">\(P(c(X)\ne0)&gt;0\)</span>，它就为正。正确设定的线性结果模型是估计上的限制，本身不是因果识别假设：观察性回归仍需要适当的外生性／无混杂性，或其他识别依据。这里保留作者对两种估计方法的比较。</p>
+</div>
+<h1 id="第-3-讲通过增广-ipw-高效估计处理效应">第 3 讲：通过增广 IPW
+高效估计处理效应</h1>
+<p><em>原扫描页码：Lecture1-10.pdf，第 11–12 页。</em></p>
+<p>普通 IPW 的大样本性质较差。例如，<span
+class="math inline">\(X\)</span> 离散时，它不如汇总估计量 <span
+class="math inline">\(\widehat\tau\)</span>。</p>
+<h2 id="ate-的两种表征">ATE 的两种表征</h2>
+<ol>
+<li><p>利用 <span class="math inline">\(e(x)=P(W_i=1\mid
+X_i=x)\)</span>，有 <span
+class="math inline">\(\tau=E[\widehat\tau^*_{\rm
+IPW}]\)</span>；理想估计量定义如上。</p></li>
+<li><p>利用 <span class="math inline">\(\mu_{(w)}(x)=E[Y_i(w)\mid
+X_i=x]\)</span>， <span
+class="math display">\[\tau(x)=\mu_{(1)}(x)-\mu_{(0)}(x),\quad
+\tau=E[\mu_{(1)}(X_i)-\mu_{(0)}(X_i)],\]</span> 由此得到 <span
+class="math display">\[\widehat\tau_{\rm
+REG}=\frac1n\sum_i[\widehat\mu_{(1)}(X_i)-\widehat\mu_{(0)}(X_i)].\]</span></p></li>
+</ol>
+<h2 id="增广-ipw-估计量">增广 IPW 估计量</h2>
+<p><span class="math display">\[\begin{align*}
+\widehat\tau_{\rm
+AIPW}=\frac1n\sum_i\bigg[&amp;\widehat\mu_{(1)}(X_i)-\widehat\mu_{(0)}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}(X_i)}{\widehat e(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}(X_i)}{1-\widehat e(X_i)}\bigg].
+\end{align*}\]</span></p>
+<h4 id="个人直觉">个人直觉。</h4>
+<p><span style="color: #244DA8">先用 <span
+class="math inline">\(\mu(x)\)</span> 估计结果，再对回归残差做 IPW。IPW
+让数据的协变量构成变得“公平”。</span></p>
+<h2 id="双重稳健性">双重稳健性</h2>
+<p>只要结果回归 <span
+class="math inline">\(\widehat\mu_{(w)}(x)\)</span> 或倾向得分 <span
+class="math inline">\(\widehat e(x)\)</span> 中有一方一致，AIPW
+就一致。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-010）：双重稳健性和效率需要正则条件</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 11、12、13 页</em></p>
+<p>双重稳健性需要重叠性、适当的可积性，以及对拟合函数求值的控制（例如交叉拟合）；另一个辅助估计量也必须表现良好。仅条件于
+<span
+class="math inline">\(X_i,W_i\)</span>，不能把使用同一个样本点训练出来的函数视为固定。交叉拟合的证明还需要条件于训练折。下面的效率界适用于非参数无混杂模型中的正则估计量，而不是字面上所有可能的估计量。下一页列出的乘积风险条件与辅助函数一致性，是选定学习方法后需要验证的假设，并非所有机器学习算法自动具备的性质。参见讲义式
+(3.8) 及式 (3.16) 后的正则性讨论。</p>
+</div>
+<p>当 <span
+class="math inline">\(\widehat\mu_{(w)}(x)\approx\mu_{(w)}(x)\)</span>
+时，回归均值是一致的，加权残差项的均值近似为零，因为 <span
+class="math display">\[E[Y_i-\widehat\mu_{(W_i)}(X_i)\mid
+X_i,W_i]\approx0.\]</span> 这里通过条件化把倾向得分项固定下来。若是
+<span class="math inline">\(\widehat e(x)\approx e(x)\)</span>，则改写为
+<span class="math display">\[\begin{align*}
+\widehat\tau_{\rm AIPW}={}&amp;\frac1n\sum_i\left[\frac{W_iY_i}{\widehat
+e(X_i)}
+-\frac{(1-W_i)Y_i}{1-\widehat e(X_i)}\right]\\
+&amp;+\frac1n\sum_i\left[\widehat\mu_{(1)}(X_i)\left(1-\frac{W_i}{\widehat
+e(X_i)}\right)
+-\widehat\mu_{(0)}(X_i)\left(1-\frac{1-W_i}{1-\widehat
+e(X_i)}\right)\right].
+\end{align*}\]</span> <span style="color: #244DA8">第一部分是
+IPW。</span><span
+style="color: #244DA8">第二部分均值近似为零，因为</span> <span
+class="math inline">\(E[1-W_i/\widehat e(X_i)\mid
+X_i]\approx0\)</span>；条件化后把拟合的结果回归视为固定。</p>
+<h2 id="半参数效率">半参数效率</h2>
+<p>笔记称 AIPW 在非参数估计量中渐近最优。当辅助函数估计足够准确时，
+<span class="math display">\[\sqrt n(\widehat\tau_{\rm
+AIPW}-\widehat\tau^*_{\rm AIPW})\longrightarrow_p0,\]</span>
+星号表示理想
+AIPW。该理想估计量只是独立同分布变量的均值，因此其中心极限定理可以传递给使用估计函数的版本：</p>
+<blockquote>
+<p><span style="color: #244DA8"><span class="math inline">\(\sqrt
+n(\widehat\tau_{\rm AIPW}-\widehat\tau^*_{\rm AIPW})\to_p0\)</span>（第
+12 页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span>
+理想估计量的独立同分布中心极限定理可用于估计得到的 AIPW。</p>
+</blockquote>
+<p><span class="math display">\[\sqrt n(\widehat\tau_{\rm
+AIPW}-\tau)\Rightarrow N(0,V^*),\]</span> <span
+class="math display">\[V^*=\operatorname{Var}[\tau(X_i)]
++E\left[\frac{b_0^2(X_i)}{1-e(X_i)}\right]
++E\left[\frac{b_1^2(X_i)}{e(X_i)}\right].\]</span> <span
+style="color: #244DA8">页边将其描述为类似 Cramér–Rao
+的约束：这是能达到的最好效果／方差。</span></p>
+<h2 id="aipw-与交叉拟合">AIPW 与交叉拟合</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 13–14 页。</em></p>
+<p>将数据随机分成两半 <span class="math inline">\(I_1\)</span> 和 <span
+class="math inline">\(I_2\)</span>。<span
+style="color: #244DA8">批注：把数据分开，随机选择。</span>令 <span
+class="math display">\[\widehat\tau_{\rm
+AIPW}=\frac{|I_1|}{n}\widehat\tau^{I_1}
++\frac{|I_2|}{n}\widehat\tau^{I_2},\]</span> <span
+class="math display">\[\begin{align*}
+\widehat\tau^{I_1}=\frac1{|I_1|}\sum_{i\in
+I_1}\bigg[&amp;\widehat\mu_{(1)}^{I_2}(X_i)-\widehat\mu_{(0)}^{I_2}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}^{I_2}(X_i)}{\widehat e^{I_2}(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}^{I_2}(X_i)}{1-\widehat
+e^{I_2}(X_i)}\bigg].
+\end{align*}\]</span>
+渐近分析可以不依赖所选机器学习调整方法的具体形式，而依赖以下条件：</p>
+<ol>
+<li><p>重叠性：对所有 <span class="math inline">\(x\in\mathcal
+X\)</span>，有 <span
+class="math inline">\(\eta&lt;e(x)&lt;1-\eta\)</span>，其中 <span
+class="math inline">\(\eta&gt;0\)</span>。</p></li>
+<li><p>辅助函数估计的一致性： <span
+class="math display">\[\sup_x|\widehat\mu_{(w)}^{I_2}(x)-\mu_{(w)}(x)|\longrightarrow_p0,
+\quad \sup_x|\widehat e^{I_2}(x)-e(x)|\longrightarrow_p0.\]</span> <span
+style="color: #244DA8">蓝字写的是：机器学习调整方法具有大样本一致性。</span></p></li>
+<li><p>结果模型与倾向得分模型的风险衰减： <span
+class="math display">\[E[(\widehat\mu_{(w)}^{I_2}(X_i)-\mu_{(w)}(X_i))^2]\,
+E[(\widehat e^{I_2}(X_i)-e(X_i))^2]=o(1/n).\]</span> <span
+style="color: #244DA8">若两者均以 <span class="math inline">\(\sqrt
+n\)</span> 速度一致收敛，则乘积为 <span
+class="math inline">\(1/n^2\)</span>
+阶。一个简单的充分条件是，两种回归调整的均方根误差（RMSE）都以 <span
+class="math inline">\(o(n^{-1/4})\)</span> 收敛。</span></p></li>
+</ol>
+<h4 id="续页上的证明">续页上的证明。</h4>
+<p>把理想估计量写作 <span
+class="math inline">\(\widehat\tau^*=|I_1|\widehat\tau^{I_1,*}/n+|I_2|\widehat\tau^{I_2,*}/n\)</span>.
+要证明 <span class="math inline">\(\sqrt n(\widehat\tau_{\rm
+AIPW}-\widehat\tau^*)\to_p0\)</span>，只需对处理状态下的均值证明相应结果；其余部分类似。定义
+<span
+class="math display">\[\widehat\tau^{I_1}=\widehat\mu^{I_1}_{(1)}-\widehat\mu^{I_1}_{(0)},\qquad
+\widehat\mu^{I_1}_{(1)}=\frac1{|I_1|}\sum_{i\in I_1}
+\left[\widehat\mu^{I_2}_{(1)}(X_i)+W_i\frac{Y_i-\widehat\mu^{I_2}_{(1)}(X_i)}{\widehat
+e^{I_2}(X_i)}\right].\]</span> 减去对应的理想估计量，得到 <span
+class="math display">\[\begin{align*}
+\widehat\mu^{I_1}_{(1)}-\widehat\mu^{I_1,*}_{(1)}
+={}&amp;\frac1{|I_1|}\sum_{i\in I_1}
+(\widehat\mu^{I_2}_{(1)}(X_i)-\mu_{(1)}(X_i))\left(1-\frac{W_i}{e(X_i)}\right)\\
+&amp;+\frac1{|I_1|}\sum_{i\in I_1}W_i(Y_i-\mu_{(1)}(X_i))
+\left(\frac1{\widehat e^{I_2}(X_i)}-\frac1{e(X_i)}\right)\\
+&amp;-\frac1{|I_1|}\sum_{i\in
+I_1}W_i(\widehat\mu^{I_2}_{(1)}(X_i)-\mu_{(1)}(X_i))
+\left(\frac1{\widehat e^{I_2}(X_i)}-\frac1{e(X_i)}\right).
+\end{align*}\]</span> <span style="color: #244DA8">蓝字把第一项的界写成
+<span class="math inline">\(o_p(1)/n\)</span>，最后一项标为 <span
+class="math inline">\(o_p(1/\sqrt n)\)</span>。</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-011）：把方差的阶标在了余项本身上</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 14 页</em></p>
+<p>记第一个均值为 <span class="math inline">\(T_1\)</span>，训练数据为
+<span class="math inline">\(\mathcal D_2\)</span>。由交叉拟合可得 <span
+class="math inline">\(E[T_1\mid\mathcal D_2]=0\)</span>，并且 <span
+class="math display">\[E[T_1^2\mid\mathcal D_2]
+\le \frac{E[(\widehat\mu_1(X)-\mu_1(X))^2\mid\mathcal D_2]}{\eta|I_1|}
+=o_p(n^{-1}).\]</span> 因此 <span
+class="math inline">\(T_1=o_p(n^{-1/2})\)</span>，一般不能说它是 <span
+class="math inline">\(o_p(n^{-1})\)</span>。较小的阶属于其条件方差／二阶矩。第二个均值类似处理，乘积项则使用前面的乘积风险假设。这里指出原批注很可能遗漏了方差运算，同时保留原来的标注。</p>
+</div>
+<p>对 <span class="math inline">\(K\)</span> 折交叉拟合，在构造第 <span
+class="math inline">\(i\)</span> 个观测的辅助估计时，排除其所在的第
+<span class="math inline">\(k(i)\)</span> 折： <span
+class="math display">\[\begin{align*}
+\widehat\tau_{\rm
+AIPW}=\frac1n\sum_i\bigg[&amp;\widehat\mu_{(1)}^{(-k(i))}(X_i)-\widehat\mu_{(0)}^{(-k(i))}(X_i)
++W_i\frac{Y_i-\widehat\mu_{(1)}^{(-k(i))}(X_i)}{\widehat
+e^{(-k(i))}(X_i)}\\
+&amp;-(1-W_i)\frac{Y_i-\widehat\mu_{(0)}^{(-k(i))}(X_i)}{1-\widehat
+e^{(-k(i))}(X_i)}\bigg].
+\end{align*}\]</span></p>
+<h2 id="置信区间">置信区间</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 16、15 页；第 15 页补充第 16
+页所用的定义。</em></p>
+<h4 id="补充术语">补充：术语。</h4>
+<p>原笔记将对数似然的导数标为有效得分： <span
+class="math display">\[S(\theta)=\frac{d\log
+L(\theta)}{d\theta},\]</span> 其中 <span
+class="math inline">\(L(\theta)\)</span> 为似然函数。<span
+class="math inline">\(n\)</span> 个样本得分的经验方差为 <span
+class="math display">\[\frac1{n-1}\sum_i(S(\theta_i)-\overline{S(\theta)})^2.\]</span>
+有效方差是给定问题下能够达到的最小方差，可以理解为 Cramér–Rao 下界。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-012）：似然得分与有效影响函数不同</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 15、16 页</em></p>
+<p>所写导数是普通的似然得分。有辅助参数时，有效得分还需要去掉辅助得分方向的分量。在
+ATE 估计中，下面中心化的 AIPW 单项 <span
+class="math inline">\(\psi_i^*-\tau\)</span>
+是有效影响函数；其方差就是效率界。它不等于原始似然得分，后者的方差是
+Fisher 信息。对观测 <span
+class="math inline">\(O_i\)</span>，经验得分方差应使用同一参数值 <span
+class="math inline">\(\theta\)</span> 下的 <span
+class="math inline">\(S_\theta(O_i)\)</span>，而非不同的参数值 <span
+class="math inline">\(\theta_i\)</span>。第 16 页 AIPW
+的经验方差公式，在相应一致性和矩条件下是正确的。</p>
+</div>
+<h4 id="方差估计">方差估计。</h4>
+<p>定义理想估计量中的单项 <span
+class="math display">\[\psi_i^*=\mu_{(1)}(X_i)-\mu_{(0)}(X_i)
++\frac{W_i(Y_i-\mu_{(1)}(X_i))}{e(X_i)}
+-\frac{(1-W_i)(Y_i-\mu_{(0)}(X_i))}{1-e(X_i)}.\]</span>
+它的经验方差收敛到有效方差： <span
+class="math display">\[\frac1{n-1}\sum_i(\psi_i^*-\widehat\tau^*)^2\longrightarrow_p
+V^*.\]</span> 页边把 <span class="math inline">\(\widehat\tau^*\)</span>
+称为未做交叉拟合的理想 AIPW 估计量。</p>
+<blockquote>
+<p><span style="color: #244DA8">未交叉拟合的理想 AIPW 估计（第 16
+页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span
+class="math inline">\(\sum_i(\psi_i^*-\widehat\tau^*)^2/(n-1)\)</span>
+中的 <span class="math inline">\(\widehat\tau^*\)</span>。</p>
+</blockquote>
+<p>将每个辅助函数替换为排除第 <span class="math inline">\(k(i)\)</span>
+折后训练的估计，得到交叉拟合单项 <span
+class="math inline">\(\widehat\psi_i\)</span>，以及 <span
+class="math display">\[\widehat V_{\rm
+AIPW}=\frac1{n-1}\sum_i(\widehat\psi_i-\widehat\tau_{\rm
+AIPW})^2\longrightarrow_p V^*.\]</span>
+正态分布中央概率区域下画出的置信区间为</p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-002.png" alt="image" /></p>
+</div>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-013）：置信水平的命名惯例</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 16 页</em></p>
+<p>下面公式的渐近覆盖率是 <span
+class="math inline">\(1-\alpha\)</span>；<span
+class="math inline">\(\alpha\)</span> 为错误概率。手写的“<span
+class="math inline">\(\alpha\)</span>
+水平”可以理解为按显著性水平命名，因此无需改动公式。</p>
+</div>
+<p><span class="math display">\[\widehat\tau_{\rm AIPW}\ \pm\
+\frac1{\sqrt n}\Phi^{-1}(1-\alpha/2)\sqrt{\widehat V_{\rm
+AIPW}}.\]</span></p>
+<h1 id="第-4-讲估计处理效应的异质性">第 4 讲：估计处理效应的异质性</h1>
+<p><em>原扫描页码：Lecture1-10.pdf，第 17–18 页。</em></p>
+<p>对于观测 <span class="math inline">\((X_i,Y_i,W_i)\)</span>，其中
+<span class="math inline">\(X_i\in\mathcal X\)</span>，之前关注的是 ATE
+<span
+class="math inline">\(E[Y_i(1)-Y_i(0)]\)</span>。异质性分析转而考虑条件平均处理效应（CATE）：
+<span class="math display">\[\tau(x)=E[Y_i(1)-Y_i(0)\mid
+X_i=x].\]</span></p>
+<blockquote>
+<p><span style="color: #244DA8"><span class="math inline">\(X_i\)</span>
+某一类中的平均效应（第 17 页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span
+class="math inline">\(\tau(x)=E[Y_i(1)-Y_i(0)\mid X_i=x]\)</span>。</p>
+</blockquote>
+<h2 id="正则化偏差">正则化偏差</h2>
+<p>在 <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid
+X_i\)</span> 下， <span
+class="math display">\[\tau(x)=\mu_{(1)}(x)-\mu_{(0)}(x),\qquad
+\mu_{(w)}(x)=E[Y_i\mid X_i=x,W_i=w].\]</span> 一个直接的 CATE 估计量为
+<span
+class="math inline">\(\widehat\tau_T(x)=\widehat\mu_{(1)}(x)-\widehat\mu_{(0)}(x)\)</span>。</p>
+<h4 id="个人疑虑">个人疑虑。</h4>
+<p><span style="color: #244DA8">如果 <span
+class="math inline">\(\widehat\mu_{(1)}\)</span>
+的样本太少，就可能受到很强的正则化，向一条直线收缩。而 <span
+class="math inline">\(\widehat\mu_{(0)}\)</span>
+样本很多时可能拟合得很好；这样，两者之差 <span
+class="math inline">\(\widehat\tau_T(x)\)</span>
+就会因为前者拟合不准而出问题。</span></p>
+<h2 id="半参数建模">半参数建模</h2>
+<p><span
+class="math display">\[Y_i(w)=f(X_i)+w\tau(X_i)+\varepsilon_i(w),\qquad
+P(W_i=1\mid X_i)=e(X_i),\qquad \tau(x)=\psi(x)\beta.\]</span> <span
+style="color: #244DA8"><span class="math inline">\(f\)</span> 是 <span
+class="math inline">\(X_i\)</span> 的函数，<span
+class="math inline">\(\psi(x)\)</span> 是 <span
+class="math inline">\(X\)</span> 的非参数表示；<span
+class="math inline">\(\beta\)</span>
+是处理效应的系数。</span>在无混杂性下，Robinson 变换为</p>
+<blockquote>
+<p><span style="color: #000000"><span
+class="math inline">\(Y_i(w)=f(X_i)+w\tau(X_i)+\varepsilon_i(w)\)</span>（第
+17 页）</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span
+style="color: #C92B32">Robinson</span>：减去 <span
+class="math inline">\(m(X_i)\)</span>，并用 <span
+class="math inline">\(e(X_i)\)</span> 对 <span
+class="math inline">\(W_i\)</span> 残差化。</p>
+</blockquote>
+<p><span
+class="math display">\[Y_i-m(X_i)=(W_i-e(X_i))\psi(X_i)\beta+\varepsilon_i,
+\quad m(x)=E[Y_i\mid X_i=x]=f(x)+e(x)\tau(x),\]</span> 其中 <span
+class="math inline">\(\varepsilon_i=\varepsilon_i(W_i)\)</span>。</p>
+<blockquote>
+<p><span style="color: #244DA8"><span
+class="math inline">\(\varepsilon_i=\varepsilon_i(W_i)\)</span>（第 17
+页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span
+class="math inline">\(Y_i-m(X_i)=(W_i-e(X_i))\psi(X_i)\beta+\varepsilon_i\)</span>
+中的误差。</p>
+</blockquote>
+<p>构造残差对残差的 OLS 回归，令 <span class="math display">\[\widetilde
+Y_i^*=Y_i-m(X_i),\qquad
+\widetilde Z_i^*=(W_i-e(X_i))\psi(X_i).\]</span> 将 <span
+class="math inline">\(\widetilde Y_i^*\)</span> 对 <span
+class="math inline">\(\widetilde Z_i^*\)</span> 回归，得到 <span
+class="math inline">\(\widehat\beta_R^*\)</span>（原笔记使用的系数符号类似
+<span class="math inline">\(\zeta_R\)</span>）。<span
+style="color: #244DA8">这些变换只用到已观测数据和辅助函数；页边称之为数据预处理。</span>笔记给出
+<span class="math display">\[\sqrt n(\widehat\beta_R^*-\beta)\Rightarrow
+N(0,V_R),\]</span> <span
+class="math display">\[V_R=\operatorname{Var}[\widetilde Z_i^*]^{-1}
+\operatorname{Var}[\widetilde Z_i^*\widetilde Y_i^*]
+\operatorname{Var}[\widetilde Z_i^*]^{-1}.\]</span> 同方差时，<span
+class="math inline">\(\operatorname{Var}(\varepsilon_i\mid
+X_i,W_i)=b^2\)</span> 为常数，<span class="math inline">\(V_R\)</span>
+是 <span class="math inline">\(\beta\)</span>
+的半参数有效方差。异方差时，笔记说 <span
+class="math inline">\(V_R\)</span> 仍适用，但不再是有效方差。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-014）：Robinson
+夹心方差应使用回归残差</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 18 页</em></p>
+<p>令列向量 <span class="math inline">\(Z=\widetilde
+Z_i^*\)</span>，<span class="math inline">\(Q=E[ZZ&#39;]\)</span>，<span
+class="math inline">\(\varepsilon=\widetilde
+Y_i^*-Z&#39;\beta\)</span>。由正规方程得到影响函数 <span
+class="math inline">\(Q^{-1}Z\varepsilon\)</span>，因此 <span
+class="math display">\[V_R=Q^{-1}E[ZZ&#39;\varepsilon^2]Q^{-1}.\]</span>
+中间项应为 <span
+class="math inline">\(\operatorname{Var}(Z\varepsilon)\)</span>，而非
+<span class="math inline">\(\operatorname{Var}(Z\widetilde
+Y^*)\)</span>。后者包含 <span
+class="math inline">\(ZZ&#39;\beta\)</span>
+的随机波动，而估计分母会抵消这部分波动。这里 <span
+class="math inline">\(E[Z]=0\)</span>，所以 <span
+class="math inline">\(Q=\operatorname{Var}(Z)\)</span>。在条件同方差、<span
+class="math inline">\(Q\)</span> 非奇异及所需矩有限时，修正后的方差为
+<span
+class="math inline">\(b^2Q^{-1}\)</span>。原文关于效率的讨论应针对这个修正后的夹心方差。</p>
+</div>
+<h4 id="可实施的交叉拟合版本">可实施的交叉拟合版本。</h4>
+<p>前面的回归是理想形式，因为 <span
+class="math inline">\(m(X_i)\)</span>、<span
+class="math inline">\(e(X_i)\)</span> 未知。拟合非参数回归 <span
+class="math inline">\(Y\sim X\)</span> 和 <span
+class="math inline">\(W\sim X\)</span>；构造下式时，<span
+style="color: #244DA8">排除第 <span class="math inline">\(i\)</span>
+个观测所在的折</span>： <span class="math display">\[\widetilde
+Y_i=Y_i-\widehat m^{(-k(i))}(X_i),\qquad
+\widetilde Z_i=(W_i-\widehat e^{(-k(i))}(X_i))\psi(X_i).\]</span> 将
+<span class="math inline">\(\widetilde Y_i\)</span> 对 <span
+class="math inline">\(\widetilde Z_i\)</span> 回归得到 <span
+class="math inline">\(\widehat\beta_R\)</span>。若两个辅助函数估计的
+RMSE 均为 <span class="math inline">\(o_p(n^{-1/4})\)</span>，笔记得到
+<span class="math display">\[\sqrt
+n(\widehat\beta_R^*-\widehat\beta_R)\longrightarrow_p0.\]</span></p>
+<h2 id="用于处理效应异质性的损失函数">用于处理效应异质性的损失函数</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 20、19 页；第 19 页补充第 20
+页的残差回归与 R 损失。</em></p>
+<p>前面的估计量假设 <span
+class="math inline">\(\tau(x)=\psi(x)\beta\)</span>。实际关系往往不是线性的，因此使用机器学习。令
+<span class="math display">\[\mu_{(w)}(x)=E[Y(w)\mid X=x],\quad
+\varepsilon_i(w)=Y_i(w)-[\mu_{(0)}(X_i)+w\tau(X_i)],\]</span>
+由无混杂性得到 <span class="math inline">\(E[\varepsilon_i(w)\mid
+X_i,W_i]=0\)</span>。<span style="color: #244DA8">这里 <span
+class="math inline">\(\mu_{(0)}\)</span> 起到前面 <span
+class="math inline">\(f\)</span> 的作用。</span>仍有 <span
+class="math display">\[Y_i-m(X_i)=(W_i-e(X_i))\tau(X_i)+\varepsilon_i,
+\quad m(x)=\mu_{(0)}(x)+e(x)\tau(x),\quad
+\varepsilon_i=\varepsilon_i(W_i).\]</span> 等价地， <span
+class="math display">\[\tau(\cdot)=\arg\min_{t}E[((Y_i-m(X_i))-(W_i-e(X_i))t(X_i))^2].\]</span>
+<span style="color: #244DA8">若 <span class="math inline">\(m\)</span>
+和 <span class="math inline">\(e\)</span> 已知，最小化该式即可得到 <span
+class="math inline">\(\tau(\cdot)\)</span>。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-015）：R 损失的识别与括号中的
+RCT</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 20 页</em></p>
+<p>总体 R 损失相对最优值的差为 <span
+class="math display">\[L(t)-L(\tau)=E[e(X)(1-e(X))(t(X)-\tau(X))^2].\]</span>
+因此，只有在 <span class="math inline">\(0&lt;e(X)&lt;1\)</span>
+的区域，CATE 才能被唯一确定（忽略零测集）。RCT 中 <span
+class="math inline">\(e\)</span> 由设计已知，但结果均值 <span
+class="math inline">\(m(x)=E[Y\mid X=x]\)</span>
+一般仍未知，需要估计。因此，括号中提到
+RCT，并不意味着两个辅助函数都已知。</p>
+</div>
+<p>理想的惩罚估计量为 <span
+class="math display">\[\widehat\tau_R^*(\cdot)=\arg\min_t\left\{
+\frac1n\sum_i[(Y_i-m(X_i))-(W_i-e(X_i))t(X_i)]^2+\Lambda_n(t)\right\}.\]</span></p>
+<blockquote>
+<p><span style="color: #244DA8">对 <span
+class="math inline">\(\tau(\cdot)\)</span> 的复杂度进行正则化（第 20
+页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span
+class="math inline">\(\Lambda_n(\tau)\)</span>：线性情形如
+lasso／岭回归；页边还列了 CNN。</p>
+</blockquote>
+<p><span style="color: #244DA8">通常 <span
+class="math inline">\(m\)</span> 和 <span
+class="math inline">\(e\)</span> 未知（原笔记在括号中提到
+RCT），因此对它们进行交叉拟合：</span></p>
+<div class="original-ink" style="color: #244DA8" data-ink="blue"
+aria-label="Original blue ink">
+<p><span class="math display">\[\begin{align*}
+\widehat L_n(t)&amp;=\frac1n\sum_i
+[(Y_i-\widehat m^{(-k(i))}(X_i))-(W_i-\widehat
+e^{(-k(i))}(X_i))t(X_i)]^2,\\
+\widehat\tau_R&amp;=\arg\min_t\{\widehat L_n(t)+\Lambda_n(t)\}.
+\end{align*}\]</span> 对于 lasso，<span
+class="math inline">\(\widehat\tau(x)=x\widehat\beta\)</span>，其中
+<span
+class="math display">\[\widehat\beta=\arg\min_\beta\left\{\frac1n\sum_i
+[(Y_i-\widehat m^{(-k(i))}(X_i))-(W_i-\widehat
+e^{(-k(i))}(X_i))X_i\beta]^2
++\lambda\|\beta\|_1\right\}.\]</span></p>
+</div>
+<h4 id="个人补充理解">个人补充理解。</h4>
+<p>处理效应为常数时， <span class="math inline">\(Y_i(w)=f(X_i)+\tau
+w+\varepsilon_i\)</span>，且 <span
+class="math inline">\(E[\varepsilon_i\mid
+X_i,W_i]=0\)</span>；残差估计量为 <span
+class="math display">\[\widehat\tau_R=\frac{\sum_i(Y_i-\widehat
+m^{(-k(i))}(X_i))(W_i-\widehat e^{(-k(i))}(X_i))}
+{\sum_i(W_i-\widehat e^{(-k(i))}(X_i))^2}.
+\tag{原笔记 4.5}\]</span> 前提是辅助部分收敛足够快。即使 <span
+class="math inline">\(\tau\)</span> 不为常数，该估计量也会收敛到 <span
+class="math inline">\(\tau(x)\)</span>
+的某个非负加权平均（批注还写了处理组均值减去对照组均值的比较）。</p>
+<blockquote>
+<p><span style="color: #244DA8"><span class="math inline">\(\overline
+Y_{(1)}-\overline Y_{(0)}\)</span>（第 19 页页边比较）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 前述
+<span class="math inline">\(\tau(x)\)</span> 的非负加权平均。</p>
+</blockquote>
+<p>异质性较小而重叠性存在困难时，可用式 (4.5) 替代。</p>
+<blockquote>
+<p><span style="color: #244DA8">常系数残差回归及其加权效应解释（第 19
+页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span>
+用于灵活处理效应函数的 R 损失（第 20 页）。</p>
+</blockquote>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-016）：常系数残差回归改变了目标量</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 19 页</em></p>
+<p>存在异质性时，其总体极限为 <span
+class="math display">\[\frac{E[e(X)(1-e(X))\tau(X)]}{E[e(X)(1-e(X))]},\]</span>
+这里要求分母为正，辅助估计收敛足够快。该目标更强调重叠较好的区域。只有加入其他条件，例如效应恒定，或
+<span class="math inline">\(e(X)(1-e(X))\)</span> 与 <span
+class="math inline">\(\tau(X)\)</span> 协方差为零时，它才等于总体
+ATE。它不能识别处理由协变量完全确定的区域中的效应。这精确表达了作者关于非负权重的直觉。</p>
+</div>
+<h1 id="第-5-讲断点回归设计">第 5 讲：断点回归设计</h1>
+<p><em>原扫描页码：Lecture1-10.pdf，第 22、21 页；第 21 页解释先前的 IPW
+方法为什么不适用。</em></p>
+<p>使用驱动变量 <span class="math inline">\(Z_i\in\mathbb R\)</span>
+引入一个阈值： <span class="math display">\[W_i=\mathbf1_{\{Z_i\geq
+c\}},\qquad c\text{ 为阈值。}\]</span> <span style="color: #244DA8">当
+<span class="math inline">\(Z_i\to c\)</span>，靠近 <span
+class="math inline">\(c\)</span>
+的观测特征相似，区别在于是否接受干预。</span>令 <span
+class="math inline">\(\mu_{(w)}(z)=E[Y_i(w)\mid
+Z_i=z]\)</span>。若两个条件均值连续，则 <span
+class="math inline">\(z=c\)</span> 处的 CATE 为 <span
+class="math display">\[\tau_c=\mu_{(1)}(c)-\mu_{(0)}(c)
+=\lim_{z\to c^+}E[Y_i\mid Z_i=z]-\lim_{z\to c^-}E[Y_i\mid
+Z_i=z].\]</span></p>
+<h4 id="个人补充普通-ipw-为什么不适用">个人补充：普通 IPW
+为什么不适用？</h4>
+<p>此前假设无混杂性 <span class="math inline">\(\{Y_i(0),Y_i(1)\}\perp
+W_i\mid Z_i\)</span> 和重叠性 <span class="math inline">\(\eta\leq
+P(W_i=1\mid Z_i)\leq1-\eta\)</span>。在 RDD
+中，无混杂性成立，但重叠性不成立，因为给定 <span
+class="math inline">\(Z_i=z\)</span> 后，处理概率不是零就是一。<span
+style="color: #244DA8">蓝字说明：无论如何选择非退化的 <span
+class="math inline">\(\eta\)</span>，都不成立。</span>必须比较 <span
+class="math inline">\(c\)</span> 附近的观测，借助相似性而非重叠性。
+重叠性不成立意味着不能以 <span class="math inline">\(\sqrt n\)</span>
+速度估计 <span
+class="math inline">\(\tau_c\)</span>。其极小极大误差以非参数速度收敛，取决于
+<span class="math inline">\(\mu_{(w)}(z)\)</span> 的光滑性。例如，<span
+class="math inline">\(c\)</span> 处二阶导数一致有界时，可以得到 <span
+class="math inline">\(n^{-2/5}\)</span> 的估计误差速度。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-017）：RDD
+识别及收敛速度结论的适用范围</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 21、22、24 页</em></p>
+<p>“不能达到 <span class="math inline">\(\sqrt
+n\)</span>”针对这里的非参数光滑函数类，并非针对所有可能的参数限制。<span
+class="math inline">\(n^{-2/5}\)</span>
+速度需要阈值邻域中的二阶导数界、阈值两侧为正且连续的设计密度、独立观测，以及有界条件方差。只有观测能从两侧趋近阈值时，连续性才识别边界差异。通过平衡平方偏差
+<span class="math inline">\(h^4\)</span> 与方差 <span
+class="math inline">\((nh)^{-1}\)</span> 的计算是正确的；在 <span
+class="math inline">\(k\)</span>
+阶光滑性及适当的局部多项式拟合下，误差速度为 <span
+class="math inline">\(n^{-k/(2k+1)}\)</span>。</p>
+</div>
+<h2 id="局部线性回归估计">局部线性回归估计</h2>
+<p>选择小带宽 <span class="math inline">\(h_n\to0\)</span> 和对称权函数
+<span class="math inline">\(K\)</span>，在局部拟合两个条件均值。下式中
+<span class="math inline">\(W_i\)</span> 的系数 <span
+class="math display">\[\arg\min_{a,\tau,\beta_{(0)},\beta_{(1)}}\sum_i
+K\left(\frac{|Z_i-c|}{h_n}\right)
+[Y_i-a-\tau W_i-\beta_{(0)}(Z_i-c)_--\beta_{(1)}(Z_i-c)_+]^2\]</span>
+就是 <span class="math inline">\(\widehat\tau_c\)</span>。</p>
+<blockquote>
+<p><span style="color: #C92B32">权重；负侧；正侧（第 22 页）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span class="math inline">\(K(|Z_i-c|/h_n)\)</span>；<span
+class="math inline">\((Z_i-c)_-\)</span>；<span
+class="math inline">\((Z_i-c)_+\)</span>。</p>
+</blockquote>
+<p>截距 <span class="math inline">\(a\)</span> 和斜率 <span
+class="math inline">\(\beta_{(w)}\)</span>
+是辅助参数；手写标签指出了负侧和正侧部分。常见核函数包括窗口函数 <span
+class="math inline">\(K(x)=\mathbf1_{\{|x|\leq1\}}\)</span> 和三角核
+<span class="math inline">\(K(x)=(1-|x|)_+\)</span>。</p>
+<h2 id="估计量性质与光滑性">估计量性质与光滑性</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 23–24 页。</em></p>
+<p>通过以下假设量化连续性：<span
+class="math inline">\(\mu_{(w)}\)</span> 二次可微，且二阶导数一致有界：
+<span
+class="math display">\[\left|\frac{d^2}{dz^2}\mu_{(w)}(z)\right|\leq B,
+\qquad z\in\mathbb R,\quad w\in\{0,1\}.\]</span> 若光滑性更弱，只有
+Lipschitz
+连续（原笔记解释为有界但不可微），局部没有明确的线性趋势，局部平均可能更好。若光滑性更强，<span
+class="math inline">\(k\geq3\)</span>
+阶导数有界，则更高阶的局部回归可能改善收敛速度。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-018）：Lipschitz
+连续不等于有界但不可微</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 23 页</em></p>
+<p>Lipschitz 连续是指存在有限常数 <span
+class="math inline">\(L\)</span>，使 <span
+class="math inline">\(|f(x)-f(y)|\le
+L|x-y|\)</span>。它既允许可微函数，也允许 <span
+class="math inline">\(|x|\)</span> 这样有尖点的函数。仅有有界性不能推出
+Lipschitz 连续；而定义域无界时，Lipschitz
+函数也不一定有界。作者原本关于较弱光滑性的比较仍有意义。</p>
+</div>
+<p><span style="color: #C92B32">在 <span
+class="math inline">\(c\)</span> 处做 Taylor 展开：</span> <span
+class="math display">\[\mu_{(w)}(z)=a_{(w)}+\beta_{(w)}(z-c)+\tfrac12\rho_{(w)}(z-c),
+\qquad |\rho_{(w)}(u)|\leq Bu^2.\]</span> <span
+style="color: #C92B32">最后一项为余项，</span>且 <span
+class="math inline">\(\tau_c=a_{(1)}-a_{(0)}\)</span>。分别拟合两侧：
+<span class="math display">\[(\widehat
+a_{(1)},\widehat\beta_{(1)})=arg\min_{a,\beta}
+\sum_{Z_i\geq
+c}K\left(\frac{|Z_i-c|}{h_n}\right)[Y_i-a-\beta(Z_i-c)]^2,\]</span>
+对照侧同理；然后 <span class="math inline">\(\widehat\tau_c=\widehat
+a_{(1)}-\widehat a_{(0)}\)</span>。</p>
+<h4 id="窗口核的闭式权重">窗口核的闭式权重。</h4>
+<p>在 <span class="math inline">\(c\leq Z_i\leq c+h_n\)</span>
+上，原扫描写作 <span class="math display">\[\widehat
+a_{(1)}=\sum_i\gamma_iY_i,\qquad
+\gamma_i=\frac{\widehat E_{(1)}[(Z_i-c)^2]-\widehat
+E_{(1)}[Z_i-c](Z_i-c)}
+{\widehat E_{(1)}[(Z_i-c)^2]-\widehat E_{(1)}[Z_i-c]^2},\]</span> 其中
+<span class="math inline">\(\widehat E_{(1)}[Z_i-c]\)</span> 是带宽内
+<span class="math inline">\(Z_i-c\)</span> 的平均值。还记有</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-019）：局部线性权重的分母缺少样本量</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 24 页</em></p>
+<p>令 <span class="math inline">\(N_+=|\{i:c\le Z_i\le
+c+h_n\}|\)</span>、<span
+class="math inline">\(u_i=Z_i-c\)</span>，并在该区间内定义 <span
+class="math inline">\(m_j=N_+^{-1}\sum_i
+u_i^j\)</span>。归一化的截距权重为 <span
+class="math display">\[\gamma_i=\frac{m_2-m_1u_i}{N_+(m_2-m_1^2)}.\]</span>
+假设 <span class="math inline">\(m_2-m_1^2&gt;0\)</span>。则 <span
+class="math inline">\(\sum_i\gamma_i=1\)</span> 且 <span
+class="math inline">\(\sum_i\gamma_i
+u_i=0\)</span>，符合所需约束。原式缺少 <span
+class="math inline">\(N_+\)</span>，其权重和会等于 <span
+class="math inline">\(N_+\)</span>。后面的偏差／噪声计算需要使用归一化权重。</p>
+</div>
+<p><span class="math display">\[\sum_i\gamma_i=1,\qquad
+\sum_i\gamma_i(Z_i-c)=0.\]</span></p>
+<p>原页上的分解为 <span class="math display">\[\widehat
+a_{(1)}=a_{(1)}+\underbrace{\sum_i\gamma_i\rho_{(1)}(Z_i-c)}_{\text{\textcolor{red}{曲率偏差}}}
++\underbrace{\sum_i\gamma_i(Y_i-\mu_{(1)}(Z_i))}_{\text{\textcolor{red}{抽样噪声}}}.\]</span>
+对照侧的截距也有相同形式的分解。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-020）：Taylor
+余项的归一化要前后一致</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 23、24 页</em></p>
+<p>按前面的定义，曲率项应为 <span
+class="math inline">\(\tfrac12\sum_i\gamma_i\rho_{(1)}(Z_i-c)\)</span>。也可以重新定义
+<span class="math inline">\(r_w=\rho_w/2\)</span>，满足 <span
+class="math inline">\(|r_w(u)|\le Bu^2/2\)</span>，然后写为 <span
+class="math inline">\(\sum_i\gamma_i
+r_w(u_i)\)</span>。遗漏的系数影响常数，不影响所述速度。由于局部线性权重可正可负，曲率偏差的界应使用
+<span class="math inline">\(\sum_i|\gamma_i|u_i^2\)</span>。</p>
+</div>
+<blockquote>
+<p><span style="color: #C92B32">曲率偏差与抽样噪声（第 24 页）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span style="color: #C92B32">这两项都需要上界。</span></p>
+</blockquote>
+<p>曲率偏差的阶为 <span class="math inline">\(Bh_n^2\)</span>，其中
+<span class="math inline">\(B\)</span> 是二阶导数的界，<span
+class="math inline">\(h_n\)</span> 是带宽。抽样噪声均值为零；若 <span
+class="math inline">\(\operatorname{Var}[Y_i\mid Z_i]\leq
+b^2\)</span>，则其方差不超过 <span
+class="math inline">\(b^2\sum_i\gamma_i^2\)</span>。 若 <span
+class="math inline">\(Z_i\)</span> 在 <span
+class="math inline">\(c\)</span> 附近具有连续且非零的密度 <span
+class="math inline">\(f\)</span>， <span
+class="math display">\[b^2\sum_i\gamma_i^2\approx\frac{4b^2}{|\{i:c\leq
+Z_i\leq c+h_n\}|}
+\approx\frac{4b^2}{f(c)nh_n}.\]</span> 因此平方偏差为 <span
+class="math inline">\(h_n^4\)</span> 阶，方差为 <span
+class="math inline">\((nh_n)^{-1}\)</span> 阶，从而 <span
+class="math display">\[\widehat\tau_c=\tau_c+O_p(n^{-2/5}),\qquad
+h_n\asymp n^{-1/5}.\]</span> <span style="color: #C92B32">红字指出 <span
+class="math inline">\(n^{-2/5}\)</span> 是估计误差，并补充：<span
+class="math inline">\(k\)</span> 阶光滑性下，<span
+class="math inline">\(h_n\asymp n^{-1/(2k+1)}\)</span>。</span></p>
+<h2 id="驱动变量中的噪声">驱动变量中的噪声</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 25 页。</em></p>
+<blockquote>
+<p><span style="color: #244DA8">可能有噪声（第 25 页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span>
+驱动变量 <span class="math inline">\(Z_i\)</span>。</p>
+</blockquote>
+<p>引入潜在变量 <span class="math inline">\(U_i\sim
+G\)</span>，并给出两个条件：</p>
+<ol>
+<li><p>含噪声的驱动变量：原扫描写作 <span class="math inline">\(Z_i\mid
+U_i\sim N(0,\nu^2)\)</span>，其中 <span
+class="math inline">\(\nu&gt;0\)</span>。</p></li>
+<li><p>驱动变量的无混杂性：<span
+class="math inline">\(\{Y_i(0),Y_i(1)\}\perp Z_i\mid
+U_i\)</span>。</p></li>
+</ol>
+<p>由 <span class="math inline">\(Y_i=Y_i(W_i)\)</span> 以及 <span
+class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid U_i\)</span>，
+<span class="math display">\[e(u)=P(W_i=1\mid U_i=u)=P(Z_i\geq c\mid
+U_i=u)
+=1-\Phi\left(\frac{c-u}{\nu}\right),\]</span> <span
+class="math display">\[\alpha_{(w)}(u)=E[Y_i(w)\mid U_i=u],\qquad
+\tau(u)=E[Y_i(1)-Y_i(0)\mid U_i=u].\]</span>
+批注定义了标准正态分布函数：</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-021）：含噪声的驱动变量应以潜在变量为条件均值</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 25 页</em></p>
+<p>后面的倾向得分及卷积公式要求 <span class="math inline">\(Z_i\mid
+U_i=u\sim N(u,\nu^2)\)</span>，等价于 <span
+class="math inline">\(Z_i-U_i\mid U_i\sim N(0,\nu^2)\)</span>。若对每个
+<span
+class="math inline">\(u\)</span>，所写条件均值真的都为零，倾向得分就应为
+<span class="math inline">\(1-\Phi(c/\nu)\)</span>，与 <span
+class="math inline">\(u\)</span> 无关。因此原文在条件均值中遗漏了 <span
+class="math inline">\(u\)</span>。后面的分解对该潜在位置模型成立；但仅归一化权重还不能消除混杂偏差，诱导的
+<span class="math inline">\(h_+\)</span> 和 <span
+class="math inline">\(h_-\)</span> 还需要适当平衡。</p>
+</div>
+<p><span style="color: #C92B32"><span
+class="math inline">\(\Phi(x)=(2\pi)^{-1/2}\int_{-\infty}^x
+e^{-t^2/2}\,dt\)</span>.</span></p>
+<p><span class="math inline">\(U_i\)</span>
+无法观测，因此不能直接使用其倾向得分。考虑反卷积型估计量：</p>
+<blockquote>
+<p><span style="color: #000000"><span class="math inline">\(U_i\)</span>
+未观测：不能直接使用其倾向得分（第 25 页）</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+反卷积权重 <span
+class="math inline">\(\gamma_+(z),\gamma_-(z)\)</span>。</p>
+</blockquote>
+<p><span class="math display">\[\widehat\tau_\gamma=\frac1n\sum_{Z_i\geq
+c}\gamma_+(Z_i)Y_i
+-\frac1n\sum_{Z_i&lt;c}\gamma_-(Z_i)Y_i.\]</span> 选择权重，使 <span
+class="math display">\[E[\mathbf1_{\{Z_i\geq c\}}\gamma_+(Z_i)]
+=E[\mathbf1_{\{Z_i&lt;c\}}\gamma_-(Z_i)]=1.\]</span> 则 <span
+class="math display">\[E[\widehat\tau_\gamma]
+=\underbrace{\int
+h_+(u)\tau(u)\,dG(u)}_{\text{\textcolor{red}{加权处理效应}}}
++\underbrace{\int(h_+(u)-h_-(u))\alpha_{(0)}(u)\,dG(u)}_{\text{\textcolor{red}{混杂偏差}}},\]</span>
+其中权函数为 <span
+class="math display">\[h_+(u)=\int_c^\infty\gamma_+(z)\varphi_\nu(z-u)\,dz,\qquad
+h_-(u)=\int_{-\infty}^c\gamma_-(z)\varphi_\nu(z-u)\,dz,\]</span></p>
+<div class="original-ink" style="color: #244DA8" data-ink="blue"
+aria-label="Original blue ink">
+<p><span
+class="math display">\[\varphi_\nu(z-u)=\frac1{\sqrt{2\pi\nu^2}}\exp\left[-\frac12\left(\frac{z-u}{\nu}\right)^2\right].\]</span></p>
+</div>
+<h1 id="第-6-讲断点回归的有限样本推断">第 6
+讲：断点回归的有限样本推断</h1>
+<p><em>原扫描页码：Lecture1-10.pdf，第 27、26、29、28 页；第 26 页承接第
+27 页，第 28 页解释第 29 页的权重约束。</em></p>
+<p>有限样本 RDD
+允许不连续／离散的驱动变量，或更复杂的阈值规则。局部线性回归的解 (6.2)
+可以写成线性估计量： <span
+class="math display">\[\widehat\tau_c(\gamma)=\sum_{i=1}^n\gamma_iY_i.\tag{6.3（原笔记）}\]</span>
+权重仅依赖 <span class="math inline">\(Z_i\)</span>。</p>
+<blockquote>
+<p><span style="color: #C92B32">局部线性解 (6.2)（第 27 页）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+线性估计量 (6.3)，下面继续分析其性质。</p>
+</blockquote>
+<p>若 <span
+class="math display">\[Y_i(w)=\mu_{(w)}(Z_i)+\varepsilon_i(w),\qquad
+\varepsilon_i(w)\mid Z_i\sim N(0,b^2),\]</span> 则在给定 <span
+class="math inline">\(Z_1,\ldots,Z_n\)</span> 后， <span
+class="math display">\[\widehat\tau_c(\gamma)\sim
+N(\widehat\tau_c^*(\gamma),b^2\|\gamma\|_2^2),
+\qquad \widehat\tau_c^*(\gamma)=\sum_i\gamma_i\mu_{(W_i)}(Z_i).\]</span>
+这里 <span class="math inline">\(W_i=\mathbf1_{\{Z_i\geq
+c\}}\)</span>，且<span style="color: #C92B32"><span
+class="math inline">\(\|\gamma\|_2=(\gamma_1^2+\cdots+\gamma_n^2)^{1/2}\)</span>
+是欧几里得范数。</span></p>
+<h2 id="极小极大线性估计">极小极大线性估计</h2>
+<p><span
+style="color: #C92B32">极小极大是指最小化最坏情形的均方误差（MSE）。</span>同方差下，线性估计量的条件方差可以直接写为
+<span
+class="math inline">\(b^2\|\gamma\|_2^2\)</span>。其偏差则依赖未知的条件均值：
+<span
+class="math display">\[\operatorname{Bias}(\widehat\tau_c(\gamma)\mid
+Z_1,\ldots,Z_n)
+=\sum_i\gamma_i\mu_{(W_i)}(Z_i)-[\mu_{(1)}(c)-\mu_{(0)}(c)].\]</span>
+光滑性限制 <span class="math inline">\(|\mu_{(w)}&#39;&#39;(z)|\leq
+B\)</span> 给出偏差的上界 <span
+class="math display">\[I_B(\gamma)=\sup_{|\mu_{(w)}&#39;&#39;|\leq B}
+\left\{\sum_i\gamma_i\mu_{(W_i)}(Z_i)-[\mu_{(1)}(c)-\mu_{(0)}(c)]\right\}.\]</span>
+<span
+style="color: #244DA8">蓝字说明：因为二阶导数约束的函数类对称，取上确界时不需要绝对值。</span>因此
+<span
+class="math display">\[|\operatorname{Bias}(\widehat\tau_c(\gamma)\mid
+Z_1,\ldots,Z_n)|\leq I_B(\gamma),\]</span> <span
+class="math display">\[\operatorname{MSE}(\widehat\tau_c(\gamma)\mid
+Z_1,\ldots,Z_n)
+\leq b^2\|\gamma\|_2^2+I_B^2(\gamma).\]</span> <span
+style="color: #C92B32">红字强调“MSE = 方差 +
+偏差平方”，并指出这个界不依赖未知的 <span
+class="math inline">\(\mu\)</span>。</span>左页续写，定义 <span
+class="math display">\[\gamma^B=\arg\min_\gamma\{b^2\|\gamma\|_2^2+I_B^2(\gamma)\},\qquad
+\widehat\tau_c(\gamma^B)=\sum_i\gamma_i^B Y_i.
+\tag{原笔记 6.8}\]</span> <span
+style="color: #244DA8">蓝字比较：给定偏差上界 <span
+class="math inline">\(I_B(\gamma)\)</span> 时，这样得到的 MSE
+小于局部线性估计。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-022）：有限样本极小极大保证的含义</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 26、27、29、30 页</em></p>
+<p>精确的条件正态计算需要各单位之间的误差独立且为高斯分布（或使用相应的联合高斯协方差），方差已知，且曲率界
+<span class="math inline">\(B\)</span> 有效。仅有边际正态性不够。最小化
+<span
+class="math inline">\(b^2\|\gamma\|_2^2+I_B(\gamma)^2\)</span>，是在给定函数类上最小化最坏条件
+MSE；并不保证对每一对具体的响应函数，实际 MSE
+都更小，也不保证严格改善。只要优化可行，偏差调整后的区间在给定设计条件下有效，包括离散设计。若把估计的
+<span class="math inline">\(b\)</span> 或 <span
+class="math inline">\(B\)</span> 代入，还需要额外论证。</p>
+</div>
+<h2 id="推导极小极大线性权重">推导极小极大线性权重</h2>
+<p>分解为 <span
+class="math display">\[\mu_{(w)}(z)=a_{(w)}+\beta_{(w)}(z-c)+\rho_{(w)}(z),\]</span>
+其中 <span
+class="math inline">\(\rho_{(w)}(c)=\rho&#39;_{(w)}(c)=0\)</span>，二阶导数以
+<span class="math inline">\(B\)</span>
+为界。截距和斜率没有限制，因此除非满足下列条件，否则 <span
+class="math inline">\(I_B(\gamma)\)</span> 可以为无穷大： <span
+class="math display">\[\sum_i\gamma_iW_i=1,\qquad
+\sum_i\gamma_i=0,\qquad
+\sum_i\gamma_i(Z_i-c)_+=0,\qquad \sum_i\gamma_i(Z_i-c)_-=0.\]</span>
+加上这些约束后，只需控制余项。将式 (6.8) 改写为 <span
+class="math display">\[(\gamma^B,t)=\arg\min_{\gamma,t}\{b^2\|\gamma\|_2^2+B^2t^2\},\]</span>
+约束为 <span
+class="math display">\[\sum_i\gamma_iW_i\rho_{(1)}(Z_i)+\sum_i\gamma_i(1-W_i)\rho_{(0)}(Z_i)\leq
+t\]</span> 对所有满足 <span
+class="math inline">\(\rho_{(w)}(c)=\rho&#39;_{(w)}(c)=0\)</span>、<span
+class="math inline">\(|\rho&#39;&#39;_{(w)}(z)|\leq1\)</span> 的 <span
+class="math inline">\(\rho_{(w)}\)</span> 都成立，同时满足 <span
+class="math display">\[\sum_i\gamma_iW_i=1,\quad\sum_i\gamma_i=0,\quad
+\sum_i\gamma_iW_i(Z_i-c)=0,\quad
+\sum_i\gamma_i(1-W_i)(Z_i-c)=0.
+\tag{原笔记 6.10}\]</span> 蓝字提示：求解对应的对偶问题。</p>
+<blockquote>
+<p><span style="color: #244DA8">原始极小极大优化问题 (6.10)（第 29
+页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span>
+转化为对偶问题求解。</p>
+</blockquote>
+<h4 id="个人补充为什么权重之和为零">个人补充：为什么权重之和为零？</h4>
+<p>最终估计的是一个差。将求和拆成处理组和对照组两部分： <span
+class="math display">\[\widehat\tau_c(\gamma)=\sum_i\gamma_i^{(1)}Y_i+\sum_i\gamma_i^{(2)}Y_i.\]</span>
+处理组权重之和为 <span
+class="math inline">\(1\)</span>，对照组权重之和为 <span
+class="math inline">\(-1\)</span>，所以</p>
+<blockquote>
+<p><span style="color: #C92B32"><span class="math inline">\(Y=1\)</span>
+组；<span class="math inline">\(Y=0\)</span> 组（第 28 页原标注）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span style="color: #C92B32">权重分别加总为 <span
+class="math inline">\(1\)</span>、<span
+class="math inline">\(-1\)</span>；总和为 <span
+class="math inline">\(0\)</span>。</span></p>
+</blockquote>
+<div class="original-ink" style="color: #C92B32" data-ink="red"
+aria-label="Original red ink">
+<p><span class="math display">\[\sum_i\gamma_i=1+(-1)=0,\quad
+\sum_i\gamma_i^{(1)}=\sum_i\gamma_iW_i=1,\quad
+\sum_i\gamma_i^{(2)}=\sum_i\gamma_i(1-W_i)=-1.\]</span></p>
+</div>
+<p>图中的权重在阈值左侧近处有负的尖峰，右侧近处有正的尖峰；离阈值更远时，权重改变符号，然后趋近零。</p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-003.png" alt="image" /></p>
+</div>
+<p>原页红字标为 <span class="math inline">\(Y=1\)</span> 和 <span
+class="math inline">\(Y=0\)</span>，下面的公式则使用处理指示变量 <span
+class="math inline">\(W\)</span>。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-023）：红色分组标签指处理而非结果</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 28 页</em></p>
+<p>这些标签应为 <span class="math inline">\(W=1\)</span> 和 <span
+class="math inline">\(W=0\)</span>，结果 <span
+class="math inline">\(Y\)</span>
+不一定是二元变量。权重和的约束本身正确：处理组权重和为 <span
+class="math inline">\(1\)</span>，对照组为 <span
+class="math inline">\(-1\)</span>。</p>
+</div>
+<h2 id="线性估计量的推断">线性估计量的推断</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 30–31 页。</em></p>
+<p>构造 <span class="math inline">\(\widehat\tau_c(\gamma^B)\)</span>
+的置信区间。令 <span
+class="math display">\[\mathrm{err}=\widehat\tau_c-\tau_c,\qquad
+\mathrm{err}\mid Z_1,\ldots,Z_n\sim
+N(\mathrm{bias},b^2\|\gamma^B\|_2^2),\]</span> 其中由式 (6.10) 得到
+<span class="math inline">\(|\mathrm{bias}|\leq
+Bt\)</span>。根据高斯分布的单峰性，对于 <span
+class="math inline">\(S\sim N(0,1)\)</span>， <span
+class="math display">\[P(|\mathrm{err}|\geq\zeta)\leq
+P(|Bt+b\|\gamma^B\|_2S|\geq\zeta).\]</span> 条件覆盖率至少为 <span
+class="math inline">\(1-\alpha\)</span> 的置信区间是 <span
+class="math display">\[I_\alpha=(\widehat\tau_c(\gamma^B)-\zeta_\alpha^B,
+\widehat\tau_c(\gamma^B)+\zeta_\alpha^B),\]</span> <span
+class="math display">\[\zeta_\alpha^B=\inf\{\zeta:P(|Bt+b\|\gamma^B\|_2S|&gt;\zeta)\leq\alpha\}.
+\tag{原笔记 6.13}\]</span> <span style="color: #244DA8">蓝字强调：条件于
+<span
+class="math inline">\(Z_i\)</span>，因此驱动变量服从任何分布都可以，包括非标准的
+RDD 情形。</span></p>
+<h4 id="离散驱动变量">离散驱动变量。</h4>
+<p>单独限制 <span class="math inline">\(|\mu_{(w)}&#39;&#39;(z)|\leq
+B\)</span> 不一定能识别 <span
+class="math inline">\(\tau_c\)</span>，但式 (6.13) 仍有效。<span
+class="math inline">\(Z_i\)</span> 连续时，区间以 <span
+class="math inline">\(n^{-2/5}\)</span> 速度缩小；<span
+class="math inline">\(Z_i\)</span> 离散时，长度未必趋于零。<span
+style="color: #244DA8">当 <span class="math inline">\(c\)</span>
+不在驱动变量的支持集内，需要用满足二阶导数界的插值函数表示 <span
+class="math inline">\(\mu_{(w)}(z)\)</span>。</span></p>
+<h4 id="多维驱动变量">多维驱动变量。</h4>
+<p>例如二维、三维区域以及地理边界。不能直接使用一维阈值 RDD；<span
+style="color: #244DA8">有的方法将其化为一维距离，笔记认为这样不太稳定。</span>极小极大方法则可以直接推广到多维。</p>
+<h2 id="超出同方差情形">超出同方差情形</h2>
+<p>当误差 <span
+class="math inline">\(\varepsilon_i=Y_i-\mu_{(W_i)}(Z_i)\)</span>
+不再是方差为 <span class="math inline">\(b^2\)</span>
+的同方差高斯误差时，式 (6.11)
+的精确正态分布结论不成立。利用中心极限定理来说明 <span
+class="math display">\[\widehat\tau_c(\gamma)\mid Z_1,\ldots,Z_n
+\ \approx\ N\left(\widehat\tau_c^*(\gamma),
+\sum_i\gamma_i^2\operatorname{Var}[Y_i\mid Z_i,W_i]\right).
+\tag{原笔记 6.14}\]</span>
+若高斯近似有效，仍可构造置信区间。将条件方差估计为 <span
+class="math display">\[\widehat
+V_n=\sum_i\gamma_i^2(Y_i-\widehat\mu_{(W_i)}(Z_i))^2,\]</span>
+其中拟合均值来自局部线性回归。</p>
+<blockquote>
+<p><span style="color: #244DA8">局部线性拟合的均值（第 31 页）</span>
+<span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span>
+残差方差估计量中的 <span
+class="math inline">\(\widehat\mu_{(W_i)}(Z_i)\)</span>。</p>
+</blockquote>
+<blockquote>
+<p><span style="color: #244DA8">如果均值拟合错了（第 31 页）</span>
+<span class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span>
+<span style="color: #244DA8">残差会膨胀，结果过于保守。</span></p>
+</blockquote>
+<p>极小极大准则 (6.8) 针对同方差；异方差下，将各个方差 <span
+class="math inline">\(b_i^2\)</span> 引入用于构造对偶问题的式
+(6.10)。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-024）：残差方差估计不会自动保守</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 31 页</em></p>
+<p>对于独立的求值观测和固定的拟合均值，残差平方的期望等于条件方差加均值误差平方。但若回归在同一样本内拟合，过拟合和杠杆作用反而可能使残差缩小。因此，保守性需要适当的留一法／交叉拟合方差估计，或控制样本内拟合的理论。条件高斯近似还需要加权
+Lindeberg
+条件（没有占主导地位的观测），方差估计需要一致或保守有效。这些要求不能仅靠把
+<span class="math inline">\(b^2\)</span> 换成 <span
+class="math inline">\(b_i^2\)</span> 来保证。</p>
+</div>
+<h1 id="第-7-讲平衡估计量">第 7 讲：平衡估计量</h1>
+<p><em>原扫描页码：Lecture1-10.pdf，第 32–33 页。</em></p>
+<p>标题将平衡性与估计 <span class="math inline">\(\widehat e(x)\)</span>
+的原理联系起来。</p>
+<blockquote>
+<p><span style="color: #000000">平衡性／<span
+class="math inline">\(\widehat e(x)\)</span> 的设计原理（第 32
+页）</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+改善倾向得分与回归函数；高维 ATE 估计。</p>
+</blockquote>
+<p>记录的两个目标是：改善倾向得分和回归函数，以及在高维协变量下估计
+ATE。IPW、AIPW 都使用倾向得分；这一讲通过凸优化推导如何估计 <span
+class="math inline">\(e(x)\)</span>。</p>
+<h2 id="回顾-ipw">回顾 IPW</h2>
+<p>给定独立同分布观测 <span
+class="math inline">\((X_i,Y_i,W_i)\in\mathcal X\times\mathbb
+R\times\{0,1\}\)</span>，目标为 <span
+class="math inline">\(\tau=\mu_{(1)}-\mu_{(0)}\)</span>，其中 <span
+class="math inline">\(\mu_{(w)}=E[Y_i(w)]\)</span>。假设 <span
+class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,\qquad
+0&lt;\eta\leq e(X_i)\leq1-\eta&lt;1,\]</span> 其中 <span
+class="math inline">\(e(x)=P(W_i=1\mid X_i=x)\)</span>，<span
+class="math inline">\(\eta\)</span>
+为正常数。用下式估计处理状态下的均值： <span
+class="math display">\[\widehat\mu_{\rm
+IPW}(1)=\frac1n\sum_i\frac{W_iY_i}{\widehat e(X_i)}.
+\tag{原笔记 7.3}\]</span> 笔记将下面的一致性论证标为<span
+style="color: #244DA8">“简略，不重要”</span>，但仍记录了三步：</p>
+<ol>
+<li><p>总体平衡：无混杂性下，<span
+class="math inline">\(\mu_{(1)}=E[W_iY_i/e(X_i)]\)</span>。</p></li>
+<li><p>理想估计量：使用真实的 <span class="math inline">\(e(x)\)</span>
+时无偏；重叠性给出有限方差。</p></li>
+<li><p>可实施近似：若估计的倾向得分也满足重叠性，由 Cauchy–Schwarz
+不等式可得 <span class="math display">\[\begin{align*}
+|\widehat\mu_{\rm IPW}(1)-\widehat\mu^*_{\rm IPW}(1)|
+&amp;\leq\left[\frac1n\sum_i\left(\frac1{\widehat
+e(X_i)}-\frac1{e(X_i)}\right)^2\right]^{1/2}
+\left[\frac1n\sum_i(W_iY_i)^2\right]^{1/2}\\
+&amp;\leq\frac1{\eta^2}\left[\frac1n\sum_i(\widehat
+e(X_i)-e(X_i))^2\right]^{1/2}
+\left[\frac1n\sum_i(W_iY_i)^2\right]^{1/2}.
+\end{align*}\]</span> <span style="color: #244DA8">页边回顾 <span
+class="math inline">\(|a\cdot
+b|^2\leq\|a\|^2\|b\|^2\)</span>，并补充：<span
+class="math inline">\(n\to\infty\)</span> 时，相应的 AIPW 误差相对于
+<span class="math inline">\(1/\sqrt n\)</span>
+可以忽略。</span></p></li>
+</ol>
+<h2 id="总体平衡与样本平衡">总体平衡与样本平衡</h2>
+<p>用预先指定的基展开条件均值： <span
+class="math display">\[\mu_{(w)}(x)=\sum_{j=1}^\infty\beta_{j(w)}\psi_j(x).\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32">多项式基或 Fourier 基（第 33 页）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+条件均值展开中的 <span class="math inline">\(\psi_j(x)\)</span>。</p>
+</blockquote>
+<p>在合理的正则条件下， <span
+class="math display">\[\mu_{(w)}=\sum_{j=1}^\infty\beta_{j(w)}E[\psi_j(X_i)].\]</span></p>
+<blockquote>
+<p><span style="color: #000000">两边取期望（第 33 页）</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span
+class="math inline">\(\mu_{(w)}=\sum_j\beta_{j(w)}E[\psi_j(X)]\)</span>。</p>
+</blockquote>
+<p><span style="color: #C92B32">这些正则条件会不会有问题？</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-025）：回应基展开的正则性问题</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 33 页</em></p>
+<p>这个问题是合理的：级数逐点收敛本身不足以交换求和与期望。</p>
+<p>一个充分条件是 <span
+class="math inline">\(\sum_j|\beta_{j(w)}|E|\psi_j(X)|&lt;\infty\)</span>；或者要求部分和在
+<span class="math inline">\(L^1\)</span> 中收敛。概率分布下的 <span
+class="math inline">\(L^2\)</span> 收敛也能推出 <span
+class="math inline">\(L^1\)</span>
+收敛。满足重叠性时，同样的论证可以控制加权期望。总体恒等式也可以直接通过条件于
+<span class="math inline">\(X\)</span> 来证明，不必使用无限基展开。</p>
+</div>
+<p>在无混杂性下，<span
+class="math inline">\(Y_i=\mu_{(W_i)}(X_i)+\varepsilon_i\)</span>，且
+<span class="math inline">\(E[\varepsilon_i\mid
+X_i,W_i]=0\)</span>。总体 IPW 论证为 <span
+class="math display">\[\begin{align*}
+E\left[\frac{W_iY_i}{e(X_i)}\right]
+&amp;=E\left[\frac{W_i}{e(X_i)}\sum_j\beta_{j(1)}\psi_j(X_i)\right]\\
+&amp;=\sum_j\beta_{j(1)}E\left[\frac{W_i\psi_j(X_i)}{e(X_i)}\right]
+=\sum_j\beta_{j(1)}E[\psi_j(X_i)]=\mu_{(1)}.
+\end{align*}\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32">核心：<span
+class="math inline">\(E[W_i\mid X_i]=e(X_i)\)</span>（第 33 页）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span
+class="math inline">\(E[W_i\psi_j(X_i)/e(X_i)]=E[\psi_j(X_i)]\)</span>。</p>
+</blockquote>
+<p>因此选择权重，使样本中满足 <span
+class="math display">\[\frac1n\sum_i\frac{W_i\psi_j(X_i)}{\widehat
+e(X_i)}
+\approx\frac1n\sum_i\psi_j(X_i),\qquad j=1,2,\ldots.
+\tag{原笔记 7.8}\]</span></p>
+<h2 id="倾向得分估计的平衡损失">倾向得分估计的平衡损失</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 35、34 页；第 34
+页补充高维界中用到的范数知识。</em></p>
+<p>假设结果模型为线性：<span
+class="math inline">\(\mu_{(w)}(x)=x\beta_{(w)}\)</span>，倾向得分模型为
+logistic： <span
+class="math display">\[e(x)=\frac1{1+\exp(-x\theta)}.\]</span> <span
+style="color: #244DA8">蓝字说明：此时样本平衡只涉及协变量 <span
+class="math inline">\(X_i\)</span>，平衡的目标是均值。</span>式 (7.8)
+变为 <span
+class="math display">\[\frac1n\sum_i(1+e^{-X_i\widehat\theta})W_iX_i=\frac1n\sum_iX_i.
+\tag{原笔记 7.9}\]</span> 这是以下凸优化问题的 KKT 条件： <span
+class="math display">\[\widehat\theta=\arg\min_\theta\frac1n\sum_i\ell_\theta(X_i,Y_i,W_i),\qquad
+\ell_\theta(X_i,Y_i,W_i)=W_ie^{-X_i\theta}+(1-W_i)X_i\theta.
+\tag{原笔记 7.10}\]</span> 因此可以用 Newton 下降法求解。</p>
+<blockquote>
+<p><span style="color: #000000">平衡方程 (7.9) 是凸损失的 KKT 条件（第
+35 页）</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> Newton
+下降法；原笔记称解唯一。</p>
+</blockquote>
+<p>手写文字称其有唯一解，并用它作为损失函数。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-026）：凸性本身不能保证存在唯一有限解</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 35 页</em></p>
+<p>Hessian 为 <span class="math inline">\(n^{-1}\sum_iW_i
+e^{-X_i\theta}X_i&#39;X_i\)</span>。它是半正定的；只有处理组协变量满足适当的张成／秩条件时才正定。有限极小值点还需要存在性；若目标协变量均值位于处理组可达到的凸支持集之外，精确平衡可能无法实现。因此，仅有凸性既不能保证唯一性，也不能保证极小值能取到，Newton
+迭代还需要通常的保护措施。所写一阶平衡方程是正确的。</p>
+</div>
+<p><span style="color: #244DA8">页边写道：同时估计 <span
+class="math inline">\(\mu_{(0)}\)</span> 和 <span
+class="math inline">\(\mu_{(1)}\)</span>，需要两个倾向得分模型。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-027）：两次校准拟合与一个真实倾向得分</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 35 页</em></p>
+<p>处理机制只有一个倾向得分 <span
+class="math inline">\(e(x)\)</span>，对照概率为 <span
+class="math inline">\(1-e(x)\)</span>。在这一构造中，分别做两次校准拟合，是实现各处理组平衡的一种方式；但估计两个均值并不在数学上要求存在两个不同的真实倾向得分模型。</p>
+</div>
+<h2 id="高维混杂变量下的-ate-估计">高维混杂变量下的 ATE 估计</h2>
+<p>设 <span class="math inline">\(X_i\in\mathbb R^p\)</span>，可能有
+<span class="math inline">\(p\gg n\)</span>，且 <span
+class="math inline">\(\mu_{(w)}(x)=x\beta_{(w)}\)</span>。高维下很难充分准确地估计
+<span
+class="math inline">\(e(x)\)</span>，精确权重无法得到，因此寻求近似平衡。由
+Hölder 不等式， <span class="math display">\[\begin{align*}
+&amp;\frac1n\sum_i\frac{W_i\mu_{(1)}(X_i)}{\widehat
+e(X_i)}-\frac1n\sum_i\mu_{(1)}(X_i)\\
+&amp;\quad=\left(\frac1n\sum_i\frac{W_iX_i}{\widehat
+e(X_i)}-\frac1n\sum_iX_i\right)\beta_{(1)}\\
+&amp;\quad\leq\left\|\frac1n\sum_i\frac{W_iX_i}{\widehat
+e(X_i)}-\frac1n\sum_iX_i\right\|_\infty\|\beta_{(1)}\|_1.
+\end{align*}\]</span> <span
+style="color: #C92B32">第一个范数标为不平衡程度。</span><span
+style="color: #244DA8">手写补充回顾了 Hölder 不等式：</span> <span
+style="color: #244DA8"><span
+class="math inline">\(\sum_i|a_ib_i|\leq(\sum_i|a_i|^p)^{1/p}(\sum_i|b_i|^q)^{1/q}\)</span>.</span></p>
+<h4 id="个人理解与问题">个人理解与问题。</h4>
+<p><span
+style="color: #244DA8">好的逆概率权重使最坏情形下的不平衡程度尽可能小。</span>还剩两个问题：（1）如何参数化
+<span class="math inline">\(\widehat
+e(X_i)\)</span>，实现上确界范数下的近似平衡；（2）只有 <span
+class="math inline">\(\|\beta_{(1)}\|_1\)</span>
+有界时，该界才有意义。<span
+style="color: #244DA8">高维统计通常假设系数向量稀疏，而不是直接限制其
+<span class="math inline">\(1\)</span> 范数。</span></p>
+<h4 id="补充范数回顾">补充：范数回顾。</h4>
+<p>左页将“<span class="math inline">\(0\)</span> 范数”列为 <span
+class="math inline">\(\sum_iX_i^0\)</span>，<span
+class="math inline">\(1\)</span> 范数为 <span
+class="math inline">\(\sum_i|X_i|\)</span>，<span
+class="math inline">\(2\)</span> 范数为 <span
+class="math inline">\((\sum_iX_i^2)^{1/2}\)</span>，无穷范数为 <span
+class="math inline">\(\max_i|X_i|\)</span>。一般表达式写为 <span
+class="math inline">\(\|x\|_p=(\sum_i x_i^p)^{1/p}\)</span>。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-028）：修正范数简写并明确 Hölder
+共轭指数</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 34、35 页</em></p>
+<p>应使用 <span
+class="math inline">\(\|x\|_0=\sum_i\mathbf1\{x_i\ne0\}\)</span>（这是计数，不是范数），以及
+<span class="math inline">\(p\ge1\)</span> 时的 <span
+class="math inline">\(\|x\|_p=(\sum_i|x_i|^p)^{1/p}\)</span>。<span
+class="math inline">\(x_i^0\)</span>
+不能正确处理零分量；对负分量取奇数或非整数次幂，也不能定义所需的实值范数。Hölder
+不等式要求 <span class="math inline">\(p,q\ge1\)</span> 且 <span
+class="math inline">\(1/p+1/q=1\)</span>，包括端点 <span
+class="math inline">\((1,\infty)\)</span>。所写不平衡界由该端点不等式得到；加绝对值后给出的是误差大小的上界。</p>
+</div>
+<h2 id="近似平衡权重与回归增广">近似平衡权重与回归增广</h2>
+<p><em>原扫描页码：Lecture1-10.pdf，第 36–37 页。</em></p>
+<p>选择合适的调节参数 <span class="math inline">\(\zeta\)</span>，求解
+<span class="math display">\[\widehat\gamma=\arg\min_{\gamma_i\geq1}
+\left\{\frac1{n^2}\|\gamma\|_2^2+
+\zeta\left\|\frac1n\sum_i(\gamma_iW_i-1)X_i\right\|_\infty^2\right\}.
+\tag{原笔记 7.12}\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32"><span class="math inline">\(L_2\)</span>
+大小的平方；不平衡程度；调节权重（第 36 页）</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+class="math inline">\(n^{-2}\|\gamma\|_2^2\)</span>；无穷范数的平方；<span
+class="math inline">\(\zeta\)</span>。</p>
+</blockquote>
+<p>然后将 <span class="math inline">\(1/\widehat
+e(X_i)=\widehat\gamma_i\)</span>
+作为逆倾向得分权重。利用次高斯集中不等式，可对理想权重验证如下形式的界：
+<span
+class="math display">\[\frac1{n^2}\|1/e(X_i)\|_2^2\leq\frac{\eta^{-2}}n,
+\qquad
+\left\|\frac1n\sum_i(\gamma_iW_i-1)X_i\right\|_\infty^2
+=O_p\left(\frac{\eta^{-2}\log p}{n}\right).\]</span> 笔记说 <span
+class="math inline">\(\widehat e(X_i)\)</span> 不需要很好地估计 <span
+class="math inline">\(e(X_i)\)</span>；选择合适的 <span
+class="math inline">\(\zeta\)</span> 后，这些逆权重仍满足偏差界。
+接着用高维回归增广加权估计量，以去掉对 <span
+class="math inline">\(\|\beta_{(1)}\|_1\)</span>
+的依赖。增广平衡估计量为 <span class="math display">\[\widehat\mu_{\rm
+AB}(1)=\frac1n\sum_i
+\left[\widehat\mu_{(1)}(X_i)+\widehat\gamma_iW_i(Y_i-\widehat\mu_{(1)}(X_i))\right],
+\quad\widehat\mu_{(1)}(X_i)=X_i\widehat\beta_{(1)}.
+\tag{原笔记 7.14}\]</span> 其分解为 <span
+class="math display">\[\begin{align*}
+\widehat\mu_{\rm
+AB}(1)={}&amp;\underbrace{\frac1n\sum_iX_i\beta_{(1)}}_{\textcolor{red}{\mu_{(1)}(X_i)}\text{\textcolor{red}{
+的均值}}}
++\underbrace{\frac1n\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})}_{\text{\textcolor{red}{零均值噪声}}}\\
+&amp;+\left[\frac1n\sum_i(1-\widehat\gamma_iW_i)X_i\right](\widehat\beta_{(1)}-\beta_{(1)}).
+\end{align*}\]</span> 最后一项的绝对值上界为</p>
+<div class="original-ink" style="color: #C92B32" data-ink="red"
+aria-label="Original red ink">
+<p><span
+class="math display">\[\left\|\frac1n\sum_i(1-\widehat\gamma_iW_i)X_i\right\|_\infty
+\|\widehat\beta_{(1)}-\beta_{(1)}\|_1.\]</span></p>
+</div>
+<blockquote>
+<p><span style="color: #C92B32">权重只需修正 <span
+class="math inline">\(\beta_{(1)}-\widehat\beta_{(1)}\)</span>，不必修正整个系数向量（第
+36 页）</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+不平衡程度乘回归误差的余项。</p>
+</blockquote>
+<p>高维回归给出该误差的界：在稀疏性 <span
+class="math inline">\(\|\beta_{(1)}\|_0\leq k\)</span>
+与限制特征值条件下，lasso 可达到 <span
+class="math display">\[\|\widehat\beta_{(1)}-\beta_{(1)}\|_1
+=O_p\left(k\sqrt{\frac{\log p}{n}}\right).\]</span></p>
+<h4 id="将步骤组合起来">将步骤组合起来。</h4>
+<p>假设设计满足上述界所需的条件，<span
+class="math inline">\(\beta_{(1)}\)</span> 为 <span
+class="math inline">\(k\)</span> 稀疏，且 <span
+class="math inline">\(k\ll\sqrt n/\log p\)</span>。</p>
+<ol>
+<li><p>在处理组上拟合 lasso；系数的 <span
+class="math inline">\(1\)</span> 范数误差为 <span
+class="math inline">\(o_p(1/\sqrt{\log p})\)</span>。</p></li>
+<li><p>用式 (7.12) 拟合 <span
+class="math inline">\(\widehat\gamma\)</span>，得到无穷范数不平衡程度
+<span class="math inline">\(O_p(\sqrt{\log(p)/n})\)</span>。</p></li>
+<li><p>使用式 (7.14)，将这些界代入分解： <span
+class="math display">\[\widehat\mu_{\rm
+AB}(1)-\frac1n\sum_iX_i\beta_{(1)}
+=\frac1n\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})+o_p(n^{-1/2}).
+\tag{原笔记 7.17}\]</span> <span style="color: #C92B32">噪声项为 <span
+class="math inline">\(O_p(n^{-1/2})\)</span>。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-029）：高维平衡推断所需的条件</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 32、36、37 页</em></p>
+<p>重叠性本身不能保证有限方差，还需 <span
+class="math inline">\(E[Y(w)^2]&lt;\infty\)</span>。集中界也使用了受控的次高斯协变量，而
+lasso
+速度需要合适的调节参数、限制特征值以及噪声假设。将两个速度相乘可见，所写稀疏性条件使余项为
+<span class="math inline">\(o_p(n^{-1/2})\)</span>。条件于 <span
+class="math inline">\((X,W)\)</span>
+后，权重必须只依赖这些变量，而不依赖结果噪声。中心极限定理还要求不存在占主导地位的加权残差；所写学生化分母使用了未知真实值
+<span
+class="math inline">\(\beta_1\)</span>，因此可实施推断还需论证用估计值替换它的有效性。</p>
+</div></li>
+</ol>
+<p>还成立中心极限定理： <span
+class="math display">\[\frac{\sum_i\widehat\gamma_iW_i(Y_i-X_i\beta_{(1)})}
+{\sqrt{\sum_i\widehat\gamma_i^2W_i^2(Y_i-X_i\beta_{(1)})^2}}
+\Rightarrow N(0,1).\]</span></p>
+<h4 id="个人保留意见">个人保留意见。</h4>
+<div class="original-ink" style="color: #244DA8" data-ink="blue"
+aria-label="Original blue ink">
+<p>这比预想的弱：只给出了样本均值 <span
+class="math inline">\(\overline\mu_{(1)}=n^{-1}\sum_iX_i\beta_{(1)}\)</span>
+的置信区间，而不是 <span class="math inline">\(\mu_{(1)}\)</span>
+本身的区间。要得到总体均值的结果，需要证明估计权重 <span
+class="math inline">\(\widehat\gamma_i\)</span> 的收敛性。</p>
+</div>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-030）：样本目标与总体目标的不确定性</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 37 页</em></p>
+<p>针对总体目标，还要计入抽样波动 <span
+class="math inline">\(n^{-1}\sum_i\mu_1(X_i)-E[\mu_1(X)]\)</span>。拟合权重收敛到稳定函数，是建立影响函数结论的一条有用的充分路径，但并非所有构造中逻辑上必需的条件。必须建立联合极限及其方差。作者指出所写条件区间只覆盖样本均值，这一提醒是正确的。</p>
+</div>
+<h1 id="第-8-讲面板数据方法">第 8 讲：面板数据方法</h1>
+<p><em>原扫描页码：Lecture1-10.pdf，第 39、38 页；第 38
+页补充面板布局和单位内部的方差。</em></p>
+<p>面板（纵向）数据在时刻 <span
+class="math inline">\(t=1,\ldots,T\)</span> 观测单位 <span
+class="math inline">\(i=1,\ldots,n\)</span>。左页示意图为矩阵：各行对应单位，各列对应时间点
+<span class="math inline">\(t_1,t_2,\ldots,T\)</span>。 <span
+class="math display">\[\begin{array}{c|cccc}
+&amp;t=t_1&amp;t=t_2&amp;\cdots&amp;t=T\\\hline
+i=1&amp;&amp;&amp;&amp;\\i=2&amp;&amp;&amp;&amp;\\\vdots&amp;&amp;&amp;&amp;\\i=n&amp;&amp;&amp;&amp;
+\end{array}\]</span></p>
+<h2 id="常数处理效应模型">常数处理效应模型</h2>
+<p>结果为 <span class="math inline">\(Y_{it}\in\mathbb
+R\)</span>，处理分配为 <span
+class="math inline">\(W_{it}\in\{0,1\}\)</span>。基本模型是 <span
+class="math display">\[Y_{it}=Y_{it}(0)+W_{it}\tau,\qquad
+i=1,\ldots,n,\quad t=1,\ldots,T.
+\tag{原笔记 8.1}\]</span>
+这个非常基础的模型没有考虑处理效应异质性及动态效应。笔记解释：所有单位、所有时点的处理效应相同；单位在
+<span class="math inline">\(t\)</span>
+时点的结果只依赖该时点的处理，不依赖之前的处理。<span
+style="color: #C92B32"><span class="math inline">\(\tau\)</span> 不依赖
+<span
+class="math inline">\(i,t\)</span>；过去的时点不进入模型。</span></p>
+<h2 id="双向模型">双向模型</h2>
+<p><span
+class="math display">\[Y_{it}=\alpha_i+\beta_t+W_{it}\tau+\varepsilon_{it},
+\qquad E[\varepsilon\mid\alpha,\beta,W]=0.
+\tag{原笔记 8.2}\]</span> <span style="color: #C92B32"><span
+class="math inline">\(\alpha_i\)</span>、<span
+class="math inline">\(\beta_t\)</span>
+分别为单位和时间的平移。</span><span
+style="color: #C92B32">红字将该条件称为处理的严格外生性，比无混杂性更强。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-031）：严格外生性与无混杂性的范围不同</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 39 页</em></p>
+<p>这里严格外生性要求：给定整个处理路径和固定效应后，误差均值为零；处理决策不能响应任何时期的个体特异误差。它比相应的同期均值外生性更强，但不能笼统地与所有分布意义上的无混杂性假设排列强弱。应明确条件集合，以及讨论的是条件均值还是完整的独立性。</p>
+</div>
+<p>例如有两个时期，一组的处理路径为 <span
+class="math inline">\((0,0)\)</span>，另一组为 <span
+class="math inline">\((0,1)\)</span>。双重差分的闭式估计为</p>
+<blockquote>
+<p><span style="color: #244DA8">DID（第 39 页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span>
+两组各自的前后差，再做组间差。</p>
+</blockquote>
+<p><span
+class="math display">\[\widehat\tau=\frac1{|\{i:W_{i2}=1\}|}\sum_{W_{i2}=1}(Y_{i2}-Y_{i1})
+-\frac1{|\{i:W_{i2}=0\}|}\sum_{W_{i2}=0}(Y_{i2}-Y_{i1}).\]</span></p>
+<h4 id="笔记中的评论">笔记中的评论。</h4>
+<p>局限是：当 <span class="math inline">\(n,T\)</span>
+很大且处理分配分布一般时，模型 (8.2) 可能不成立。类似地，多于两个时期的
+OLS 有时也称为 DID，但原笔记认为 OLS
+没有闭式解。列出的优点是平行趋势要求比较直观（单位只在 <span
+class="math inline">\(\alpha_i\)</span>
+上存在差异）；没有平行趋势就不能使用。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-032）：一般双向 OLS 仍有闭式解</strong></p>
+<p><em>来源：Lecture1-10.pdf，第 39 页</em></p>
+<p>对于平衡面板，将 <span class="math inline">\(Y\)</span> 和 <span
+class="math inline">\(W\)</span> 对单位及时间虚拟变量残差化：<span
+class="math inline">\(\widetilde W_{it}=W_{it}-\overline
+W_{i\cdot}-\overline W_{\cdot t}+\overline
+W_{\cdot\cdot}\)</span>，<span class="math inline">\(Y\)</span> 同理。当
+<span class="math inline">\(\sum_{it}\widetilde W_{it}^2&gt;0\)</span>
+时， <span class="math display">\[\widehat\tau=\frac{\sum_{it}\widetilde
+W_{it}\widetilde Y_{it}}{\sum_{it}\widetilde W_{it}^2}.\]</span>
+因此，简单的两组前后差表达式未必适用，但 OLS
+系数仍有闭式解。固定效应模型意味着条件均值趋势平行，而不是含噪声的实际路径完全平行。</p>
+</div>
+<h4 id="补充噪声建模与方差估计">补充：噪声建模与方差估计。</h4>
+<p>将各行向量 <span
+class="math inline">\(\varepsilon_i=(\varepsilon_{i1},\ldots,\varepsilon_{iT})\)</span>
+视为在单位之间独立同分布，并有 <span
+class="math inline">\(\operatorname{Var}[\varepsilon_i]=\Sigma\)</span>。假设每个
+<span class="math inline">\(\varepsilon_{it}\)</span>
+都相互独立，很难论证，也不合理。<span class="math inline">\(T=2\)</span>
+时，直接估计差分的方差： <span
+class="math display">\[\widehat{\operatorname{Var}}[\widehat\tau]
+=\frac{\widehat{\operatorname{Var}}[Y_{i2}-Y_{i1}\mid
+W_{i2}=1]}{|\{i:W_{i2}=1\}|}
++\frac{\widehat{\operatorname{Var}}[Y_{i2}-Y_{i1}\mid
+W_{i2}=0]}{|\{i:W_{i2}=0\}|}.
+\tag{原笔记 8.4}\]</span> 同一行／单位内的误差相关时，该方法仍稳健。</p>
+<h2 id="交互效应面板模型">交互效应面板模型</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 41, with the matrix intuition
+on page 40</em></p>
+<p>考虑交互效应面板模型 <span
+class="math display">\[Y_{it}=A_{i\cdot}B_{t\cdot}^{\mathsf
+T}+W_{it}\tau+\varepsilon_{it},
+\qquad\mathbb E[\varepsilon\mid A,B,W]=0,\tag{8.5}\]</span> 其中 <span
+class="math inline">\(A\in\mathbb R^{n\times k}\)</span>、<span
+class="math inline">\(B\in\mathbb R^{T\times k}\)</span>，<span
+class="math inline">\(k\)</span> 是秩参数。等价地， <span
+class="math display">\[Y_{it}=L_{it}+W_{it}\tau+\varepsilon_{it}
+\qquad\text{对某个秩为 $k$ 的矩阵 }L.\]</span></p>
+<h4 id="我在左页的矩阵直觉">我在左页的矩阵直觉。</h4>
+<p>将 <span class="math inline">\(A\)</span> 的取值沿行往下放，<span
+class="math inline">\(B\)</span>
+的取值沿列横向放。秩为一时，交点的元素就是 <span
+class="math inline">\(a_i b_t\)</span>；若 <span
+class="math inline">\(k\ne1\)</span>，则该元素是一个和 <span
+class="math inline">\(a_{i1}b_{t1}+a_{i2}b_{t2}+\cdots\)</span>。</p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-004.png" alt="image" /></p>
+</div>
+<p>处理这个模型，可以考虑合成控制和合成双重差分。假设当且仅当 <span
+class="math inline">\(i&gt;n_0\)</span> 且 <span
+class="math inline">\(t&gt;T_0\)</span> 时，<span
+class="math inline">\(W_{it}=1\)</span>。图中在第 <span
+class="math inline">\(n_0\)</span> 行、第 <span
+class="math inline">\(T_0\)</span>
+列分割结果矩阵，只有右下角区块接受处理。</p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-005.png" alt="image" /></p>
+</div>
+<p>用未处理个体拟合处理组在处理前的轨迹： <span
+class="math display">\[\sum_{i=1}^{n_0}\gamma_iY_{it}
+\approx\alpha+\frac1{n-n_0}\sum_{i=n_0+1}^nY_{it},
+\qquad t=1,\ldots,T_0.\]</span> <span
+style="color: #C92B32">第一组从不接受处理；第二组在 <span
+class="math inline">\(T_0\)</span> 之后接受处理。</span>截距 <span
+class="math inline">\(\alpha\)</span> 的作用类似于固定效应。权重选择为
+<span class="math display">\[\begin{align*}
+(\widehat\gamma,\widehat\alpha)\in
+\operatorname*{arg\,min}_{\gamma&#39;,\alpha}\quad&amp;
+\left\|\sum_{i=1}^{n_0}\gamma&#39;_iY_{i,1:T_0}
+-\frac1{n-n_0}\sum_{i=n_0+1}^nY_{i,1:T_0}
+-\alpha\mathbf1\right\|_2^2,\\
+\text{约束为}\quad&amp;\sum_{i=1}^{n_0}\gamma&#39;_i=1,
+\qquad\gamma&#39;_i\ge0.\tag{8.7}
+\end{align*}\]</span> <span style="color: #C92B32"><span
+class="math inline">\(\gamma_i\)</span>
+的目的是创造平行趋势，从而平衡潜在的 <span
+class="math inline">\(A_i\)</span> 项。</span></p>
+<p>最后，在加权的双向模型中估计处理系数： <span
+class="math display">\[(\widehat\tau,\widehat\alpha,\widehat\beta)
+\in\operatorname*{arg\,min}_{\tau&#39;,\alpha&#39;,\beta&#39;}
+\sum_{i,t}\gamma_i
+(Y_{it}-\alpha&#39;_i-\beta&#39;_t-W_{it}\tau&#39;)^2,\tag{8.8}\]</span>
+其中，对 <span class="math inline">\(i&gt;n_0\)</span>，<span
+class="math inline">\(\gamma_i=1/(n-n_0)\)</span>。</p>
+<blockquote>
+<p><span style="color: #C92B32">加权回归中处理个体的权重（第 41
+页）</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+style="color: #C92B32">对 <span
+class="math inline">\(i&gt;n_0\)</span>，<span
+class="math inline">\(\gamma_i=1/(n-n_0)\)</span>。</span></p>
+</blockquote>
+<p>处理系数的闭式解为 <span class="math display">\[\begin{align*}
+\widehat\tau={}&amp;\frac1{n-n_0}\sum_{i=n_0+1}^n
+\left\{\frac1{T-T_0}\sum_{t=T_0+1}^TY_{it}
+-\frac1{T_0}\sum_{t=1}^{T_0}Y_{it}\right\}\\
+&amp;-\sum_{i=1}^{n_0}\gamma_i
+\left\{\frac1{T-T_0}\sum_{t=T_0+1}^TY_{it}
+-\frac1{T_0}\sum_{t=1}^{T_0}Y_{it}\right\}.
+\end{align*}\]</span> <span
+style="color: #C92B32">红色页边批注写道：这依赖 <span
+class="math inline">\(T_0\)</span> 和 <span
+class="math inline">\(n\)</span>。</span>在适当的大面板渐近框架下，<span
+class="math inline">\(n_0,n_1,T\to\infty\)</span>
+时，估计量一致。这句话下方还有一条手写限定，但被扫描页底截断；可见部分涉及
+(8.5) 的设定以及渐近正态推断，无法恢复完整句子。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-033）：潜在因子平衡与面板渐近条件</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 40, 41</em></p>
+<p>仅仅在处理前拟合得好，不能证明处理后的反事实趋势已平衡：处理前因子必须揭示处理后相关的方向，还需控制噪声与权重集中程度。该分解的秩至多为
+<span class="math inline">\(k\)</span>；恰好为 <span
+class="math inline">\(k\)</span>
+还要求因子满秩。一致性结论依赖适当的渐近框架和假设，并非只要 <span
+class="math inline">\(n,T\to\infty\)</span> 就成立。完整的 synthetic-DID
+方法还可能使用时间权重与正则化。参见 <a
+href="https://www.aeaweb.org/articles?id=10.1257/aer.20190159">Arkhangelsky
+等（2021）</a>及讲义
+(8.7)–(8.9)；这里没有根据参考文献补写被截断的原文。</p>
+</div>
+<h4 id="左页补记">左页补记。</h4>
+<p>合成控制并非处理交互式固定效应的唯一方法。例如，通过 <span
+class="math inline">\(k\)</span>-均值聚类矩阵 <span
+class="math inline">\(Y\)</span>
+的行，然后分别为每个群组拟合时变基线模型。旁边简记“p66，文献”[页码／参考不清楚]。</p>
+<h2 id="通过可交换性识别">通过可交换性识别</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 43, with the extension on page
+42</em></p>
+<p>回顾 <span
+class="math inline">\(Y_{it}=Y_{it}(0)+W_{it}\tau\)</span>。一个基于设计的假设为
+<span class="math display">\[Y_{i\cdot}(0)\perp W_{i\cdot}\mid S_i,
+\qquad S_i=\sum_{t=1}^TW_{it}.\tag{8.10}\]</span>
+其一个推论：考虑线性估计量 <span
+class="math display">\[\widehat\tau=\sum_{i,t}\gamma_{it}Y_{it},\tag{8.11}\]</span>
+权重矩阵只依赖 <span class="math inline">\(W\)</span>。在 (8.10)
+下，给定同一个 <span class="math inline">\(S_i\)</span>
+值，未处理潜在结果可交换，并且 <span class="math display">\[\mathbb
+E[\widehat\tau\mid W,\gamma]
+=\sum_{i,t}\gamma_{it}\mathbb E[Y_{it}(0)\mid S_i]
++\tau\sum_{i,t}\gamma_{it}W_{it}.\]</span>
+因此，只要满足下列条件，就可得无偏性： <span
+class="math display">\[\sum_{i,t}\gamma_{it}W_{it}=1,
+\qquad
+\sum_{i:S_i=s}\gamma_{it}=0
+\quad\text{对每个 }t\text{ 和 }s\in\mathcal S,\]</span> 其中 <span
+class="math inline">\(\mathcal S\)</span> 是 <span
+class="math inline">\(S_i\)</span> 的支持集。</p>
+<blockquote>
+<p><span style="color: #C92B32">同一层内，条件期望为常数（第 43
+页）</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+class="math inline">\(\sum_{i:S_i=s}\gamma_{it}=0\)</span> 消去 <span
+class="math inline">\(\sum_i\gamma_{it}E[Y_{it}(0)\mid
+S_i]\)</span>。</p>
+</blockquote>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-034）：个体间可交换性与方差准则</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 42, 43</em></p>
+<p>要实现上述消去，需要不同个体具有共同的条件均值 <span
+class="math inline">\(E[Y_{it}(0)\mid
+S_i=s]=m_t(s)\)</span>，以及诸如各行 IID
+的条件，保证在给定整张处理分配矩阵时，不会获得超出该个体自身处理路径的额外信息。仅有每一行内给定
+<span class="math inline">\(S_i\)</span> 后 <span
+class="math inline">\(Y_i(0)\)</span> 与 <span
+class="math inline">\(W_i\)</span>
+独立，并不保证个体间可交换性。若约束可行，合并后的限制给出所述双重稳健性。对条件不相关、同方差的各单元，最小化
+<span class="math inline">\(\sum_{it}\gamma_{it}^2\)</span>
+等于最小化方差；若个体内协方差为 <span
+class="math inline">\(\Sigma_i\)</span>，方差准则应为 <span
+class="math inline">\(\sum_i\gamma_i&#39;\Sigma_i\gamma_i\)</span>。可行权重的无偏性不要求这个工作方差模型正确。</p>
+</div>
+<p>在这些无偏性约束下，选择使方差最小的 <span
+class="math inline">\(\gamma\)</span>： <span
+class="math display">\[\begin{align*}
+\gamma\in\operatorname*{arg\,min}_{\gamma&#39;}\quad&amp;\sum_{i,t}(\gamma&#39;_{it})^2,\\
+\text{约束为}\quad&amp;\sum_{i,t}\gamma&#39;_{it}W_{it}=1,
+\quad\sum_{i:S_i=s}\gamma&#39;_{it}=0\quad\text{对所有 }s,t.\tag{8.14}
+\end{align*}\]</span> <span style="color: #244DA8">大致说，需要相同
+<span class="math inline">\(S_i\)</span> 的个体之间存在 <span
+class="math inline">\(W_{it}\)</span> 的变异。</span></p>
+<h4 id="左页扩展两组识别约束">左页扩展：两组识别约束。</h4>
+<p>回顾双向模型 <span
+class="math display">\[Y_{it}=\alpha_i+\beta_t+W_{it}\tau+\varepsilon_{it},
+\qquad\mathbb
+E[\varepsilon\mid\alpha,\beta,W]=0.\tag{8.2，回顾}\]</span>
+在这个模型下，若满足下列条件，估计量 (8.11) 也无偏： <span
+class="math display">\[\sum_t\gamma_{it}=0\ \text{对每个 }i,
+\qquad\sum_i\gamma_{it}=0\ \text{对每个 }t,
+\qquad\sum_{i,t}\gamma_{it}W_{it}=1.\]</span> <span
+style="color: #C92B32">前两个等式消去固定效应 <span
+class="math inline">\(\alpha_i\)</span> 和 <span
+class="math inline">\(\beta_t\)</span>，第三个等式将处理系数归一化。</span></p>
+<p>合并这些约束可得到双重稳健估计量：最小化 <span
+class="math inline">\(\sum_{i,t}\gamma_{it}^2\)</span>，约束为 <span
+class="math display">\[\sum_{i,t}\gamma_{it}W_{it}=1,
+\qquad\sum_{i:S_i=s}\gamma_{it}=0\quad\text{对所有 }s,t,\]</span> <span
+class="math display">\[\sum_t\gamma_{it}=0\quad\text{对所有 }i,
+\qquad\sum_i\gamma_{it}=0\quad\text{对所有 }t.\]</span> 只要 (8.2) 或
+(8.10)
+任一成立，它就无偏。补充页顶部附近的简略参考写着“p67，[2019]”[无法从扫描完整识别该引用]。</p>
+<h1 id="第-9-讲工具变量回归">第 9 讲：工具变量回归</h1>
+<p><em>原扫描页码：Lecture1-10.pdf, page 45, with the three IV
+conditions on page 44</em></p>
+<p>工具变量回归处理内生的处理效应问题，即 <span
+class="math inline">\(Y_i(0)\)</span> 与 <span
+class="math inline">\(W_i\)</span> 相互依赖的情形。</p>
+<h2 id="结构模型">结构模型</h2>
+<p>从常数效应模型开始： <span
+class="math display">\[Y_i(w)=Y_i(0)+w\tau,\qquad
+Y_i=Y_i(W_i).\tag{9.1}\]</span> 通常，无混杂性指 <span
+class="math inline">\(\{Y_i(w)\}\perp W_i\)</span>；在 (9.1) 中，它就是
+<span class="math inline">\(Y_i(0)\perp W_i\)</span>。将模型改写为</p>
+<blockquote>
+<p><span style="color: #000000">常数效应潜在结果与无混杂性（第 45
+页）</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span
+class="math inline">\(Y_i=\alpha+W_i\tau+\varepsilon_i\)</span>。</p>
+</blockquote>
+<p><span
+class="math display">\[Y_i=\alpha+W_i\tau+\varepsilon_i,\tag{9.2}\]</span>
+其中 <span class="math inline">\(\alpha=\mathbb
+E[Y_i(0)]\)</span>，<span
+class="math inline">\(\varepsilon_i=Y_i(0)-\mathbb
+E[Y_i(0)]\)</span>。在无混杂性下，<span class="math inline">\(\mathbb
+E[\varepsilon_i\mid W_i]=0\)</span>，因此将 <span
+class="math inline">\(Y_i\)</span> 对 <span
+class="math inline">\(W_i\)</span> 作 OLS 回归即可估计 <span
+class="math inline">\(\tau\)</span>。</p>
+<p>存在混杂时，式 (9.2) 仍成立，但 <span class="math inline">\(\mathbb
+E[\varepsilon_i\mid W_i]\ne0\)</span>。此时 OLS 的目标为 <span
+class="math display">\[\begin{align*}
+\tau_{\mathrm{OLS}}
+&amp;=\frac{\operatorname{Cov}(Y_i,W_i)}{\operatorname{Var}(W_i)}\\
+&amp;=\frac{\operatorname{Cov}(\tau
+W_i+\varepsilon_i,W_i)}{\operatorname{Var}(W_i)}
+=\tau+\frac{\operatorname{Cov}(\varepsilon_i,W_i)}{\operatorname{Var}(W_i)}
+\ne\tau.
+\end{align*}\]</span> <span style="color: #C92B32">这个比值被划线标为
+OLS 系数。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-035）：依赖关系未必产生非零线性偏差</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 45</em></p>
+<p>精确恒等式 <span class="math inline">\(\tau_{\rm
+OLS}=\tau+\operatorname{Cov}(\varepsilon,W)/\operatorname{Var}(W)\)</span>
+是正确的。但 <span class="math inline">\(Y(0)\)</span> 与 <span
+class="math inline">\(W\)</span>
+依赖，未必意味着条件误差均值或协方差非零。例如，<span
+class="math inline">\(Y(0)\)</span>
+的方差可以依赖处理，但条件均值保持不变。所示 <span
+class="math inline">\(\ne\tau\)</span>
+描述的是协方差非零的混杂情形，并非任何依赖关系都会导致这一结论。后面用
+IV 比值识别，还需要分母非零。</p>
+</div>
+<h2 id="利用工具变量识别">利用工具变量识别</h2>
+<p>引入 <span class="math inline">\(Z_i\)</span>： <span
+class="math display">\[Y_i=\alpha+W_i\tau+\varepsilon_i,\qquad\varepsilon_i\perp
+Z_i,
+\qquad W_i=Z_i\gamma+\eta_i.\tag{9.4}\]</span> 由于 <span
+class="math inline">\(Z_i\)</span> 与 <span
+class="math inline">\(\varepsilon_i\)</span> 不相关， <span
+class="math display">\[\operatorname{Cov}(Y_i,Z_i)
+=\operatorname{Cov}(\tau W_i+\varepsilon_i,Z_i)
+=\tau\operatorname{Cov}(W_i,Z_i).\]</span> 因此 <span
+class="math display">\[\tau=\frac{\operatorname{Cov}(Y_i,Z_i)}{\operatorname{Cov}(W_i,Z_i)},
+\qquad
+\widehat\tau=\frac{\widehat{\operatorname{Cov}}(Y_i,Z_i)}
+{\widehat{\operatorname{Cov}}(W_i,Z_i)}.\]</span></p>
+<h4 id="我在左页列出的-iv-条件">我在左页列出的 IV 条件。</h4>
+<ol>
+<li><p><strong>外生性：</strong><span
+class="math inline">\(\varepsilon_i\perp Z_i\)</span>。</p></li>
+<li><p><strong>相关性：</strong><span
+class="math inline">\(\operatorname{Cov}(W_i,Z_i)\ne0\)</span>。</p></li>
+<li><p><strong>排除限制：</strong><span
+class="math inline">\(Z_i\)</span> 对 <span
+class="math inline">\(Y_i\)</span> 的所有影响都必须经过 <span
+class="math inline">\(W_i\)</span>。</p></li>
+</ol>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-006.png" alt="image" /></p>
+</div>
+<h2 id="最优工具变量">最优工具变量</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 47, with extensions on page 46
+and the estimating-equation reminder on page 48</em></p>
+<p>允许工具变量 <span class="math inline">\(Z_i\in\mathcal Z\)</span>
+为高维： <span class="math display">\[Y_i=\tau
+W_i+\varepsilon_i,\qquad\varepsilon_i\perp Z_i,
+\qquad Y_i,W_i\in\mathbb R.\]</span> 对函数 <span
+class="math inline">\(w:\mathcal Z\to\mathbb R\)</span>， <span
+class="math display">\[\tau=\frac{\operatorname{Cov}(Y_i,w(Z_i))}
+{\operatorname{Cov}(W_i,w(Z_i))},\tag{9.8}\]</span>
+其中分母非零。哪个变换 <span class="math inline">\(w(\cdot)\)</span>
+最优？估计量为 <span class="math display">\[\begin{align*}
+\widehat\tau_w
+&amp;=\frac{\widehat{\operatorname{Cov}}(Y_i,w(Z_i))}
+{\widehat{\operatorname{Cov}}(W_i,w(Z_i))}\\
+&amp;=\frac{n^{-1}\sum_i(Y_i-\overline Y)(w(Z_i)-\overline{w(Z)})}
+{n^{-1}\sum_i(W_i-\overline W)(w(Z_i)-\overline{w(Z)})},\tag{9.9}
+\end{align*}\]</span> 其中 <span class="math inline">\(\overline
+Y=n^{-1}\sum_iY_i\)</span>，其他均值类似定义。它求解以下估计方程： <span
+class="math display">\[\frac1n\sum_i(w(Z_i)-\overline{w(Z)})
+\{Y_i-\overline Y-\widehat\tau_w(W_i-\overline
+W)\}=0.\tag{9.10}\]</span> 原稿写为 <span
+class="math display">\[n(\widehat\tau_w-\tau)\Rightarrow\mathcal
+N(0,V_w),
+\qquad
+V_w=\frac{\operatorname{Var}(\varepsilon_i)\operatorname{Var}(w(Z_i))}
+{\operatorname{Cov}(W_i,w(Z_i))^2}.\tag{9.11，原稿缩放}\]</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-036）：IV 的正态极限需要根号 n
+缩放</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 47, 48</em></p>
+<p>正确极限是 <span class="math inline">\(\sqrt
+n(\widehat\tau_w-\tau)\Rightarrow N(0,V_w)\)</span>。一阶展开为 <span
+class="math display">\[\sqrt n(\widehat\tau_w-\tau)=
+\frac{n^{-1/2}\sum_i(w(Z_i)-E[w(Z)])\varepsilon_i}
+{\operatorname{Cov}(W,w(Z))}+o_p(1),\]</span> 这里要求误差已中心化、观测
+IID、所需矩有限，且极限协方差非零。在 <span
+class="math inline">\(\varepsilon\perp Z\)</span> 下，由此得到所示的
+<span class="math inline">\(V_w\)</span>。可对照官方讲义
+(9.12)；其公式编号与手写笔记不同。</p>
+</div>
+<p>由于 <span class="math inline">\(Z_i\perp\varepsilon_i\)</span> 且
+<span class="math inline">\(\mathbb E[\varepsilon_i]=0\)</span>， <span
+class="math display">\[\operatorname{Var}\{\varepsilon_i(w(Z_i)-\mathbb
+E[w(Z_i)])\}
+=\operatorname{Var}(\varepsilon_i)\operatorname{Var}(w(Z_i)).\]</span>
+笔记写出的优化问题是</p>
+<blockquote>
+<p><span style="color: #C92B32">使用方差相关比值的倒数（第 47
+页）</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+下方原稿中求 <span class="math inline">\(w^*(\cdot)\)</span>
+的优化问题。</p>
+</blockquote>
+<p><span
+class="math display">\[w^*(\cdot)\in\operatorname*{arg\,min}_{w&#39;}
+\frac{\operatorname{Cov}(W_i,w&#39;(Z_i))^2}{\operatorname{Var}(w&#39;(Z_i))}.\]</span>
+给出的解为 <span class="math display">\[w^*(z)\propto\mathbb E[W_i\mid
+Z_i=z].\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32"><span
+class="math inline">\(w^*(z)\propto E[W_i\mid Z_i=z]\)</span>（第 47
+页）</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+style="color: #C92B32">用 <span class="math inline">\(Z_i\)</span> 对
+<span class="math inline">\(W_i\)</span> 的最佳预测。</span></p>
+</blockquote>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-037）：应最大化协方差比值</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 47</em></p>
+<p>最小化 <span class="math inline">\(V_w\)</span> 需要 <span
+class="math display">\[\arg\max_w\frac{\operatorname{Cov}(W,w(Z))^2}{\operatorname{Var}(w(Z))}.\]</span>
+记 <span class="math inline">\(m(Z)=E[W\mid Z]\)</span>，由条件期望和
+Cauchy–Schwarz 不等式，<span
+class="math inline">\(\operatorname{Cov}(W,w)^2=\operatorname{Cov}(m,w)^2\le\operatorname{Var}(m)\operatorname{Var}(w)\)</span>。在
+<span class="math inline">\(\operatorname{Var}(m)&gt;0\)</span> 时，取
+<span class="math inline">\(w=a+bm\)</span>、<span
+class="math inline">\(b\ne0\)</span>
+可达等号。因此，最佳预测的直觉正确，但优化方向写反了。该结果使用原稿中误差独立于工具变量、相应条件同方差的设定，并非一般异方差情况下的最优工具变量公式。参见官方讲义
+(9.13)–(9.15)。</p>
+</div>
+<h4 id="左页扩展以协变量为条件">左页扩展：以协变量为条件。</h4>
+<div class="original-ink" style="color: #C92B32" data-ink="red"
+aria-label="Original red ink">
+<p>条件可拓展为 <span class="math inline">\(\varepsilon_i\perp Z_i\mid
+X_i\)</span>，得到 <span
+class="math display">\[\tau(x)=\frac{\operatorname{Cov}(Y_i,w(Z_i)\mid
+X_i=x)}
+{\operatorname{Cov}(W_i,w(Z_i)\mid X_i=x)}.\]</span>
+批注提到：构建平均效应 <span class="math inline">\(\tau=\mathbb
+E[\tau(X)]\)</span> 的双重稳健估计量，以及 <span
+class="math inline">\(\tau(\cdot)\)</span> 的随机森林估计量。</p>
+</div>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-038）：条件 IV
+比值识别的是什么</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 46</em></p>
+<p>在条件结构模型 <span
+class="math inline">\(Y=a(X)+W\tau(X)+\varepsilon\)</span> 下，若 <span
+class="math inline">\(E[\varepsilon\mid Z,X]=0\)</span>
+且条件第一阶段协方差非零，该比值等于 <span
+class="math inline">\(\tau(x)\)</span>。若个体处理效应异质性不受限制，仅有工具变量的条件外生性，并不能使该比值成为一般的
+CATE；加上适当单调性，它可能识别的是条件局部效应。双重稳健估计量或森林方法，必须针对各自假设下可识别的效应。</p>
+</div>
+<p>同一页的另一条提醒：若 <span class="math inline">\(X_1,X_2\)</span>
+独立， <span class="math display">\[\begin{align*}
+\operatorname{Var}(X_1X_2)
+={}&amp;\operatorname{Var}(X_1)\operatorname{Var}(X_2)\\
+&amp;+\mathbb E[X_2]^2\operatorname{Var}(X_1)
++\mathbb E[X_1]^2\operatorname{Var}(X_2).
+\end{align*}\]</span></p>
+<h4 id="星号补充估计方程与-delta-方法">星号补充：估计方程与 delta
+方法。</h4>
+<p>若函数 <span class="math inline">\(\psi_i\)</span> 满足 <span
+class="math inline">\(\mathbb
+E[\psi_i(\theta)]=0\)</span>，且通过下式估计 <span
+class="math inline">\(\widehat\theta\)</span>： <span
+class="math display">\[\frac1n\sum_{i=1}^n\psi_i(\widehat\theta)=0,\]</span>
+那么，在笔记的非参数 delta 方法提醒所指的正则设定下， <span
+class="math display">\[\sqrt n(\widehat\theta-\theta)\Rightarrow\mathcal
+N(0,V),
+\qquad
+V=\frac{\operatorname{Var}(\psi_i(\theta))}
+{\mathbb E[\psi_i&#39;(\theta)]^2}.\]</span></p>
+<h2 id="交叉拟合与可行估计">交叉拟合与可行估计</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 49</em></p>
+<p>最优工具变量为 <span class="math inline">\(w^*(z)=\mathbb E[W_i\mid
+Z_i=z]\)</span>。一般步骤为：</p>
+<ol>
+<li><p>拟合非参数的第一阶段回归，估计 <span
+class="math inline">\(\mathbb E[W_i\mid Z_i=z]\)</span>，得到 <span
+class="math inline">\(\widehat w(\cdot)\)</span>。</p></li>
+<li><p>用 <span class="math inline">\(\widehat w(\cdot)\)</span> 作为
+(9.9) 中的工具变量，得到 <span
+class="math inline">\(\widehat\tau_w\)</span>。</p></li>
+</ol>
+<p>但当工具变量很多时，这会产生过拟合偏差。若用整份数据拟合 <span
+class="math inline">\(\widehat w(Z_i)\)</span>，它未必独立于 <span
+class="math inline">\(\varepsilon_i\)</span>：拟合工具变量可能继承 <span
+class="math inline">\(W_i\)</span> 对 <span
+class="math inline">\(\varepsilon_i\)</span> 的依赖。</p>
+<h4 id="我在页边写的蓝色例子">我在页边写的蓝色例子。</h4>
+<div class="original-ink" style="color: #244DA8" data-ink="blue"
+aria-label="Original blue ink">
+<p>例如，<span class="math inline">\(Z_i\)</span> 是 noise。笔记写为
+<span class="math display">\[W_i=\alpha+\beta Z_i+\eta_i,
+\qquad Y_i=\gamma+\delta\widehat W_i+\varepsilon_i
+=\gamma+\delta(\widehat\alpha+\widehat\beta Z_i)+\varepsilon_i,\]</span>
+并将拟合项标为“偏”，画箭头与 <span
+class="math inline">\(Y_i=\gamma+\delta W_i+\varepsilon_i\)</span>
+比较。</p>
+<blockquote>
+<p><span style="color: #244DA8">蓝色例子中的拟合处理方程（第 49
+页）</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span
+class="math inline">\(Y_i=\gamma+\delta
+W_i+\varepsilon_i\)</span>；原稿标为“等价”。</p>
+</blockquote>
+<p>这条批注的意思是：使用过拟合的第一阶段，不能消除有问题的依赖关系。</p>
+</div>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-039）：代入拟合处理后，结构残差也随之改变</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 49</em></p>
+<p>由 <span class="math inline">\(Y=\gamma+\delta W+\varepsilon\)</span>
+可得 <span class="math display">\[Y=\gamma+\delta\widehat
+W+\{\varepsilon+\delta(W-\widehat W)\}.\]</span> 除非 <span
+class="math inline">\(\delta(W-\widehat
+W)=0\)</span>，一般不能保留原来的 <span
+class="math inline">\(\varepsilon\)</span>
+不变。作者对第一阶段过拟合的提醒正确，但所写的等价关系需要换成这个新残差。若
+<span class="math inline">\(Z\)</span>
+是纯噪声，相关性条件就不成立；交叉拟合可以避免重复使用同一观测的噪声，却不能凭空产生有相关性的工具变量。</p>
+</div>
+<p>改用 <span class="math inline">\(K\)</span> 折交叉拟合。用 <span
+class="math inline">\(k(i)\)</span> 表示观测 <span
+class="math inline">\(i\)</span> 所属的折， <span
+class="math display">\[\widehat\tau=
+\frac{\widehat{\operatorname{Cov}}(Y_i,\widehat w^{(-k(i))}(Z_i))}
+{\widehat{\operatorname{Cov}}(W_i,\widehat
+w^{(-k(i))}(Z_i))}.\tag{9.13}\]</span>
+在所述采样设定下，对应的拟合工具变量独立于该观测的误差。特别地，如果
+<span class="math inline">\(\widehat w^{(-k(i))}(z)\)</span> 对 <span
+class="math inline">\(\mathbb E[W_i\mid Z_i=z]\)</span> 均方一致，那么
+(9.13) 与 (9.9) 的 oracle 版本渐近等价。红色提醒将这个一致性写为</p>
+<div class="original-ink" style="color: #C92B32" data-ink="red"
+aria-label="Original red ink">
+<p><span class="math display">\[\lim_{n\to\infty}\mathbb E[(\widehat
+w_n-\mathbb E[W\mid Z])^2]=0,\]</span></p>
+</div>
+<p><span style="color: #C92B32">其中 <span
+class="math inline">\(n\)</span> 为样本量。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-040）：交叉拟合 IV
+仍需要不退化的第一阶段</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 49</em></p>
+<p>在观测独立、折数固定、具有适当矩条件，且 <span
+class="math inline">\(\operatorname{Var}(E[W\mid Z])&gt;0\)</span>
+一致远离零时，均方一致的第一阶段预测可在一阶上模拟
+oracle。在该观测所属折之外训练，可在 <span
+class="math inline">\(\varepsilon\perp Z\)</span>
+下消除对自身观测的依赖。但这不能保证弱工具变量下的正态推断，也不意味着全部拟合观测彼此独立，因为它们的训练集有重叠。</p>
+</div>
+<h2 id="非参数工具变量回归">非参数工具变量回归</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 50</em></p>
+<p>前面的模型假设 <span
+class="math inline">\(Y_i=W_i\tau+\varepsilon_i\)</span>。手写括号中说的是“<span
+class="math inline">\(Z_i\)</span> 线性作用于 <span
+class="math inline">\(Y_i\)</span>”。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-041）：线性结构系数乘的是处理变量</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 50</em></p>
+<p>常数结构效应是对 <span class="math inline">\(W_i\)</span>
+线性的，未必对 <span class="math inline">\(Z_i\)</span>
+线性。工具变量可以非线性地影响处理。后面的推广将 <span
+class="math inline">\(W_i\tau\)</span> 换成 <span
+class="math inline">\(g(W_i)\)</span>；这个公式正确表达了想要作的扩展。</p>
+</div>
+<p>将模型推广为 <span
+class="math display">\[Y_i=g(W_i)+\varepsilon_i,\qquad
+Z_i\perp\varepsilon_i,
+\qquad Y_i,W_i\in\mathbb R,\quad Z_i\in\mathcal Z,\]</span> 其中 <span
+class="math inline">\(g\)</span> 是一般的光滑函数。</p>
+<div class="original-ink" style="color: #244DA8" data-ink="blue"
+aria-label="Original blue ink">
+<p><strong>蓝色提醒：</strong>不能直接将 <span
+class="math inline">\(Y_i\)</span> 对 <span
+class="math inline">\(W_i\)</span> 作非参数回归，因为 <span
+class="math display">\[g(w)\ne\mathbb E[Y_i\mid W_i=w].\]</span></p>
+</div>
+<p>由于 <span class="math inline">\(Z_i\perp\varepsilon_i\)</span> 且
+<span class="math inline">\(\mathbb E[\varepsilon_i]=0\)</span>， <span
+class="math display">\[\begin{align*}
+\mathbb E[Y_i\mid Z_i=z]
+&amp;=\mathbb E[g(W_i)+\varepsilon_i\mid Z_i=z]\\
+&amp;=\mathbb E[g(W_i)\mid Z_i=z]
+=\int_{\mathbb R}g(w)f(w\mid z)\,dw.\tag{9.15}
+\end{align*}\]</span> 其中 <span class="math inline">\(f(w\mid
+z)\)</span> 是给定 <span class="math inline">\(Z_i=z\)</span> 时 <span
+class="math inline">\(W_i\)</span> 的条件密度。</p>
+<p>学习步骤：</p>
+<ol>
+<li><p>用交叉拟合估计 <span class="math inline">\(\widehat f(w\mid
+z)\)</span>。</p></li>
+<li><p>选择合适的函数类 <span class="math inline">\(\mathcal
+G\)</span>，通过最小化损失估计 <span class="math inline">\(g\)</span>：
+<span class="math display">\[\widehat
+g\in\operatorname*{arg\,min}_{g\in\mathcal G}
+\frac1n\sum_{i=1}^n\left\{
+Y_i-\int_{\mathbb R}g(w)\widehat f^{(-k(i))}(w\mid Z_i)\,dw
+\right\}^{\!2}.\tag{9.16}\]</span></p></li>
+</ol>
+<p>实际求解时，可用基函数展开逼近 <span
+class="math inline">\(g\)</span>： <span
+class="math display">\[g_K(w)=\sum_{k=1}^K\beta_k\psi_k(w),\]</span>
+其中 <span class="math inline">\(\psi_k\)</span>
+是预先确定的基函数。随着 <span class="math inline">\(K\)</span>
+增大，<span class="math inline">\(g_K\)</span> 对 <span
+class="math inline">\(g\)</span> 的逼近更好。于是 <span
+class="math display">\[\widehat\beta\in\operatorname*{arg\,min}_\beta
+\frac1n\sum_{i=1}^n
+\{Y_i-\widehat m^{(-k(i))}(Z_i)^{\mathsf T}\beta\}^2,\tag{9.17}\]</span>
+其分量为 <span class="math display">\[\widehat m_k^{(-k(i))}(Z_i)=
+\int_{\mathbb R}\psi_k(w)\widehat f^{(-k(i))}(w\mid Z_i)\,dw.\]</span>
+<span style="color: #244DA8"><strong>页底理解：</strong>要保证对 <span
+class="math inline">\(g(\cdot)\)</span> 的一致估计，需要条件；(9.15)
+很复杂，而 (9.17)
+通过最小化各基函数系数的损失，将问题变成回归。</span><span
+style="color: #244DA8">蓝色页边还说，使用 (9.17)
+要付出正则化的代价。</span>其余页底文字被截断，无法完整读出。旁边写着“类似
+9.13”。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-042）：NPIV
+的识别与逆问题的正则化</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 50</em></p>
+<p>记 <span class="math inline">\((Th)(z)=E[h(W)\mid
+Z=z]\)</span>。只有当算子 <span class="math inline">\(T\)</span>
+在所选函数类上是单射时，矩方程才识别 <span
+class="math inline">\(g\)</span>：即 <span
+class="math inline">\(E[h(W)\mid Z]=0\)</span> 蕴含 <span
+class="math inline">\(h(W)=0\)</span>
+几乎处处成立，这是完备性条件。即使如此，求逆仍可能是不适定的，因此仅有准确的第一阶段密度估计，并不能保证准确恢复
+<span
+class="math inline">\(g\)</span>。需要用筛估计的维度或其他正则化方式，控制不稳定性与逼近误差。另外，<span
+class="math inline">\(E[Y\mid W=w]=g(w)+E[\varepsilon\mid
+W=w]\)</span>；只有条件误差均值非零时，它才不等于 <span
+class="math inline">\(g(w)\)</span>。参见 <a
+href="https://doi.org/10.1111/1468-0262.00459">Newey 和
+Powell（2003）</a>，该文通过完备性刻画识别，并发展了正则化的级数估计。</p>
+</div>
+<h1 id="第-10-讲局部平均处理效应">第 10 讲：局部平均处理效应</h1>
+<p><em>原扫描页码：Lecture1-10.pdf, page 52, then the compliance table
+and derivation on page 51</em></p>
+<p>回顾第 9 讲的 IV 模型： <span
+class="math display">\[Y_i=\alpha+W_i\tau+\varepsilon_i,\quad\varepsilon_i\perp
+Z_i,
+\qquad W_i=Z_i\gamma+\eta_i.\tag{10.1}\]</span> 当 <span
+class="math inline">\(Z_i\)</span> 为二元变量时， <span
+class="math display">\[\begin{align*}
+\tau&amp;=\frac{\operatorname{Cov}(Y_i,Z_i)}{\operatorname{Cov}(W_i,Z_i)}\\
+&amp;=\frac{\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]}
+{\mathbb E[W_i\mid Z_i=1]-\mathbb E[W_i\mid Z_i=0]}.\tag{10.2}
+\end{align*}\]</span></p>
+<h2 id="不依从情形下的处理效应">不依从情形下的处理效应</h2>
+<p>在存在不依从的 RCT 中，<span class="math inline">\(Y_i\in\mathbb
+R\)</span> 是通常的结果变量；<span style="color: #C92B32"><span
+class="math inline">\(W_i\in\{0,1\}\)</span>
+是实际接受的处理</span>，并未随机化；<span style="color: #C92B32"><span
+class="math inline">\(Z_i\in\{0,1\}\)</span>
+是随机化的处理分配。</span></p>
+<p>(10.1) 中的常数 <span class="math inline">\(\tau\)</span>
+可能并不合适，而且是否接受处理可能与处理效应相关。定义潜在的处理接受状态
+<span class="math inline">\(W_i(0),W_i(1)\)</span>，满足 <span
+class="math inline">\(W_i=W_i(Z_i)\)</span> 以及 <span
+class="math inline">\(Y_i=Y_i(W_i(Z_i))\)</span>。</p>
+<p>IV 有效性假设为：</p>
+<ul>
+<li><p><strong>排除限制：</strong><span
+class="math inline">\(Y_i(w,z)=Y_i(w)\)</span>。分配仅通过实际接受的处理影响结果。</p></li>
+<li><p><strong>外生性：</strong><span
+class="math inline">\(\{Y_i(0),Y_i(1),W_i(0),W_i(1)\}\perp
+Z_i\)</span>。分配是随机的。</p></li>
+<li><p><strong>相关性：</strong><span class="math inline">\(\mathbb
+E[W_i(1)-W_i(0)]\ne0\)</span>。分配会影响是否接受处理。</p></li>
+</ul>
+<p>有四种依从类型：</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: center;"><span
+class="math inline">\(W_i(1)=0\)</span></th>
+<th style="text-align: center;"><span
+class="math inline">\(W_i(1)=1\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><span
+class="math inline">\(W_i(0)=0\)</span></td>
+<td style="text-align: center;">从不接受者</td>
+<td style="text-align: center;">依从者</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span
+class="math inline">\(W_i(0)=1\)</span></td>
+<td style="text-align: center;">反向依从者</td>
+<td style="text-align: center;">总是接受者</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>假设没有反向依从者，即满足<strong>单调性</strong>：</p>
+<div class="original-ink" style="color: #C92B32" data-ink="red"
+aria-label="Original red ink">
+<p><span class="math display">\[W_i(1)\ge W_i(0)\quad\text{对每个
+}i.\]</span></p>
+</div>
+<p>于是 <span class="math display">\[\begin{align*}
+&amp;\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]\\
+&amp;\quad=\mathbb E[Y_i(W_i(1))\mid Z_i=1]
+-\mathbb E[Y_i(W_i(0))\mid Z_i=0]\\
+&amp;\quad=\mathbb E[Y_i(W_i(1))-Y_i(W_i(0))]\\
+&amp;\quad=\mathbb E[\mathbf1\{C_i=\mathrm{complier}\}
+(Y_i(1)-Y_i(0))].
+\end{align*}\]</span> 若依从者存在，使用 Bayes 法则得到 <span
+class="math display">\[\begin{align*}
+\tau_{\mathrm{LATE}}
+&amp;=\frac{\mathbb E[Y_i\mid Z_i=1]-\mathbb E[Y_i\mid Z_i=0]}
+{\mathbb E[W_i\mid Z_i=1]-\mathbb E[W_i\mid Z_i=0]}\\
+&amp;=\mathbb E[Y_i(1)-Y_i(0)\mid C_i=\mathrm{complier}].\tag{10.3}
+\end{align*}\]</span> <span
+style="color: #244DA8">这就是依从者平均处理效应。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-043）：LATE、ATE
+与个体效应的区别</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 51, 52</em></p>
+<p>推导还需要 <span class="math inline">\(0&lt;P(Z=1)&lt;1\)</span>
+以及正的依从者比例。在所述排除限制、外生性和单调性下，Wald
+比值识别的是依从者平均效应，一般不等于总体 ATE。蓝字表达式 <span
+class="math inline">\(E[Y(1)-Y(0)]\)</span> 是 ATE；个体效应应是 <span
+class="math inline">\(Y_i(1)-Y_i(0)\)</span>。页边标签本身仍有歧义。作者指出“从不接受者没有可观测的处理结果”，这一点是对的。</p>
+</div>
+<h4 id="我的蓝色补记">我的蓝色补记。</h4>
+<div class="original-ink" style="color: #244DA8" data-ink="blue"
+aria-label="Original blue ink">
+<p>当常数效应模型 (10.1)
+不成立，并存在从不接受者、总是接受者、反向依从者等类型时，个体差值 <span
+class="math inline">\(Y_i(1)-Y_i(0)\)</span>
+一般不可观测。尤其是，从不接受者永远不会被观测到 <span
+class="math inline">\(W_i=1\)</span>。页边将一个“ IATE ”表达式写为 <span
+class="math inline">\(\mathbb E[Y_i(1)-Y_i(0)]\)</span>
+[扫描未能澄清该标签，以及这里想区分的个体效应和平均效应]。</p>
+</div>
+<h2 id="供给与需求">供给与需求</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 53</em></p>
+<p>对每个市场 <span
+class="math inline">\(i=1,\ldots,n\)</span>，设供给曲线为 <span
+class="math inline">\(S_i(p,z)\)</span>，需求曲线为 <span
+class="math inline">\(Q_i(p,z)\)</span>，其中价格 <span
+class="math inline">\(p\in\mathbb R\)</span>，工具变量 <span
+class="math inline">\(z\in\{0,1\}\)</span>。假设供给随价格连续且单调递增，需求连续且单调递减。均衡价格
+<span class="math inline">\(P_i\)</span> 是下式的唯一解： <span
+class="math display">\[S_i(P_i,Z_i)=Q_i(P_i,Z_i).\]</span> 因此，<span
+class="math inline">\(Z_i\)</span> 是 IV，<span
+class="math inline">\(P_i\)</span> 是处理，<span
+class="math inline">\(Q_i(P_i,Z_i)\)</span> 是结果 <span
+class="math inline">\(Y_i\)</span>。</p>
+<div class="original-ink" style="color: #C92B32" data-ink="red"
+aria-label="Original red ink">
+<p><span class="math display">\[Z_i\longrightarrow S_i\longrightarrow
+P_i\longrightarrow Q_i(P_i).\]</span></p>
+</div>
+<p>约束条件：</p>
+<ul>
+<li><p>排除限制：对每个 <span class="math inline">\(p,z\)</span>，<span
+class="math inline">\(Q_i(p,z)=Q_i(p)\)</span>。</p></li>
+<li><p>外生性：<span class="math inline">\(\{Q_i(p),S_i(p,z)\}\perp
+Z_i\)</span>。</p></li>
+<li><p>相关性：<span
+class="math inline">\(\operatorname{Cov}(P_i,Z_i)\ne0\)</span>。</p></li>
+<li><p>单调性：对所有相关的 <span
+class="math inline">\(p\)</span>，<span
+class="math inline">\(S_i(p,1)\le S_i(p,0)\)</span>
+[原稿在此条件中使用了均衡价格的符号]。</p></li>
+</ul>
+<p>若 <span class="math inline">\(Q_i(p)\)</span> 可微，用 <span
+class="math inline">\(Q_i&#39;(p)\)</span>
+表示其导数。作者在括号中补充：不必要求通常意义的可微；因为 <span
+class="math inline">\(Q_i(\cdot)\)</span>
+单调递减，所以其分布意义下的导数必存在。 <span
+class="math display">\[\begin{align*}
+\tau_{\mathrm{LATE}}
+&amp;=\frac{\mathbb E[Q_i\mid Z_i=1]-\mathbb E[Q_i\mid Z_i=0]}
+{\mathbb E[P_i\mid Z_i=1]-\mathbb E[P_i\mid Z_i=0]}\\
+&amp;=\frac{\displaystyle\int
+\mathbb E[Q_i&#39;(p)\mid P_i(0)\le p\le P_i(1)]
+P[P_i(0)\le p\le P_i(1)]\,dp}
+{\displaystyle\int P[P_i(0)\le p\le P_i(1)]\,dp}.
+\end{align*}\]</span> <span
+style="color: #C92B32">分母被标注为“总积分”。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-044）：供需均衡的存在性与导数表示</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 53</em></p>
+<p>连续性与方向相反的严格斜率保证至多一个交点；要存在均衡，还需两条曲线确实相交。供给移动条件必须对每个相关价格成立，才能推出
+<span class="math inline">\(P_i(1)\ge
+P_i(0)\)</span>。当需求在受影响价格区间上绝对连续，并有足够可积性以交换期望与积分时，所示含
+<span class="math inline">\(Q_i&#39;(p)\,dp\)</span>
+的普通积分才有效。单调连续需求曲线仍可能包含奇异连续部分，因此分布导数应视为带符号测度
+<span class="math inline">\(dQ_i(p)\)</span>。此时使用 <span
+class="math inline">\(Q_i(P_i(1))-Q_i(P_i(0))=\int_{(P_i(0),P_i(1)]}dQ_i\)</span>。作者关于分布导数的想法在测度解释下成立，不能一概把它当成普通密度。</p>
+</div>
+<h4 id="笔记中的推导">笔记中的推导。</h4>
+<p><span class="math display">\[\begin{align*}
+&amp;\mathbb E[Q_i\mid Z_i=1]-\mathbb E[Q_i\mid Z_i=0]\\
+&amp;\quad=\mathbb E[Q_i(P_i(1))\mid Z_i=1]
+-\mathbb E[Q_i(P_i(0))\mid Z_i=0]\\
+&amp;\quad=\mathbb E[Q_i(P_i(1))-Q_i(P_i(0))]\\
+&amp;\quad=\mathbb E\left[\int_{P_i(0)}^{P_i(1)}Q_i&#39;(p)\,dp\right]\\
+&amp;\quad=\int\mathbb E[Q_i&#39;(p)\mid P_i(0)\le p\le P_i(1)]
+P[P_i(0)\le p\le P_i(1)]\,dp.
+\end{align*}\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32">Fubini：交换积分次序（第 53 页）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span class="math inline">\(E[\int Q_i&#39;(p)\,dp]\)</span>
+变成期望的积分。</p>
+</blockquote>
+<h2 id="阈值跨越与支付意愿">阈值跨越与支付意愿</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 55, with the diagram and
+decomposition on page 54</em></p>
+<p>假设每个受试者都有不可观测的内生变量 <span
+class="math inline">\(U_i\)</span>，满足 <span
+class="math display">\[W_i=\mathbf1\{U_i\ge c(Z_i)\},\]</span> 其中
+<span class="math inline">\(c(z)\)</span>
+是依赖工具变量的阈值函数。不失一般性，取 <span
+class="math inline">\(U_i\sim\operatorname{Unif}[0,1]\)</span>，于是
+<span class="math display">\[c(z)=1-P(W_i=1\mid Z_i=z).\]</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-046）：均匀分布归一化与阈值支持</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 55</em></p>
+<p>恒等式 <span class="math inline">\(c(z)=1-P(W=1\mid Z=z)\)</span>
+使用了 <span class="math inline">\(U\perp Z\)</span>、<span
+class="math inline">\(U\sim\mathrm{Unif}[0,1]\)</span>，以及有效阈值位于
+<span class="math inline">\([0,1]\)</span> 的条件。当潜变量的 CDF
+连续时，通过适当的单调重参数化，可直接归一化为均匀分布；若有原子，则需额外处理，例如使用随机化的潜在秩。这些是阈值模型的假设或归一化，并非仅由指示变量规则自动推出。</p>
+</div>
+<p>IV 设定要求：</p>
+<ol>
+<li><p>潜在结果 <span class="math inline">\(Y_i(0),Y_i(1)\)</span> 满足
+<span class="math inline">\(Y_i=Y_i(W_i)\)</span>：<span
+style="color: #244DA8">工具变量不存在直通结果的路径。</span></p></li>
+<li><p><span class="math inline">\(\{Y_i(0),Y_i(1),U_i\}\perp
+Z_i\)</span>：<span style="color: #244DA8">外生性。</span></p></li>
+<li><p><span class="math inline">\(c(Z_i)\)</span> 具有非平凡分布：<span
+style="color: #244DA8">相关性。</span></p></li>
+<li><p><span class="math inline">\(c(z)\)</span> 是
+càdlàg（右连续且存在左极限）的非减函数。<span
+style="color: #244DA8">页边写的是 <span
+class="math inline">\(W_i\)</span> 随 <span
+class="math inline">\(Z_i\)</span> 非减。</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-045）：阈值上升会减少处理接受</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 55, 57</em></p>
+<p>固定 <span class="math inline">\(U_i\)</span>，若 <span
+class="math inline">\(c\)</span> 非减，则 <span
+class="math inline">\(W_i(z)=\mathbf1\{U_i\ge c(z)\}\)</span>
+非增。因此，单跳跃例子中间那组人会随 <span
+class="math inline">\(z\)</span>
+增大，由接受处理转为不接受处理。相对于此前“工具变量增加处理”的约定，这是相反的转换方向；反转工具变量方向后，可以称之为依从者组。IV
+比值中的两个协方差同时变号，所以正权重处理效应解释仍然成立。这个方向约定问题不使
+IV 比值失效。</p>
+</div></li>
+</ol>
+<p>定义边际处理效应（MTE） <span class="math display">\[\tau(u)=\mathbb
+E[Y_i(1)-Y_i(0)\mid U_i=u].\tag{10.6}\]</span> IV 的目标参数是 <span
+class="math inline">\(\tau(u)\)</span> 的加权平均。笔记设 <span
+class="math inline">\(Z_i\sim\mathcal N(0,1)\)</span>，密度为 <span
+class="math inline">\(\varphi\)</span>。令 <span
+class="math inline">\(S\subset\mathbb R\)</span> 为 <span
+class="math inline">\(c\)</span> 的不连续点集，并定义 <span
+class="math display">\[c_-(z)=\lim_{a\uparrow z}c(a).\]</span>
+所示表示为 <span class="math display">\[\tau_{\mathrm{LATE}}=
+\frac{\displaystyle\sum_{z\in S}
+\left\{\int_{c_-(z)}^{c(z)}\tau(u)\,du\right\}\varphi(z)
++\int_{\mathbb R\setminus S}\tau(c(z))c&#39;(z)\varphi(z)\,dz}
+{\displaystyle\sum_{z\in S}(c(z)-c_-(z))\varphi(z)
++\int_{\mathbb R\setminus S}c&#39;(z)\varphi(z)\,dz}.\]</span> 这将 IV
+目标参数表示为边际处理效应的凸平均。</p>
+<h4 id="我在左页对权重的解释">我在左页对权重的解释。</h4>
+<p>图中画出 <span class="math inline">\(c(z)\)</span> 随 <span
+class="math inline">\(z\)</span>
+的变化，在左极限处画空心点，跳跃后的函数值处画实心点。跳跃位置属于 <span
+class="math inline">\(S\)</span>。</p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-007.png" alt="image" /></p>
+</div>
+<p><span style="color: #C92B32">在跳跃处，对从 <span
+class="math inline">\(c_-(z)\)</span> 到 <span
+class="math inline">\(c(z)\)</span> 的条带内的 <span
+class="math inline">\(\tau(u)\)</span> 积分，再乘以 <span
+class="math inline">\(\varphi(z)\)</span>。</span><span
+style="color: #C92B32">在连续部分，取 <span
+class="math inline">\(u=c(z)\)</span> 处的处理效应，以 <span
+class="math inline">\(c&#39;(z)\varphi(z)\)</span> 加权。</span></p>
+<blockquote>
+<p><span style="color: #C92B32">概率权重（原稿措辞，第 54 页）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span class="math inline">\(\varphi(z)\)</span>。</p>
+</blockquote>
+<blockquote>
+<p><span style="color: #C92B32"><span
+class="math inline">\(u=c(z)\)</span> 处的处理效应（第 54 页）</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span class="math inline">\(\tau(c(z))\)</span>。</p>
+</blockquote>
+<blockquote>
+<p><span style="color: #C92B32">权重（第 54 页）</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+class="math inline">\(c&#39;(z)\varphi(z)\)</span>。</p>
+</blockquote>
+<p><span style="color: #C92B32">分母累加总权重。</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-047）：高斯因子是密度，不是单点概率</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 54</em></p>
+<p>对连续高斯变量 <span
+class="math inline">\(Z\)</span>，每一个跳跃位置都满足 <span
+class="math inline">\(P(Z=z)=0\)</span>。<span
+class="math inline">\(\varphi(z)\)</span>
+是该点的高斯密度，来自分部积分；它不是点质量，也不是 <span
+class="math inline">\(P(Z\in S)\)</span>。该跳跃的权重为 <span
+class="math inline">\((c(z)-c_-(z))\varphi(z)\)</span>，并由总分母归一化。</p>
+</div>
+<p>第二幅草图将跳跃对应的 <span class="math inline">\(u\)</span>
+区间画出阴影，使 <span class="math inline">\(du\)</span>
+的贡献更直观。</p>
+<h4 id="原稿页底的限定">原稿页底的限定。</h4>
+<p>笔记说单调的 <span class="math inline">\(c(z)\)</span>
+必须具有有界变差，接着写为 <span
+class="math display">\[c(z)=c_0+\int_{-\infty}^zc&#39;(a)\,da,\]</span>
+其中 <span class="math inline">\(c&#39;\)</span> 是非负、Lebesgue
+可积的函数。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-048）：单调阈值可能含有奇异连续变差</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 54, 55, 56, 57</em></p>
+<p>有界单调阈值对应 Stieltjes 测度 <span
+class="math inline">\(dc\)</span>，未必具有密度 <span
+class="math inline">\(c&#39;(z)\,dz\)</span>。它可能包含绝对连续部分、跳跃处的原子，以及奇异连续部分（Cantor
+函数就是反例）。因此，“跳跃项加普通积分”的公式，还需要排除奇异连续部分；仅仅“没有跳跃”，不足以保证后面的连续情形公式。</p>
+<p>设 <span class="math inline">\(c\)</span> 右连续、非减、取值于 <span
+class="math inline">\([0,1]\)</span>，且不是常数，并假设结果与协方差所需的矩存在。此时
+<span class="math inline">\(\int\varphi\,dc&gt;0\)</span>。定义 <span
+class="math inline">\(F(u)=\int_0^u\tau(v)\,dv\)</span>（要求 <span
+class="math inline">\(\tau\)</span>
+有界或具有适当可积性），便得到保留所有组成部分的表示： <span
+class="math display">\[\tau_{\rm IV}=\frac{\int_{\mathbb
+R}\varphi(z)\,d[F(c(z))]}{\int_{\mathbb R}\varphi(z)\,dc(z)}.\]</span>
+事实上，<span class="math inline">\(E[W\mid Z=z]=1-c(z)\)</span>，且
+<span class="math inline">\(E[Y\mid
+Z=z]=E[Y(0)]+F(1)-F(c(z))\)</span>；高斯分部积分使两个协方差各带一个负号，二者相消。在跳跃处，<span
+class="math inline">\(d[F(c)]\)</span> 的质量是 <span
+class="math inline">\(\int_{c_-}^{c}\tau(u)\,du\)</span>，解释了作者的条带直觉。在绝对连续部分，它的密度为
+<span class="math inline">\(\tau(c(z))c&#39;(z)\)</span>。原稿第 56
+页的分布导数应理解为这个测度，而不是分段定义的普通函数。Dirac delta
+是测度／广义函数，不是满足所写逐点性质的普通函数。这也修正了讲义脚注 4
+中存在的错误，并限定了 (10.7)–(10.11) 的适用范围。</p>
+</div>
+<h2 id="单次跳跃多次跳跃与连续阈值">单次跳跃、多次跳跃与连续阈值</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 57, with the derivative
+supplement on page 56</em></p>
+<h4 id="例-1一次跳跃">例 1：一次跳跃。</h4>
+<p>设阈值除一次跳跃外保持常数： <span
+class="math display">\[c(z)=c_0+\delta_1\mathbf1\{z\ge z_1\},\]</span>
+原稿列出 <span class="math display">\[\begin{array}{ll}
+\text{从不接受者：}&amp;U_i&lt;c_0,\\
+\text{依从者：}&amp;c_0\le U_i&lt;c_0+\delta_1,\\
+\text{总是接受者：}&amp;U_i\ge c_0+\delta_1.
+\end{array}\]</span></p>
+<p>当有 <span class="math inline">\(K\)</span> 次跳跃时， <span
+class="math display">\[c(z)=c_0+\sum_{k=1}^K\delta_k\mathbf1\{z\ge
+z_k\},\]</span> 笔记给出 <span
+class="math display">\[\tau_{\mathrm{LATE}}=
+\frac{\displaystyle\sum_{k=1}^K
+\mathbb E[\tau(U_i)\mid c_-(z_k)\le U_i&lt;c(z_k)]
+(z_k-c_-(z_k))\varphi(z_k)}
+{\displaystyle\sum_{k=1}^K(c(z_k)-c_-(z_k))\varphi(z_k)}.\]</span>
+这是各个转换层内平均处理效应的凸组合。权重依赖各层在 <span
+class="math inline">\(U\)</span> 空间中的大小，以及 <span
+class="math inline">\(\varphi(z_k)\)</span>。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S1-049）：跳跃宽度应是两个阈值之差</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 57</em></p>
+<p>应将分子中的 <span class="math inline">\(z_k-c_-(z_k)\)</span> 改为
+<span class="math inline">\(c(z_k)-c_-(z_k)\)</span>。该层是 <span
+class="math inline">\(U\)</span> 空间中的 <span
+class="math inline">\([c_-(z_k),c(z_k))\)</span>；在均匀 <span
+class="math inline">\(U\)</span>
+下，其概率等于两个阈值之差，而不是工具变量位置与阈值之差。修正后，公式才是所述的凸组合。</p>
+</div>
+<h4 id="例-2连续阈值">例 2：连续阈值。</h4>
+<p>若 <span class="math inline">\(c(z)\)</span> 没有跳跃，所示公式变为
+<span class="math display">\[\tau_{\mathrm{LATE}}=
+\frac{\displaystyle\int_{\mathbb R}\tau(c(z))c&#39;(z)\varphi(z)\,dz}
+{\displaystyle\int_{\mathbb R}c&#39;(z)\varphi(z)\,dz}.\]</span>
+协方差推导为 <span class="math display">\[\begin{align*}
+\operatorname{Cov}(Y_i,Z_i)
+&amp;=\operatorname{Cov}(Y_i(0)+(Y_i(1)-Y_i(0))W_i,Z_i)\\
+&amp;=\operatorname{Cov}((Y_i(1)-Y_i(0))W_i,Z_i)\\
+&amp;=\operatorname{Cov}((Y_i(1)-Y_i(0))\mathbf1\{U_i\ge c(Z_i)\},Z_i)\\
+&amp;=\operatorname{Cov}(\tau(U_i)\mathbf1\{U_i\ge c(Z_i)\},Z_i).
+\end{align*}\]</span> 定义 <span class="math display">\[H(z)=\mathbb
+E[\tau(U_i)\mathbf1\{U_i\ge c(z)\}].\]</span> 对于标准高斯变量 <span
+class="math inline">\(Z_i\)</span>，笔记使用 <span
+class="math display">\[\operatorname{Cov}(H(Z_i),Z_i)=\mathbb
+E[H&#39;(Z_i)].\]</span></p>
+<h4 id="左页疑问分布导数">左页疑问：分布导数。</h4>
+<p>星号补充问道：“<span class="math inline">\(H&#39;(z)\)</span> 表示
+<span class="math inline">\(H(\cdot)\)</span>
+的分布导数？”随后用混合的普通导数／分布导数记号写为 <span
+class="math display">\[-H&#39;(z)=
+\begin{cases}
+\displaystyle\left\{\int_{c_-(z)}^{c(z)}\tau(u)\,du\right\}\delta_z,
+&amp;z\in S,\\
+\tau(c(z))c&#39;(z),&amp;\text{其他情况}.
+\end{cases}\]</span> 这里 <span class="math inline">\(\delta_z\)</span>
+是位于 <span class="math inline">\(z\)</span> 的 Dirac
+delta。旁边的提醒给出以零为中心的 delta 的非正式定义性质：当 <span
+class="math inline">\(x\ne0\)</span> 时 <span
+class="math inline">\(\delta(x)=0\)</span>，且 <span
+class="math inline">\(\int_{-\infty}^{\infty}\delta(x)\,dx=1\)</span>。这里保留了原稿的问号，以及这段补充涉及分布导数的性质。</p>
+<h2 id="估计边际处理效应">估计边际处理效应</h2>
+<p><em>原扫描页码：Lecture1-10.pdf, page 58</em></p>
+<p>在 <span class="math inline">\(c(z)\)</span> 的光滑点处， <span
+class="math display">\[\tau(c(z))=
+\frac{\displaystyle\frac d{dz}\mathbb E[Y_i\mid Z_i=z]}
+{\displaystyle\frac d{dz}P(W_i=1\mid Z_i=z)}.\tag{10.12}\]</span>
+假设这些导数性质良好，分子、分母可估计，而且分母非零。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S1-050）：局部 IV 导数在哪些点识别
+MTE</strong></p>
+<p><em>来源：Lecture1-10.pdf, pp. 58</em></p>
+<p>当 <span class="math inline">\(c\)</span>
+和条件均值在目标点可微、<span
+class="math inline">\(c&#39;(z)\ne0\)</span>，且 <span
+class="math inline">\(F&#39;(c(z))=\tau(c(z))\)</span>
+时，链式法则的证明正确。若 <span class="math inline">\(\tau\)</span>
+仅可积，最后一个等式只是几乎处处成立；<span
+class="math inline">\(\tau\)</span>
+在目标点连续是一项方便的充分条件。识别范围只包含工具变量倾向概率支持所能达到的潜在秩。仅有
+<span class="math inline">\(c\)</span> 光滑，不能识别该范围之外的
+MTE。</p>
+</div>
+<h4 id="笔记中的证明">笔记中的证明。</h4>
+<p><span class="math display">\[\begin{align*}
+\mathbb E[Y_i\mid c(Z_i)=c]
+&amp;=\mathbb E[Y_i(0)+\mathbf1\{U_i\ge c\}(Y_i(1)-Y_i(0))
+\mid c(Z_i)=c]\\
+&amp;=\mathbb E[Y_i(0)+\mathbf1\{U_i\ge c\}(Y_i(1)-Y_i(0))]\\
+&amp;=\mathbb E[Y_i(0)]+\int_c^1\tau(u)\,du.
+\end{align*}\]</span> 最后一步标为“Fubini”。因此 <span
+class="math display">\[\tau(c)=-\frac d{dc}\mathbb E[Y_i\mid
+c(Z_i)=c].\]</span> 由链式法则， <span class="math display">\[\frac
+d{dz}\mathbb E[Y_i\mid Z_i=z]
+=\left.\frac d{dc}\mathbb E[Y_i\mid
+c(Z_i)=c]\right|_{c=c(z)}c&#39;(z).\]</span> 由于 <span
+class="math inline">\(U_i\sim\operatorname{Unif}(0,1)\)</span> 且独立于
+<span class="math inline">\(Z_i\)</span>， <span
+class="math display">\[c&#39;(z)=-\frac d{dz}P(W_i=1\mid
+Z_i=z).\]</span> 合并这些恒等式，就得到 (10.12)，原稿在此打了勾。</p>
+<h1 id="第-11-讲策略学习">第 11 讲：策略学习</h1>
+<p><em>原扫描页码：Lecture11-14.pdf, page 1</em></p>
+<p>研究如何分配处理，使收益最大。决策就是让一个人进入哪一组：处理组还是对照组。</p>
+<p>处理策略是一个映射 <span class="math display">\[\pi:\mathcal
+X\longrightarrow\{0,1\}.\]</span> 特征为 <span
+class="math inline">\(X_i=x\)</span> 的个体，当且仅当 <span
+class="math inline">\(\pi(x)=1\)</span>
+时接受处理。目标是找到使期望效用最大的策略： <span
+class="math display">\[V(\pi)=\mathbb E[Y_i(\pi(X_i))].\]</span>
+（笔记把 <span class="math inline">\(Y_i=1\)</span>
+视为好的结果。）对于策略类 <span
+class="math inline">\(\Pi\)</span>，定义 <span
+class="math display">\[\pi^*=\operatorname*{arg\,max}_{\pi&#39;\in\Pi}V(\pi&#39;).\]</span>
+另一个策略的遗憾（regret）为 <span
+class="math display">\[R(\pi)=\sup_{\pi&#39;\in\Pi}V(\pi&#39;)-V(\pi).\]</span>
+<span style="color: #C92B32"><strong>笔记强调：</strong>这里的损失是
+regret，而不是平方误差损失。</span>目标是学到一个策略，并保证其最坏情况下的
+regret 有上界，即 minimax regret 准则。</p>
+<p>假设观测 <span class="math inline">\((X_i,Y_i,W_i)\in\mathcal
+X\times\mathbb R\times\{0,1\}\)</span>，<span
+class="math inline">\(i=1,\ldots,n\)</span>，独立同分布（IID），且满足
+<span class="math display">\[\{Y_i(0),Y_i(1)\}\perp W_i\mid X_i,\qquad
+Y_i=Y_i(W_i),\]</span> <span class="math display">\[0&lt;\eta\le
+e(X_i)\le1-\eta&lt;1,\qquad e(x)=\mathbb P(W_i=1\mid X_i=x).\]</span>
+学到 <span class="math inline">\(\widehat\pi\)</span> 后，令 <span
+class="math inline">\(W_i=\widehat\pi(X_i)\)</span>，希望 <span
+class="math inline">\(Y_i=Y_i(\widehat\pi(X_i))\)</span>
+尽可能大。<strong>我的观察：</strong>这样分配处理后，处理分配就没有随机性了，不能再用同样的方法从中学习因果效应。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-001）：确定性策略的实施会失去重叠性</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 1</em></p>
+<p>确定性策略使 <span
+class="math inline">\(e(x)\in\{0,1\}\)</span>，因此仅凭实施该策略得到的数据，通常无法在同一个
+<span class="math inline">\(x\)</span>
+上非参数地恢复两种潜在结果的均值。此前的随机实验数据、重新引入探索，或额外的结构假设，仍可能支持因果学习。</p>
+</div>
+<h2 id="通过经验最大化学习策略">通过经验最大化学习策略</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 3, with the analogy on page
+2</em></p>
+<p>一般地， <span
+class="math display">\[\widehat\pi=\operatorname*{arg\,max}_{\pi\in\Pi}\widehat
+V(\pi).\]</span> 如果 <span class="math inline">\(e(x)\)</span>
+已知，可以使用无偏的 IPW 估计： <span class="math display">\[\widehat
+V_{\mathrm{IPW}}(\pi)
+=\frac1n\sum_{i=1}^n
+\frac{\mathbf1\{W_i=\pi(X_i)\}Y_i}
+{\mathbb P[W_i=\pi(X_i)\mid X_i]},
+\qquad
+\widehat\pi_{\mathrm{IPW}}
+=\operatorname*{arg\,max}_{\pi\in\Pi}\widehat
+V_{\mathrm{IPW}}(\pi).\]</span> 直观地说，保留实际处理 <span
+class="math inline">\(W_i\)</span> 与策略 <span
+class="math inline">\(\pi(X_i)\)</span>
+一致的观测，再用分配概率的倒数对其结果加权。由无混杂性， <span
+class="math display">\[\begin{align*}
+\mathbb E[\widehat V_{\mathrm{IPW}}(\pi)]
+&amp;=\mathbb E\left[
+\frac{\mathbf1\{W_i=\pi(X_i)\}Y_i(\pi(X_i))}
+{\mathbb P[W_i=\pi(X_i)\mid X_i]}\right]\\
+&amp;=\mathbb E\left[
+\mathbb E\left[\left.
+\frac{\mathbf1\{W_i=\pi(X_i)\}}
+{\mathbb P[W_i=\pi(X_i)\mid X_i]}\right|X_i\right]
+\mathbb E[Y_i(\pi(X_i))\mid X_i]\right]\\
+&amp;=\mathbb E[Y_i(\pi(X_i))]=V(\pi).
+\end{align*}\]</span> 原笔记在这个计算的开头写的是 <span
+class="math display">\[E[\widehat V_{\mathrm{IPW}}(\pi)]
+=E\left[\frac{\mathbf1\{W_i=\pi(X_i)\}}{P[W_i=\pi(X_i)\mid
+X_i]}\right].\]</span> <span
+style="color: #C92B32">指示变量除以其概率，条件期望等于 <span
+class="math inline">\(1\)</span>。</span> <span
+class="math display">\[\textcolor{red}{\boxed{\textcolor{black}{E\left[\left.
+\frac{\mathbf1\{W_i=\pi(X_i)\}}{P[W_i=\pi(X_i)\mid X_i]}
+\right|X_i\right]}}}=\textcolor{red}{1}.\]</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-003）：IPW
+期望的第一步漏掉了结果变量</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 3</em></p>
+<p>手写式的右边等于 <span class="math inline">\(1\)</span>，一般并不等于
+<span class="math inline">\(V(\pi)\)</span>。应在分子中补上 <span
+class="math inline">\(Y_i\)</span>，再由一致性将筛选出的观测结果换为
+<span
+class="math inline">\(Y_i(\pi(X_i))\)</span>。上面的完整推导给出了正确步骤。</p>
+</div>
+<h4 id="左页类比ate-的-ipw-估计量为何无偏">左页类比：ATE 的 IPW
+估计量为何无偏。</h4>
+<p><span class="math display">\[\begin{align*}
+\mathbb E[\widehat\tau^*_{\mathrm{IPW}}]
+&amp;=\mathbb E\left[\frac{W_iY_i}{e(X_i)}-
+\frac{(1-W_i)Y_i}{1-e(X_i)}\right]\\
+&amp;=\mathbb E\left[\frac{W_iY_i(1)}{e(X_i)}-
+\frac{(1-W_i)Y_i(0)}{1-e(X_i)}\right]\\
+&amp;=\mathbb E\left[
+\mathbb E\left[\left.\frac{W_iY_i(1)}{e(X_i)}\right|e(X_i)\right]
+-\mathbb E\left[\left.\frac{(1-W_i)Y_i(0)}{1-e(X_i)}\right|e(X_i)\right]
+\right]\\
+&amp;=\mathbb E[Y_i(1)-Y_i(0)].
+\end{align*}\]</span> 因此它是 <span class="math inline">\(\tau\)</span>
+的无偏估计。</p>
+<h2 id="将策略学习转化为加权分类">将策略学习转化为加权分类</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 5, with the regret bound on
+page 4</em></p>
+<p>分解价值函数： <span
+class="math display">\[V(\pi)=\underbrace{\mathbb
+E[Y_i(0)]}_{\textcolor{red}{E_0}}+
+\mathbb E[(Y_i(1)-Y_i(0))\pi(X_i)].\]</span>
+<strong>页边解释：</strong>这里展示了基线结果 <span
+class="math inline">\(E_0\)</span>，以及策略 <span
+class="math inline">\(\pi(\cdot)\)</span>
+选择接受处理的那些人的处理效应所作的贡献。</p>
+<p>用 <span class="math inline">\(\tau(x)\)</span> 表示
+CATE，策略的优势为 <span class="math display">\[\begin{align*}
+A(\pi)&amp;=2\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(0)+Y_i(1)]\\
+&amp;=\mathbb E[(2\pi(X_i)-1)\tau(X_i)].
+\end{align*}\]</span> <span class="math inline">\(A(\pi)\)</span> 是策略
+<span class="math inline">\(\pi(\cdot)\)</span> 的 advantage。同一个
+<span class="math inline">\(\pi^*\)</span> 也使 <span
+class="math inline">\(A(\pi)\)</span> 在 <span
+class="math inline">\(\Pi\)</span> 中最大。</p>
+<p>改写 IPW：<span
+class="math inline">\(\widehat\pi_{\mathrm{IPW}}\)</span> 使下式最大，
+<span class="math display">\[\begin{align*}
+\widehat A_{\mathrm{IPW}}(\pi)
+&amp;=2\widehat V_{\mathrm{IPW}}(\pi)
+-\frac1n\sum_{i=1}^n\left\{
+\frac{W_iY_i}{e(X_i)}+\frac{(1-W_i)Y_i}{1-e(X_i)}\right\}\\
+&amp;=\frac1n\sum_{i=1}^n(2\pi(X_i)-1)
+\left\{\frac{W_iY_i}{e(X_i)}-
+\frac{(1-W_i)Y_i}{1-e(X_i)}\right\}.\tag{11.10}
+\end{align*}\]</span> 这是优势的无偏估计。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-002）：固定策略与学得的策略需要区分</strong></p>
+<p><em>来源：Lecture11-14.pdf, pages 3, 5</em></p>
+<p>IPW 价值估计与优势估计的无偏性针对固定的 <span
+class="math inline">\(\pi\)</span>，或以独立数据学得的策略为条件成立。一般而言，在训练样本上评价
+<span class="math inline">\(\widehat V(\widehat\pi)\)</span>
+会偏乐观：对带噪声的无偏价值估计取最大，并不能保留无偏性。</p>
+</div>
+<p>记 <span class="math display">\[\widehat A_{\mathrm{IPW}}(\pi)
+=\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\Gamma_i^{\mathrm{IPW}},
+\qquad
+\Gamma_i^{\mathrm{IPW}}=
+\frac{W_iY_i}{e(X_i)}-\frac{(1-W_i)Y_i}{1-e(X_i)}.\tag{11.11}\]</span>
+其中 <span class="math inline">\(\Gamma_i^{\mathrm{IPW}}\)</span> 就是
+ATE 估计中使用的 IPW 得分： <span
+class="math inline">\(\widehat\tau_{\mathrm{IPW}}=n^{-1}\sum_i\Gamma_i^{\mathrm{IPW}}\)</span>.
+<strong>我的理解：</strong><span class="math inline">\(\widehat
+A_{\mathrm{IPW}}(\pi)\)</span> 与 ATE 的 IPW 估计量很像。当 <span
+class="math inline">\(\pi(X_i)=1\)</span>
+时，我们“赚取”这个人的处理效应；当 <span
+class="math inline">\(\pi(X_i)=0\)</span>
+时，我们“支付”这个人的处理效应。</p>
+<p>为进行优化，写成 <span class="math display">\[\widehat
+A_{\mathrm{IPW}}(\pi)
+=\frac1n\sum_{i=1}^n
+\underbrace{(2\pi(X_i)-1)\operatorname{sign}(\Gamma_i)}_{\textcolor{red}{\text{分类目标}}}
+\underbrace{|\Gamma_i|}_{\textcolor{red}{\text{权重
+}\star}}.\tag{11.12}\]</span> <span
+style="color: #C92B32">符号决定分类目标，<span
+class="math inline">\(|\Gamma_i|\)</span>
+是权重（原稿在这里打了星号）。</span>最大化优势等价于优化一个加权分类目标。<span
+style="color: #244DA8">实践中，常常通过最小化加权替代损失来学习。页边参考写着“Wager
+[2020]”[年份不太清楚]；我补充的提醒是：<strong>“但估计可能不对。”</strong></span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-038）：替代损失为何可能改变策略目标</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 5</em></p>
+<p>作者的蓝色提醒确有实质内容。精确目标满足 <span
+class="math display">\[(2\pi(X_i)-1)\Gamma_i
+=|\Gamma_i|\bigl[1-2\mathbf1\{\pi(X_i)\ne\mathbf1\{\Gamma_i&gt;0\}\}\bigr].\]</span>
+因此，最大化所示得分恰好等价于最小化加权分类错误率。如果把指示损失换成任意光滑替代损失，尤其是在受限策略类内，最优解未必保持不变。需要近似／优化保证，或适当的替代损失一致性论证；这个提醒并不否定精确的加权分类恒等式。</p>
+</div>
+<h4 id="补充复杂度与-regret-的收敛速度">补充：复杂度与 regret
+的收敛速度。</h4>
+<p><span style="color: #C92B32">VC 维衡量 <span
+class="math inline">\(\Pi\)</span>
+的复杂度；笔记提醒查一下它的精确定义。</span>若 <span
+class="math inline">\(|Y_i|\le M\)</span>，<span
+class="math inline">\(\eta\le
+e(X_i)\le1-\eta\)</span>（于是得分有界），且 <span
+class="math inline">\(\Pi\)</span> 的 Vapnik–Chervonenkis 维有限，则
+<span class="math display">\[R(\widehat\pi_{\mathrm{IPW}})
+=O_P\left(\frac M\eta\sqrt{\frac{\operatorname{VC}(\Pi)}n}\right),
+\quad
+\widehat\pi_{\mathrm{IPW}}=
+\operatorname*{arg\,max}_{\pi\in\Pi}\widehat
+A_{\mathrm{IPW}}(\pi).\]</span> <span
+style="color: #C92B32">作者划线强调这是最优收敛速度，随后补充
+superefficiency 的提醒：对某个固定策略 <span
+class="math inline">\(\pi(x)\)</span>，有 <span
+class="math inline">\(n\)</span> 个观测时，收敛速度可能快于 <span
+class="math inline">\(\sqrt{\operatorname{VC}(\Pi)/n}\)</span>。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-004）：Minimax regret
+与逐点收敛速度</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 4</em></p>
+<p>该速度是在模型与策略类上针对最坏情况的策略学习结论。在某些特定分布下
+regret 更快，并不与之矛盾。固定策略本身没有策略学习 regret
+的收敛速度；估计其价值是另一个问题。因此，红色批注对“逐点”与“一致”结论的区分很有帮助，但它不是固定策略的超有效性定理。参见
+<a href="https://arxiv.org/abs/1702.02896">Athey 和 Wager</a>。</p>
+</div>
+<h2 id="策略学习的有效得分">策略学习的有效得分</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 7, then page 6</em></p>
+<p>有没有更好的学习方法？注意到 <span
+class="math display">\[\begin{align*}
+A(\pi)&amp;=2\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(0)+Y_i(1)]\\
+&amp;=\mathbb E[Y_i(\pi(X_i))]-\mathbb E[Y_i(1-\pi(X_i))].
+\end{align*}\]</span> 因此，<span class="math inline">\(A(\pi)\)</span>
+就是在一个实验中，比较实施 <span
+class="math inline">\(\pi(\cdot)\)</span> 与实施其相反策略所得的
+ATE。</p>
+<p>Oracle IPW 可以使用，但并不有效。Oracle AIPW
+估计量使用有效得分，达到半参数效率界： <span
+class="math display">\[\widehat A^*_{\mathrm{AIPW}}(\pi)
+=\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\Gamma_i^*,\]</span> <span
+class="math display">\[\Gamma_i^*=\mu_1(X_i)-\mu_0(X_i)
++W_i\frac{Y_i-\mu_1(X_i)}{e(X_i)}
+-(1-W_i)\frac{Y_i-\mu_0(X_i)}{1-e(X_i)}.\]</span> 进一步假设回归调整
+<span class="math inline">\(\widehat\mu_w(x)\)</span> 和 <span
+class="math inline">\(\widehat e(x)\)</span> 都以 <span
+class="math inline">\(o_P(n^{-1/4})\)</span> 的速度一致。<span
+style="color: #C92B32">红色批注强调：当 <span
+class="math inline">\(n\to\infty\)</span> 时，两个 nuisance 估计误差都是
+<span
+class="math inline">\(o_P(n^{-1/4})\)</span>。</span>构造一个接近有效
+oracle 的双重稳健估计量： <span class="math display">\[\widehat
+A_{\mathrm{AIPW}}(\pi)
+=\frac1n\sum_{i=1}^n(2\pi(X_i)-1)\widehat\Gamma_i,\]</span> <span
+class="math display">\[\begin{align*}
+\widehat\Gamma_i={}&amp;\widehat\mu_1^{(-k(i))}(X_i)
+-\widehat\mu_0^{(-k(i))}(X_i)\\
+&amp;+W_i\frac{Y_i-\widehat\mu_1^{(-k(i))}(X_i)}
+{\widehat e^{(-k(i))}(X_i)}
+-(1-W_i)\frac{Y_i-\widehat\mu_0^{(-k(i))}(X_i)}
+{1-\widehat e^{(-k(i))}(X_i)}.
+\end{align*}\]</span> 这同样是加权分类目标。若 <span
+class="math inline">\(\Pi\)</span> 是 VC 类，则可行目标与 oracle
+目标一致地渐近等价，差异比 <span class="math inline">\(1/\sqrt
+n\)</span> 更快趋于零： <span class="math display">\[\sqrt
+n\sup_{\pi\in\Pi}
+\left|\widehat A_{\mathrm{AIPW}}(\pi)
+-\widehat A^*_{\mathrm{AIPW}}(\pi)\right|
+\xrightarrow{P}0.\tag{11.17}\]</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-005）：一致 oracle
+等价所需的条件</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 7</em></p>
+<p>应将 nuisance 收敛速度理解为 <span
+class="math inline">\(L_2(P_X)\)</span>
+范数下的速度，并使用式中的交叉拟合。一组标准充分条件是：固定且有限的 VC
+维、适当的有界性或矩包络、<span class="math inline">\(\widehat
+e\in[\eta&#39;,1-\eta&#39;]\)</span>、nuisance 一致性，以及 <span
+class="math display">\[\|\widehat
+e-e\|_2\max_w\|\widehat\mu_w-\mu_w\|_2=o_P(n^{-1/2}).\]</span> 两个
+<span class="math inline">\(o_P(n^{-1/4})\)</span>
+速度足以保证这个乘积条件。若允许 VC 类任意增长，还需额外限制。<a
+href="https://arxiv.org/abs/1702.02896">Athey 和 Wager</a>
+给出了相应的正则条件框架。</p>
+</div>
+<h4 id="左页续记regret-与效率">左页续记：regret 与效率。</h4>
+<p>结合前面的结果与经验过程集中性质，可得 <span
+class="math display">\[R(\widehat\pi_{\mathrm{AIPW}})
+=O_P\left(\sqrt{\frac{V^*\operatorname{VC}(\Pi)}n}\right),
+\quad
+\widehat\pi_{\mathrm{AIPW}}
+=\operatorname*{arg\,max}_{\pi\in\Pi}\widehat
+A_{\mathrm{AIPW}}(\pi),\]</span> <span
+class="math display">\[V^*=\mathbb E[\tau^2(X_i)]
++\mathbb E\left[\frac{\operatorname{Var}(Y_i(0)\mid
+X_i)}{1-e(X_i)}\right]
++\mathbb E\left[\frac{\operatorname{Var}(Y_i(1)\mid
+X_i)}{e(X_i)}\right].\]</span> 笔记中写的参考是“Wager 2017”。</p>
+<blockquote>
+<p><span style="color: #000000">上式的 <span
+class="math inline">\(V^*\)</span> 分解。</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+当处理效应刚刚从噪声中显现出来时，这个界是最优的。</p>
+</blockquote>
+<p><span
+style="color: #C92B32"><strong>作者红字批注：“不太对……”</strong></span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-006）：如何理解有效得分的二阶矩</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 6</em></p>
+<p>上式满足 <span
+class="math inline">\(V^*=E[(\Gamma_i^*)^2]\)</span>。由于 <span
+class="math inline">\((2\pi(X)-1)^2=1\)</span>， <span
+class="math display">\[\operatorname{Var}((2\pi(X)-1)\Gamma_i^*)=V^*-A(\pi)^2.\]</span>
+噪声占主导的局部模型有助于解释 minimax
+下界，但不能证明每个分布上的逐点最优性。作者的保留意见需要用下界中精确的量词来回答。参见
+<a href="https://arxiv.org/abs/1702.02896">Athey 和 Wager</a>。</p>
+</div>
+<h2 id="策略类的作用">策略类的作用</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 8</em></p>
+<p>从非参数模型出发：<span class="math inline">\(\mu_w(x)\)</span> 和
+<span class="math inline">\(e(x)\)</span> 可以是任意函数。此时 Bayes
+最优处理分配规则是 <span
+class="math display">\[\pi_{\mathrm{Bayes}}(x)=\mathbf1\{\tau(x)&gt;0\}.\]</span>
+不过，我们的目标是在给定的策略类 <span
+class="math inline">\(\Pi\)</span> 中求解，不一定要逼近这个 Bayes
+规则。例如，<span class="math inline">\(\Pi\)</span>
+可以包含线性决策规则、<span
+class="math inline">\(k\)</span>-稀疏决策规则，或深度为 <span
+class="math inline">\(\ell\)</span> 的决策树。不要求 <span
+class="math inline">\(\pi_{\mathrm{Bayes}}\in\Pi\)</span>。</p>
+<p>原因：</p>
+<ol>
+<li><p>使用 <span class="math inline">\(X_i\)</span>
+是为了使无混杂性假设合理： <span
+class="math inline">\(\{Y_i(0),Y_i(1)\}\perp W_i\mid
+X_i\)</span>。通常，掌握更多处理前变量，会让这个假设更可信。为了可靠建模，最好使用更丰富的特征，以及灵活的非参数模型来估计
+<span class="math inline">\(e(x)\)</span> 和 <span
+class="math inline">\(\mu_w(x)\)</span>。</p></li>
+<li><p>策略有具体形式，也受现实限制：某些特征可能不能用于决策；资源或处理预算可能有限；<span
+class="math inline">\(\pi(\cdot)\)</span>
+的函数形式也可能受限。</p></li>
+</ol>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-007）：更多协变量并不会自动消除混杂</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 8</em></p>
+<p>任意扩大条件变量集合，并不能保持无混杂性：即使是处理前的
+collider，也可能打开非因果路径。选择合适的调整集合后，灵活的 nuisance
+模型有助于估计；它们本身不能建立识别。</p>
+</div>
+<h1 id="第-12-讲动态策略评估">第 12 讲：动态策略评估</h1>
+<p><em>原扫描页码：Lecture11-14.pdf, page 10, with the setup and second
+assumption on page 9</em></p>
+<p>标题将这一主题与强化学习联系起来。我们评估动态策略，也就是随时间改变的策略。</p>
+<p>有 <span class="math inline">\(n\)</span> 个 IID 个体 <span
+class="math inline">\(i=1,\ldots,n\)</span>，以及时点 <span
+class="math inline">\(t=1,\ldots,T\)</span>。每个时点观测随时间变化的协变量
+<span class="math inline">\(X_{it}\)</span> 和处理 <span
+class="math inline">\(W_{it}\in\{0,1\}\)</span>。在最后一个时点 <span
+class="math inline">\(T\)</span>，还观测结果 <span
+class="math inline">\(Y_i\in\mathbb R\)</span>。</p>
+<p>为了体现动态结构，每个随时间变化的观测都可能依赖之前的全部处理。对每个
+<span class="math inline">\(X_{it}\in\mathcal X_t\)</span>，定义 <span
+class="math inline">\(2^{t-1}\)</span> 个潜在取值 <span
+class="math inline">\(X_{it}(w_{1:t-1})\)</span>，且 <span
+class="math display">\[X_{it}=X_{it}(W_{i,1:t-1}).\]</span> 最终结果有
+<span class="math inline">\(2^T\)</span> 个潜在结果 <span
+class="math inline">\(Y_i(w_{1:T})\)</span>，且 <span
+class="math display">\[Y_i=Y_i(W_{i,1:T}).\]</span> 类似地，笔记写为
+<span class="math inline">\(W_{it}=W_{it}(W_{i,1:t-1})\)</span>：第
+<span class="math inline">\(t\)</span> 期的处理依赖已观测的协变量历史
+<span class="math inline">\(X_{i,1:t}\)</span> 和之前的处理取值。</p>
+<h4 id="左页直觉">左页直觉。</h4>
+<p>想象对一个人按 <span class="math inline">\(1,\ldots,T\)</span>
+各期逐列观测，记录协变量 <span
+class="math inline">\(X_{i1},X_{i2},\ldots\)</span> 和决策 <span
+class="math inline">\(W_{i1},W_{i2},\ldots\)</span>。每一期做一个决策。第
+<span class="math inline">\(t\)</span> 期的决策依赖截至 <span
+class="math inline">\(t-1\)</span> 期发生的事情，最后有 <span
+class="math inline">\(2^T\)</span> 个可能的结果。</p>
+<blockquote>
+<p><span style="color: #000000"><span
+class="math inline">\(X_{i1},W_{i1};\ X_{i2},W_{i2};\ \ldots;\
+X_{iT},W_{iT}\)</span></span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span
+class="math inline">\(2^T\)</span> 个潜在最终结果 <span
+class="math inline">\(Y_i(w_{1:T})\)</span></p>
+</blockquote>
+<p>有两类目标参数：</p>
+<ol>
+<li><p>评估一个固定处理序列 <span
+class="math inline">\(w\in\{0,1\}^T\)</span>： <span
+class="math display">\[V(w)=\mathbb E[Y_i(w)].\]</span></p></li>
+<li><p>评估一个策略，其决策规则 <span
+class="math inline">\(\pi_t\)</span> 将可用历史映射到 <span
+class="math inline">\(\{0,1\}\)</span>： <span
+class="math display">\[\begin{align*}
+V(\pi)=\mathbb E\bigl[Y_i\bigl(&amp;\pi_1(X_{i1}),\\
+&amp;\pi_2(X_{i1},\pi_1(X_{i1}),X_{i2}(\pi_1(X_{i1}))),\ldots\bigr)\bigr].\tag{12.2}
+\end{align*}\]</span></p></li>
+</ol>
+<blockquote>
+<p><span
+style="color: #C92B32">第二次决策依赖协变量历史和先前的处理取值。</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 式
+(12.2) 中 <span class="math inline">\(\pi_2\)</span> 的参数。</p>
+</blockquote>
+<p>这两个问题都用潜在处理序列定义目标参数，包括对生成数据的处理分配分布实施干预。</p>
+<p>考虑两种自然的无混杂性假设：</p>
+<ol>
+<li><p><strong>序贯无混杂性／序贯可忽略性（sequential
+ignorability）：</strong> <span class="math display">\[\{\text{时点
+}t\text{ 之后的潜在结果}\}\perp W_{it}
+\mid\{\text{时点 }t\text{ 的历史}\}.\]</span>
+在每一期，给定截至该期收集的数据，处理分配不存在混杂。</p></li>
+<li><p><strong>完全随机化：</strong> <span
+class="math display">\[\{\text{所有潜在结果}\}\perp W_{i,1:T}.\]</span>
+<strong>作者在左页的判断：</strong>这里不合理。</p></li>
+</ol>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-008）：序贯识别还需要支持条件</strong></p>
+<p><em>来源：Lecture11-14.pdf, pages 9, 10, 12, 13</em></p>
+<p>除了序贯可忽略性和一致性，在策略 <span
+class="math inline">\(\pi\)</span> 可到达的历史上，还要求 <span
+class="math display">\[P(W_t=\pi_t(\mathcal F_t)\mid\mathcal
+F_t)&gt;0\]</span>
+成立。稳定估计往往还需要一致的界和矩条件。对整个处理序列完全随机化，可以作为另一种实验设计，但一般不适合这里的自适应设计。<span
+class="math inline">\(W_{it}(W_{i,1:t-1})\)</span>
+是简写：决策还使用截至 <span class="math inline">\(t\)</span>
+期已观测的协变量。</p>
+</div>
+<h2 id="处理与混杂因素之间的反馈">处理与混杂因素之间的反馈</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 11</em></p>
+<p>一个可能出问题的例子。所有个体都有 <span
+class="math inline">\(X_{i1}=0\)</span>，且 <span
+class="math display">\[\mathbb P(W_{i1}=1)=0.5,\qquad
+\mathbb P(W_{i2}=1\mid X_{i2}=1)=0.8,\qquad
+\mathbb P(W_{i2}=1\mid X_{i2}=0)=0.4.\]</span> 目标写为 <span
+class="math inline">\(\tau=\mathbb E[Y(1)-Y(0)]\)</span>。分析得到 <span
+class="math display">\[\mathbb E[Y_i\mid W_{i1}=0]=\mathbb E[Y_i\mid
+W_{i1}=1]=0,\]</span> <span class="math display">\[\mathbb E[Y_i\mid
+W_{i2}=0,W_{i1}=w_1,X_{i2}=x]
+=\mathbb E[Y_i\mid W_{i2}=1,W_{i1}=w_1,X_{i2}=x]\]</span> 对每个 <span
+class="math inline">\(w_1,x\)</span> 都成立。</p>
+<p>第一种错误是忽略自适应采样，直接使用通常的均值差： <span
+class="math display">\[\widehat\tau=\widehat{\mathbb E}[Y\mid W=1]
+-\widehat{\mathbb E}[Y\mid W=0].\]</span> 第二种错误是按 <span
+class="math inline">\(X_{i2}\)</span> 分层： <span
+class="math display">\[\begin{align*}
+\widehat\tau_0&amp;=\mathbb E[Y\mid W=1,X_{i2}=0]
+-\mathbb E[Y\mid W=0,X_{i2}=0],\\
+\widehat\tau_1&amp;=\mathbb E[Y\mid W=1,X_{i2}=1]
+-\mathbb E[Y\mid W=0,X_{i2}=1],\\
+\widehat\tau&amp;=\frac{n_0\widehat\tau_0+n_1\widehat\tau_1}{n_0+n_1}.
+\end{align*}\]</span> 为什么会想这样做？我们知道形如 <span
+class="math inline">\(Y_i(\cdots)\perp W_{i2}\mid X_{i2}\)</span>
+的结论，但这种分层实际需要 <span
+class="math display">\[Y_i(\cdots)\perp(W_{i1},W_{i2})\mid
+X_{i2}.\]</span> 笔记画了三类人：</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">类型</th>
+<th style="text-align: center;"><span
+class="math inline">\(W_{i1}=0\)</span> 时的 <span
+class="math inline">\(X_{i2}\)</span></th>
+<th style="text-align: center;"><span
+class="math inline">\(W_{i1}=1\)</span> 时的 <span
+class="math inline">\(X_{i2}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">稳定型（1）</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">响应型（2）</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">急性型（3）</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>按笔记中的一致性比较，<span
+class="math inline">\(W=1,X_{i2}=0\)</span> 组包含第（1）、（2）类，而
+<span class="math inline">\(W=0,X_{i2}=0\)</span>
+组仅包含第（1）类；<span class="math inline">\(W=1,X_{i2}=1\)</span>
+组包含第（3）类，而 <span class="math inline">\(W=0,X_{i2}=1\)</span>
+组包含第（2）、（3）类。因此，即使实验是序贯随机化的，这样分层也不能控制混杂。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-009）：反馈例子缺少结果表，且下标含糊</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 11</em></p>
+<p>手写的 <span class="math inline">\(0\)</span> 很清楚，并非 OCR
+误读。在对应的<a href="https://web.stanford.edu/~swager/stats361.pdf">第
+12 讲例子</a>中，两个未经中心化的条件均值都是 <span
+class="math inline">\(60\)</span>。若把所有结果减去 <span
+class="math inline">\(60\)</span>，它们才变成 <span
+class="math inline">\(0\)</span>，但扫描中没有说明中心化，也没有给出结果表，因此原意仍不确定。另外，<span
+class="math inline">\(Y(1)-Y(0)\)</span> 与不带下标的 <span
+class="math inline">\(W\)</span>
+需要明确对应的处理序列。稳定型／响应型／急性型的组成比较，正确地展示了按处理后变量选择样本的问题；这里比较的是
+<span class="math inline">\(W_{i1}\)</span>。</p>
+</div>
+<h2 id="序贯可忽略性下的序贯推断">序贯可忽略性下的序贯推断</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 12</em></p>
+<p>简单分层不起作用，便直接专注于估计 <span
+class="math inline">\(V(\pi)\)</span>。定义过滤族 <span
+class="math display">\[\mathcal
+F_t=\sigma(X_1,W_1,X_2,W_2,\ldots,W_{t-1},X_t),\]</span> 它包含选择第
+<span class="math inline">\(t\)</span> 期处理之前的所有可用信息。用
+<span class="math inline">\(\mathbb E_\pi\)</span> 表示按照策略 <span
+class="math inline">\(\pi\)</span> 分配处理时的期望。于是 (12.2) 变为
+<span class="math inline">\(V(\pi)=\mathbb E_\pi[Y]\)</span>。</p>
+<p>定义价值函数 <span
+class="math display">\[V_{\pi,t}(X_1,W_1,\ldots,W_{t-1},X_t)
+=\mathbb E_\pi[Y\mid\mathcal F_t].\]</span> 这个函数衡量：从 <span
+class="math inline">\(\mathcal F_t\)</span> 所代表的状态开始遵循 <span
+class="math inline">\(\pi\)</span>，预计会获得的回报。<span
+style="color: #C92B32">策略 <span class="math inline">\(\pi\)</span>
+的整体价值为 <span class="math inline">\(V_{\pi,0}\)</span>。</span></p>
+<p>由塔式法则， <span class="math display">\[\begin{align*}
+&amp;\mathbb E_\pi[V_{\pi,t+1}(X_1,W_1,\ldots,W_t,X_{t+1})\mid\mathcal
+F_t]\\
+&amp;\quad=\mathbb E_\pi[\mathbb E_\pi[Y\mid\mathcal
+F_{t+1}]\mid\mathcal F_t]\\
+&amp;\quad=\mathbb E_\pi[Y\mid\mathcal F_t]
+=V_{\pi,t}(X_1,W_1,\ldots,W_{t-1},X_t).\tag{12.6}
+\end{align*}\]</span></p>
+<div class="original-ink" style="color: #C92B32" data-ink="red"
+aria-label="Original red ink">
+<p><strong>我的理解：</strong>即当已知 <span
+class="math inline">\(\mathcal F_t\)</span>，从 <span
+class="math inline">\(t\)</span> 到 <span
+class="math inline">\(t+1\)</span>，我以后的预期一直不变。批注将它联系到“贝尔曼方程”：
+<span class="math display">\[V(s)=R(s)+\gamma\sum_{s&#39;}P(s&#39;\mid
+s,a)V(s&#39;).\]</span></p>
+</div>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-010）：Bellman
+类比中应明确策略参数</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 12</em></p>
+<p>基于历史的塔式恒等式不需要 Markov 假设。在带折扣的 Markov
+奖励模型中，对固定确定性策略，对应的式子为 <span
+class="math display">\[V^\pi(s)=r(s,\pi(s))+\gamma\sum_{s&#39;}P(s&#39;\mid
+s,\pi(s))V^\pi(s&#39;).\]</span>
+若策略随机，还要对动作取平均。这里研究的是最终结果，没有另外指定逐期奖励序列或折扣因子。</p>
+</div>
+<p>若已有 <span class="math inline">\(V_{\pi,t+1}\)</span>
+的好估计，就设法得到 <span class="math inline">\(V_{\pi,t}\)</span>
+的好估计，一直向前回溯，直到恢复 <span
+class="math inline">\(V(\pi)\)</span>。</p>
+<p>记 <span class="math inline">\(X_{T+1}=Y\)</span>。联合分布可分解为
+<span class="math display">\[P_\pi(X_1,W_1,\ldots,X_T,W_T,Y)
+=P_\pi(X_1)\prod_{t=1}^T
+P_\pi(W_t\mid\mathcal F_t)
+P_\pi(X_{t+1}\mid\mathcal F_t,W_t).\]</span>
+无混杂性意味着：分解中非处理项不依赖于策略， <span
+class="math display">\[P_\pi(X_1)=P(X_1),\qquad
+P_\pi(X_{t+1}\mid\mathcal F_t,W_t)
+=P(X_{t+1}\mid\mathcal F_t,W_t),\quad\text{对所有 }\pi.\]</span></p>
+<blockquote>
+<p><span
+style="color: #C92B32">处理对后续协变量的影响与选择处理的策略无关。</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+不变的转移项 <span class="math inline">\(P(X_{t+1}\mid\mathcal
+F_t,W_t)\)</span>。</p>
+</blockquote>
+<h2 id="逆倾向概率加权">逆倾向概率加权</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 13</em></p>
+<p>为了把 (12.6) 用于 off-policy 数据，需要改变测度：实际数据并不是由
+<span class="math inline">\(\pi(\cdot)\)</span> 生成的。 <span
+class="math display">\[\begin{align*}
+V_{\pi,t}
+&amp;=\mathbb E_\pi[V_{\pi,t+1}\mid\mathcal F_t]\\
+&amp;=\mathbb E\left[\left.
+\frac{P_\pi(W_t,X_{t+1}\mid\mathcal F_t)}
+{P(W_t,X_{t+1}\mid\mathcal F_t)}V_{\pi,t+1}
+\right|\mathcal F_t\right]\\
+&amp;=\mathbb E\left[\left.
+\frac{P_\pi(W_t\mid\mathcal F_t)P_\pi(X_t\mid\mathcal F_t,W_t)}
+{P(W_t\mid\mathcal F_t)P(X_t\mid\mathcal F_t,W_t)}
+V_{\pi,t+1}\right|\mathcal F_t\right]\\
+&amp;=\mathbb E\left[\left.
+\frac{\mathbf1\{W_t=\pi_t(\ldots,X_t)\}}
+{P[W_t=\pi_t(\ldots,X_t)\mid\mathcal F_t]}
+V_{\pi,t+1}\right|\mathcal F_t\right].
+\end{align*}\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32">从观测策略换到 <span
+class="math inline">\(\pi\)</span>，消去转移项。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+两个转移项相消（下标需按下方校注修正）。</p>
+</blockquote>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-011）：转移项需要下一期的协变量</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 13</em></p>
+<p>这两个项必须是 <span class="math inline">\(P_\pi(X_{t+1}\mid\mathcal
+F_t,W_t)\)</span> 和 <span class="math inline">\(P(X_{t+1}\mid\mathcal
+F_t,W_t)\)</span>。当前的 <span class="math inline">\(X_t\)</span>
+已包含在 <span class="math inline">\(\mathcal F_t\)</span>
+中，不能用它分解前一行 <span
+class="math inline">\((W_t,X_{t+1})\)</span>
+的联合分布。官方讲义也有同一笔误。修正下标后，由不变性可消去转移项。</p>
+</div>
+<p>对每个 <span class="math inline">\(t=1,\ldots,T\)</span>
+都进行测度变换。由于 <span class="math display">\[V(\pi)=\mathbb
+E[V_{\pi,1}(X_1)],\]</span> <span
+class="math display">\[V_{\pi,1}(X_1)=\mathbb E\left[\left.
+\frac{\mathbf1\{W_1=\pi_1(X_1)\}}
+{P[W_1=\pi_1(X_1)]}
+V_{\pi,2}(X_1,W_1,X_2)\right|\mathcal F_1\right],\]</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-037）：单步递推中的历史参数</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 13</em></p>
+<p>手写的单步价值为 <span
+class="math inline">\(V_{\pi,2}(X_1,W_2,X_2)\)</span>，但第 2
+期的历史应包含 <span
+class="math inline">\(W_1\)</span>，而不是尚未选择的 <span
+class="math inline">\(W_2\)</span>。类似地，一般形式中下一期价值的最后一个参数应为
+<span class="math inline">\(X_{t+1}\)</span>，而不是原稿的 <span
+class="math inline">\(W_{t+1}\)</span>。这里展示的紧凑公式已直接使用修正后的历史参数。</p>
+</div>
+<p>反复代入，最后留下 <span class="math inline">\(V_{\pi,T+1}=\mathbb
+E_\pi[Y\mid\mathcal F_{T+1}]=Y\)</span>，从而得到</p>
+<p><span class="math display">\[V(\pi)=\mathbb E\left[
+\left\{\prod_{t=1}^T
+\frac{\mathbf1\{W_t=\pi_t(\ldots,X_t)\}}
+{P[W_t=\pi_t(\ldots,X_t)\mid\mathcal F_t]}\right\}Y\right].\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32"><span class="math inline">\(\mid\mathcal
+F_1\)</span>?</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 分母
+<span class="math inline">\(P[W_1=\pi_1(X_1)]\)</span></p>
+</blockquote>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-012）：单步概率应以历史为条件</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 13</em></p>
+<p>作者的疑问正确指出了遗漏。分母应为 <span
+class="math inline">\(P[W_1=\pi_1(X_1)\mid\mathcal
+F_1]\)</span>。只有当这个条件匹配概率不随历史变化时，才能用无条件概率替代。若策略随
+<span class="math inline">\(X_1\)</span> 变化，仅有 <span
+class="math inline">\(W_1\)</span> 与 <span
+class="math inline">\(X_1\)</span> 独立仍然不够：例如 <span
+class="math inline">\(P(W_1=1)=0.2\)</span> 时，匹配概率可能为 <span
+class="math inline">\(0.2\)</span>，也可能为 <span
+class="math inline">\(0.8\)</span>。一般的乘积式已经正确使用了条件概率。</p>
+</div>
+<p>IPW 估计量为 <span class="math display">\[\widehat
+V_{\mathrm{IPW}}(\pi)=\frac1n\sum_{i=1}^n\gamma_{iT}(\pi)Y_i,
+\qquad
+\gamma_{it}(\pi)=\gamma_{i,t-1}(\pi)
+\frac{\mathbf1\{W_{it}=\pi_t(\ldots,X_{it})\}}
+{P[W_{it}=\pi_t(\ldots,X_{it})\mid\mathcal F_{it}]}.\]</span>
+<strong>原稿转写：</strong>页底的初值写为 <span
+class="math inline">\(\gamma_{i0}(\pi)=0\)</span>。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-013）：IPW 递推应从一开始</strong></p>
+<p><em>来源：Lecture11-14.pdf, pages 13, 15</em></p>
+<p>应令 <span
+class="math inline">\(\gamma_{i0}(\pi)=1\)</span>。若初值为零，后面所有权重和整个
+IPW 估计量都会等于零。AIPW
+的望远镜消去恒等式也必须使用这个修正。官方讲义有同一笔误；乘积的代数关系决定了正确答案。</p>
+</div>
+<p><span style="color: #C92B32"><strong>我的理解：</strong>对符合 <span
+class="math inline">\(\pi\)</span> 的结果取平均，用 IPW
+去除已观测的时变变量造成的混杂影响。如果权重，即每一期的条件分配概率，都是已知的，那么
+<span class="math inline">\(\widehat V_{\mathrm{IPW}}\)</span>
+无偏。</span></p>
+<h2 id="向后递推的回归调整">向后递推的回归调整</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 14</em></p>
+<p>利用 (12.6) 与序贯无混杂性，从后向前迭代。在 <span
+class="math inline">\(t=T\)</span> 时， <span
+class="math display">\[\begin{align*}
+V_{\pi,T}(X_1,W_1,\ldots,X_T)
+&amp;=\mathbb E_\pi[Y\mid\mathcal F_T]\\
+&amp;=\mathbb E_\pi[Y\mid\mathcal F_T,W_T=\pi_T(X_1,W_1,\ldots,X_T)]\\
+&amp;=\mathbb E[Y\mid\mathcal F_T,W_T=\pi_T(X_1,W_1,\ldots,X_T)].
+\end{align*}\]</span> 直接用非参数回归学习 <span
+class="math inline">\(\widehat
+V_{\pi,T}\)</span>。给定下一期价值函数的合理估计， <span
+class="math display">\[V_{\pi,t}(X_1,W_1,\ldots,X_t)
+\approx\mathbb E[\widehat V_{\pi,t+1}(\ldots,X_{t+1})
+\mid\mathcal F_t,W_t=\pi_t(\ldots,X_t)].\tag{12.12}\]</span>
+继续向前回溯，直到得到 <span class="math inline">\(V(\pi)\)</span>
+的估计。</p>
+<blockquote>
+<p><span style="color: #244DA8">与 IPW
+不同，需要量化回归误差在向后递推中如何传播。</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> <span
+class="math inline">\(Q\)</span>-learning</p>
+</blockquote>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-014）：向后评估与策略优化的区别</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 14</em></p>
+<p>所示递推是对固定 <span class="math inline">\(\pi\)</span>
+的向后回归或拟合评估。最优 <span
+class="math inline">\(Q\)</span>-learning
+还需要通过最大化拟合的动作价值来选择动作。作者关于误差传播的担忧对两者都适用。</p>
+</div>
+<h2 id="双重稳健估计量">双重稳健估计量</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 15</em></p>
+<p>现在同时有 IPW 和回归两种方法。式 (12.12) 给出价值估计 <span
+class="math inline">\(\widehat V_{\pi,1}(X_1)\)</span>，于是 <span
+class="math display">\[\widehat
+V_{\mathrm{REG}}(\pi)=\frac1n\sum_{i=1}^n\widehat
+V_{\pi,1}(X_{i1}).\]</span></p>
+<blockquote>
+<p><span style="color: #000000">向后回归 (12.12)</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> <span
+class="math inline">\(\widehat V_{\pi,1}\)</span>，再取 <span
+class="math inline">\(n^{-1}\sum_i\widehat
+V_{\pi,1}(X_{i1})\)</span></p>
+</blockquote>
+<p>如果相比 <span class="math inline">\(\widehat V_{\pi,1}\)</span>
+更相信 <span class="math inline">\(\widehat
+V_{\pi,2}\)</span>，就用后者给前者去偏： <span
+class="math display">\[\widehat V(\pi)=\frac1n\sum_{i=1}^n\left[
+\widehat V_{\pi,1}(X_{i1})+
+\gamma_{i1}(\pi)\{
+\widehat V_{\pi,2}(X_{i1},W_{i1},X_{i2})
+-\widehat V_{\pi,1}(X_{i1})\}\right].\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32">权重 <span
+class="math inline">\(\gamma_{i1}\)</span>；修正项。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+class="math inline">\(\gamma_{i1}(\widehat V_{\pi,2}-\widehat
+V_{\pi,1})\)</span></p>
+</blockquote>
+<p><span class="math display">\[\widehat V_{\mathrm{AIPW}}(\pi)
+=\frac1n\sum_{i=1}^n\left[
+\gamma_{iT}(\pi)Y_i+
+\sum_{t=1}^T\{\gamma_{i,t-1}(\pi)-\gamma_{it}(\pi)\}
+\widehat V_{\pi,t}(X_{i1},\ldots,X_{it})\right].\]</span>
+这将非动态情形的 AIPW 推广到了动态情形。</p>
+<blockquote>
+<p><span style="color: #000000">不断修正，直到 <span
+class="math inline">\(V_{\pi,T+1}=Y\)</span>。</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+上面的完整序贯 AIPW 估计量。</p>
+</blockquote>
+<p>原稿最后划线的结论是：<span style="color: #C92B32"><u><span
+style="color: #000000">对任意无偏的 <span class="math inline">\(\widehat
+V_{\pi,t}\)</span>，<span class="math inline">\(\widehat
+V_{\mathrm{AIPW}}\)</span> 都无偏。</span></u></span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-015）：序贯双重稳健性所需的条件</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 15</em></p>
+<p>设 <span class="math inline">\(q_t\)</span>
+是固定的或用独立数据训练的价值函数，<span
+class="math inline">\(q_{T+1}=Y\)</span>，且 <span
+class="math inline">\(\gamma_0=1\)</span>。被平均的单项可写为 <span
+class="math display">\[q_1+\sum_{t=1}^T\gamma_t(q_{t+1}-q_t).\]</span>
+如果每一期的处理概率都正确，对任意 <span
+class="math inline">\(q_t\)</span>，加权期望都会通过望远镜消去得到 <span
+class="math inline">\(E_\pi[Y]\)</span>，不需要回归无偏。如果每个 <span
+class="math inline">\(q_t=V_{\pi,t}\)</span>，在目标动作下每个残差的条件均值都为零，此时可容许正的、可预测的倾向概率模型。仅仅要求拟合回归在边际上无偏并不足够，尤其是重复使用同一批观测时。对估得的
+nuisance 作渐近论断，通常还需一致性和乘积收敛速度条件。参见 <a
+href="https://proceedings.mlr.press/v48/jiang16.html">Jiang 和
+Li（2016）</a>。</p>
+</div>
+<h1 id="第-13-讲结构方程建模">第 13 讲：结构方程建模</h1>
+<p><em>原扫描页码：Lecture11-14.pdf, page 16</em></p>
+<p>SEM 指结构方程模型。回顾前面的方程 <span
+class="math inline">\(Y_i=\alpha+W_i\tau+\varepsilon_i\)</span>：设
+<span class="math inline">\(W_i=w\)</span>，则观测到 <span
+class="math inline">\(Y_i(W_i=w)=\alpha+w\tau+\varepsilon_i\)</span>。</p>
+<h2 id="非参数-sem">非参数 SEM</h2>
+<p>设 <span class="math inline">\((X_1,\ldots,X_p)\)</span> 是 <span
+class="math inline">\(p\)</span> 个随机变量，联合分布为 <span
+class="math inline">\(P\)</span>。假设 <span
+class="math inline">\(P\)</span> 可以用有向无环图（DAG）<span
+class="math inline">\(G\)</span> 表示，即 <span
+class="math display">\[P(X_1,\ldots,X_p)=\prod_{j=1}^p
+P(X_j\mid\operatorname{pa}_j),\tag{13.2}\]</span> 其中 <span
+class="math inline">\(\operatorname{pa}_j\)</span> 是图 <span
+class="math inline">\(G\)</span> 中 <span
+class="math inline">\(X_j\)</span> 的父节点集合。等价地， <span
+class="math display">\[\operatorname{pa}_j=\{X_i:E_{ij}=1\},\]</span>
+<span class="math inline">\(E_{ij}\)</span> 表示是否存在边 <span
+class="math inline">\(X_i\to X_j\)</span>。进一步假设存在确定性函数
+<span class="math inline">\(f_j\)</span>，<span
+class="math inline">\(j=1,\ldots,p\)</span>，使得 <span
+class="math display">\[X_j=f_j(\operatorname{pa}_j,\varepsilon_j),\qquad
+\varepsilon_j\sim F_j,\quad\text{相互独立}.\tag{13.3}\]</span> <span
+style="color: #C92B32">SEM／DAG
+用父节点和噪声来规定每个节点。</span></p>
+<blockquote>
+<p><span style="color: #C92B32">即使上游父节点的取值改变，<span
+class="math inline">\(f_j(\cdot)\)</span> 也不改变。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+class="math inline">\(X_j=f_j(\operatorname{pa}_j,\varepsilon_j)\)</span></p>
+</blockquote>
+<p><span style="color: #244DA8">这样有了具体含义：<span
+class="math inline">\(f_j\)</span> 可以看作给定父节点时 <span
+class="math inline">\(X_j\)</span> 的分布索引。</span></p>
+<p>因果查询从外部设置某些节点的取值，考察其他节点的分布怎样改变。对不相交的节点集
+<span class="math inline">\(W,Y\subset X\)</span>，把设置 <span
+class="math inline">\(W=w\)</span> 对 <span
+class="math inline">\(Y\)</span> 的影响写为 <span
+class="math display">\[P[Y\mid\operatorname{do}(W=w)].\]</span> 在
+(13.3) 中，删除对应于 <span class="math inline">\(W\)</span>
+的方程，并将其他方程中的 <span class="math inline">\(W\)</span> 替换为
+<span class="math inline">\(w\)</span>。对 <span
+class="math inline">\(X_j\)</span> 的干预，原稿将截断分解写为 <span
+class="math display">\[P[X\mid\operatorname{do}(X_j=x_j)]
+=\begin{cases}
+\displaystyle\frac{P[X]}{P[X_j=x_j\mid\operatorname{pa}_j]},&amp;X_j=w_j,\\
+0,&amp;\text{其他情况}.
+\end{cases}\]</span></p>
+<blockquote>
+<p><span style="color: #244DA8">1?</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 分母
+<span
+class="math inline">\(P[X_j=x_j\mid\operatorname{pa}_j]\)</span></p>
+</blockquote>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-016）：分支条件应与干预取值一致</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 16</em></p>
+<p>非零分支必须写 <span
+class="math inline">\(X_j=x_j\)</span>，与干预一致。对离散变量， <span
+class="math display">\[p^{\operatorname{do}(X_j=x_j)}(x)
+=\mathbf1\{x_j\text{ 等于施加的取值}\}\prod_{\ell\ne
+j}p(x_\ell\mid\operatorname{pa}_\ell).\]</span>
+蓝色的“1?”指向被强制设置节点的新概率质量：在施加的取值处，质量为 <span
+class="math inline">\(1\)</span>。但这不能据以把所示分母改为 <span
+class="math inline">\(1\)</span>；那个分母的作用是移除原来的观测生成机制。</p>
+</div>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-017）：连续变量的确定性干预会产生点质量</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 16</em></p>
+<p>对连续坐标实施确定性干预，会产生点质量；所得联合分布未必仍有相对于原来全维
+Lebesgue
+测度的密度。一般做法是将其他条件概率核作截断乘积。用比值表示时，还需要相应的观测支持条件。</p>
+</div>
+<h2 id="do-calculus分离与图的修改">Do-calculus：分离与图的修改</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 17</em></p>
+<p>对互不相交的节点集 <span
+class="math inline">\(X,Y,Z\)</span>，考虑一条连接 <span
+class="math inline">\(X\)</span> 中某节点与 <span
+class="math inline">\(Y\)</span> 中某节点的无向路径 <span
+class="math inline">\(p\)</span>。若路径中存在节点 <span
+class="math inline">\(W\)</span> 满足下列任一条件，路径就被 <span
+class="math inline">\(Z\)</span> 阻断：</p>
+<ol>
+<li><p><span class="math inline">\(W\)</span> 是路径 <span
+class="math inline">\(p\)</span> 上的 collider，且 <span
+class="math inline">\(W\)</span> 本身及其任何后代都不在 <span
+class="math inline">\(Z\)</span> 中；或</p></li>
+<li><p><span class="math inline">\(W\)</span> 不是路径 <span
+class="math inline">\(p\)</span> 上的 collider，且 <span
+class="math inline">\(W\in Z\)</span>。</p></li>
+</ol>
+<p>两幅路径示意图如下（实线箭头是因果边；虚线箭头连接批注）：</p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-008.png" alt="image" /></p>
+</div>
+<p>笔记将此称为 <span class="math inline">\(d\)</span>-分离。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-018）：需要对每一条路径检查</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 17</em></p>
+<p>只阻断一条路径并不足够。开头的“任意路径”应理解为：节点集之间的每条路径都必须满足阻断条件。示意图中从条件集合标签指向节点的箭头是批注，不是额外的因果边。</p>
+</div>
+<p>若 <span class="math inline">\(Z\)</span> 将 <span
+class="math inline">\(X\)</span> 和 <span
+class="math inline">\(Y\)</span> <span
+class="math inline">\(d\)</span>-分离，则 (13.2) 推出 <span
+class="math inline">\(X\perp Y\mid Z\)</span>，记为 <span
+class="math display">\[(X\perp Y\mid Z)_G.\]</span> 图的记号：</p>
+<ul>
+<li><p><span class="math inline">\(G_{\overline X}\)</span>：删除指向
+<span class="math inline">\(X\)</span> 的入边。</p></li>
+<li><p><span class="math inline">\(G_{\underline X}\)</span>：删除从
+<span class="math inline">\(X\)</span> 出发的出边。</p></li>
+<li><p><span class="math inline">\(G_{\underline X\overline
+Z}\)</span>：删除从 <span class="math inline">\(X\)</span>
+出发的边，以及指向 <span class="math inline">\(Z\)</span>
+的边。</p></li>
+</ul>
+<h2 id="三条规则">三条规则</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 19, with the red mnemonic on
+page 18</em></p>
+<p><span style="color: #C92B32">页边再次强调：<span
+class="math inline">\(\operatorname{do}(X=x)\)</span> 删除入边，所以在
+<span class="math inline">\(X\)</span>
+上方加横线。</span>对互不相交的节点集 <span
+class="math inline">\(X,Y,Z,W\)</span>：</p>
+<ol>
+<li><p><strong>观测的插入／删除。</strong>若 <span
+class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline X}},\]</span> 则
+<span class="math display">\[P[Y\mid\operatorname{do}(X=x),Z=z,W=w]
+=P[Y\mid\operatorname{do}(X=x),W=w].\]</span></p></li>
+<li><p><strong>干预与观测的交换。</strong>若 <span
+class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline X\underline
+Z}},\]</span> 则 <span
+class="math display">\[P[Y\mid\operatorname{do}(X=x),\operatorname{do}(Z=z),W=w]
+=P[Y\mid\operatorname{do}(X=x),Z=z,W=w].\]</span></p></li>
+<li><p><strong>干预的插入／删除。</strong>若 <span
+class="math display">\[(Y\perp Z\mid X,W)_{G_{\overline
+X\overline{Z(W)}}},\]</span> 其中 <span
+class="math inline">\(Z(W)\)</span> 是 <span
+class="math inline">\(Z\)</span> 中在 <span
+class="math inline">\(G_{\overline X}\)</span> 内不属于任何 <span
+class="math inline">\(W\)</span> 节点之祖先的那些节点，则 <span
+class="math display">\[P[Y\mid\operatorname{do}(X=x),\operatorname{do}(Z=z),W=w]
+=P[Y\mid\operatorname{do}(X=x),W=w].\]</span></p></li>
+</ol>
+<p><strong>我在左页的简记。</strong></p>
+<blockquote>
+<p><span style="color: #C92B32">共同的 <span
+class="math inline">\(\operatorname{do}(X=x)\)</span>，以及额外的上横线／下横线。</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+上面的三条 do-calculus 规则。</p>
+</blockquote>
+<p><span style="color: #C92B32">三个式中都有 <span
+class="math inline">\(\operatorname{do}(X=x)\)</span>；<span
+class="math inline">\(\overline X\)</span> 提供 <span
+class="math inline">\(\operatorname{do}(X=x)\)</span>
+条件。之后，在相应分离条件成立时，删掉 <span
+class="math inline">\(Z\)</span> 的出边，就可以把“do <span
+class="math inline">\(Z\)</span>”换成“control <span
+class="math inline">\(Z\)</span>”；删掉 <span
+class="math inline">\(Z(W)\)</span> 的入边，则“do <span
+class="math inline">\(Z\)</span>”相当于没 do。<span
+class="math inline">\(Z(W)\)</span> 是 <span
+class="math inline">\(Z\)</span> 中不具有上述被排除的 <span
+class="math inline">\(W\)</span> 祖先关系的部分。</span></p>
+<p>反复使用 do-calculus，将因果查询化简为关于 <span
+class="math inline">\(P\)</span> 的可观测查询：表达式中不再有 do
+算子，只依赖观测到的随机变量。Do-calculus
+是完备的：如果无法把某个因果查询化为这样的观测表达式，那么在给定的 SEM
+框架下，该查询就不能非参数识别。</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-019）：完备性是相对于指定因果模型而言的</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 19</em></p>
+<p>完备性指在指定的因果模型和可观测变量集合中，不存在任何有效的化简，而不是某一次非正式尝试没有成功。调整公式中使用的条件概率还需要相应的支持条件。这里三条规则及
+<span class="math inline">\(Z(W)\)</span> 的定义与官方讲义一致。</p>
+</div>
+<h2 id="例-1后门准则">例 1：后门准则</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 20</em></p>
+<p>取互不相交的节点集 <span class="math inline">\(X,Y,W\)</span>，查询
+<span
+class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>。假设
+<span class="math inline">\(X\)</span> 不包含 <span
+class="math inline">\(W\)</span> 的任何后代，并且删除 <span
+class="math inline">\(W\)</span> 的出边后，<span
+class="math inline">\(X\)</span> 将 <span
+class="math inline">\(W\)</span> 与 <span
+class="math inline">\(Y\)</span> <span
+class="math inline">\(d\)</span>-分离： <span
+class="math display">\[(Y\perp W\mid X)_{G_{\underline
+W}}.\tag{13.8}\]</span> 则 <span class="math display">\[\begin{align*}
+P[Y\mid\operatorname{do}(W=w)]
+&amp;=\sum_xP[X=x\mid\operatorname{do}(W=w)]
+P[Y\mid X=x,\operatorname{do}(W=w)]\\
+&amp;=\sum_xP[X=x]P[Y\mid X=x,\operatorname{do}(W=w)]\\
+&amp;=\sum_xP[X=x]P[Y\mid X=x,W=w].\tag{13.9}
+\end{align*}\]</span> <span style="color: #C92B32">第二个等号使用了
+<span class="math inline">\(X\)</span> 不在 <span
+class="math inline">\(W\)</span> 下游的事实；最后一个等号使用规则
+2。红色页边批注把第一次替换与 <span class="math inline">\((X\perp
+W)_{G_{\overline W}}\)</span> 联系起来。</span></p>
+<h4 id="我对图条件的理解">我对图条件的理解。</h4>
+<p>把 <span class="math inline">\(W\)</span> 和 <span
+class="math inline">\(Y\)</span> 看成单个节点。删除 <span
+class="math inline">\(W\)</span> 的出边，就去掉了它对 <span
+class="math inline">\(Y\)</span>
+的下游因果影响；剩下的依赖关系，就是调整集合必须阻断的部分。<span
+style="color: #C92B32">顶部批注说，<span
+class="math inline">\(X\)</span> 必须分离 <span
+class="math inline">\(Y\)</span> 与 <span
+class="math inline">\(W\)</span> 之间的后门联系，才能在评估干预 <span
+class="math inline">\(W\)</span> 的效应时使用 <span
+class="math inline">\(X\)</span> [最上方红字有部分无法辨清]。</span></p>
+<p>假设 <span class="math inline">\(W\)</span> 和 <span
+class="math inline">\(Y\)</span> 是单个节点，而且在 <span
+class="math inline">\(G\)</span> 中，<span
+class="math inline">\(W\)</span> 除了 <span
+class="math inline">\(Y\)</span> 以外没有其他后代。剪掉 <span
+class="math inline">\(W\)</span> 的出边，就去掉其下游影响。这时 (13.8)
+变为 <span class="math display">\[F_Y(w)\perp W\mid X,\qquad
+F_Y(w)=f_Y(w,X,\varepsilon_Y).\tag{13.10}\]</span></p>
+<blockquote>
+<p><span
+style="color: #244DA8">从图上推断；一个具体的条件独立论证。</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 式
+(13.10) 中的 <span class="math inline">\(F_Y(w)\perp W\mid
+X\)</span></p>
+</blockquote>
+<p><span style="color: #C92B32">在 <span
+class="math inline">\(X_j=f_j(\operatorname{pa}_j,\varepsilon_j)\)</span>
+中，除 <span class="math inline">\(w\)</span>
+以外的因素都还没有被指定。</span></p>
+<h2 id="例-2前门准则">例 2：前门准则</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 21</em></p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-009.png" alt="image" /></p>
+</div>
+<p>我们要得到 <span
+class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>。由于
+<span class="math inline">\(U\)</span> 不可观测，不能使用 <span
+class="math inline">\(X=U\)</span> 作后门调整。但假设 <span
+class="math inline">\(Z\)</span> 完全中介了 <span
+class="math inline">\(W\)</span> 对 <span
+class="math inline">\(Y\)</span> 的影响，并且不受 <span
+class="math inline">\(U\)</span> 影响。 <span
+class="math display">\[\begin{align*}
+P[Y\mid\operatorname{do}(W=w)]
+&amp;=\sum_zP[Z=z\mid\operatorname{do}(W=w)]
+P[Y\mid Z=z,\operatorname{do}(W=w)]\\
+&amp;=\sum_zP[Z=z\mid W=w]
+P[Y\mid Z=z,\operatorname{do}(W=w)].
+\end{align*}\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32"><span class="math inline">\(W\)</span>
+与 <span class="math inline">\(Z\)</span> 之间没有后门路径。</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span class="math inline">\(Z\)</span> 对应的项中，将 <span
+class="math inline">\(\operatorname{do}(W=w)\)</span> 换为 <span
+class="math inline">\(W=w\)</span>。</p>
+</blockquote>
+<p>接着， <span class="math display">\[\begin{align*}
+P[Y\mid Z=z,\operatorname{do}(W=w)]
+&amp;=P[Y\mid\operatorname{do}(Z=z),\operatorname{do}(W=w)]
+&amp;&amp;\text{\textcolor{red}{（规则 2）}}\\
+&amp;=P[Y\mid\operatorname{do}(Z=z)]&amp;&amp;\text{\textcolor{red}{（规则
+3）}}\\
+&amp;=\sum_{w&#39;}P[W=w&#39;]P[Y\mid
+Z=z,W=w&#39;]&amp;&amp;\text{\textcolor{red}{（后门）}}.
+\end{align*}\]</span> 合并各步，得到 <span
+class="math display">\[P[Y\mid\operatorname{do}(W=w)]
+=\sum_zP[Z=z\mid W=w]
+\sum_{w&#39;}P[W=w&#39;]P[Y\mid Z=z,W=w&#39;].\tag{13.11}\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32"><span class="math inline">\(W\to
+Y\)</span> 的整体效应。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+class="math inline">\(W\to Z\)</span>：<span
+class="math inline">\(P(Z=z\mid W=w)\)</span>；<span
+class="math inline">\(Z\to Y\)</span>：<span
+class="math inline">\(\sum_{w\prime}P(w\prime)P(Y\mid
+z,w\prime)\)</span></p>
+</blockquote>
+<p><strong>我的观察：</strong>虽然这里直接描述的是 <span
+class="math inline">\(\operatorname{do}(W=w)\)</span>
+干预，仍然需要对观测分布 <span
+class="math inline">\(P[W=w&#39;]\)</span> 积分。</p>
+<blockquote>
+<p><span style="color: #000000">即使干预 <span
+class="math inline">\(W\)</span>，也需要对观测分布积分。</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 式
+(13.11) 中的 <span class="math inline">\(P[W=w&#39;]\)</span> 项。</p>
+</blockquote>
+<h2 id="例-3工具变量">例 3：工具变量</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 22, upper part</em></p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-010.png" alt="image" /></p>
+</div>
+<p>希望估计 <span
+class="math inline">\(P[Y\mid\operatorname{do}(W=w)]\)</span>。Do-calculus
+在这种情形下无用：增加 IV
+节点无法提供所需的分离，只会使相应的图分离条件更复杂。</p>
+<p>在使用 IV 时，我们的假设不可仅仅写成 SEM
+图，例如还需要单调性。即使这样，也可能只能识别 LATE
+等非标准因果量。而把单调性插入 SEM 本身也很复杂。</p>
+<h2 id="sem-与潜在结果">SEM 与潜在结果</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 22, lower part</em></p>
+<p>在简单的双节点图 <span class="math inline">\(W\to Y\)</span>
+中，两种表述相同：潜在结果 <span class="math inline">\(Y_i(w)\)</span>
+与 SEM 中的 <span class="math inline">\(f_Y(w,\varepsilon_Y)\)</span>
+可以一一映射。</p>
+<p>更一般地，笔记对比了两种表述。潜在结果记号问的是：若将指定变量设为某些取值，<span
+class="math inline">\(Y\)</span> 会是多少。SEM
+更灵活，可以表达嵌套操作。对于同时包含 <span class="math inline">\(W\to
+Z\to Y\)</span> 和 <span class="math inline">\(W\to Y\)</span>
+的图，定义 <span
+class="math display">\[Z(w):=f_Z(w,\varepsilon_Z).\]</span></p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-011.png" alt="image" /></p>
+</div>
+<p>原稿接着写道 <span
+class="math display">\[P[Y\mid\operatorname{do}(W=0),\operatorname{do}(Z=Z(w=1))]
+=f_Y\bigl(w=0,z=f_Z(w=1,\varepsilon_Z),\varepsilon_Y\bigr).\]</span>
+<span style="color: #C92B32">不同的潜在设置可以放在一起讨论；Potential
+Outcome 中不行，除非作图？</span></p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-022）：反事实变量不等于它的分布</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 22</em></p>
+<p>两边类型一致的等式应为 <span
+class="math display">\[Y(0,Z(1))=f_Y(0,f_Z(1,\varepsilon_Z),\varepsilon_Y).\]</span>
+其分布是 <span class="math inline">\(\mathcal
+L(Y(0,Z(1)))\)</span>，而不是随机变量本身。手写等式和官方讲义对应的例子都存在这种类型不匹配。</p>
+</div>
+<p><strong>笔记记录的一些观点：</strong>SEM
+可以识别上述操作的因果效应，被一些人认为是 SEM
+的缺陷；潜在结果表述不能识别，则被认为是其局限性。</p>
+<blockquote>
+<p><span style="color: #C92B32">可识别？</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> SEM
+能识别这种嵌套操作的说法。</p>
+</blockquote>
+<p>这里记录的是疑问和观点，并非由翻译替作者作出的定论。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-023）：潜在结果也能表达嵌套反事实</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 22</em></p>
+<p>关于记号局限性的说法不正确：<span
+class="math inline">\(Y(0,Z(1))\)</span>
+恰好表达了这一嵌套量。任何一种记号本身都不能证明识别。关于中介分析中的嵌套潜在结果，参见
+<a
+href="https://imai.sites.fas.harvard.edu/research/files/BaronKenny.pdf">Imai、Keele
+和 Tingley（2010）</a>。</p>
+</div>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-024）：回答页边疑问：需要哪些识别假设？</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 22</em></p>
+<p>对图中所有节点均可观测、结构误差相互独立且支持充分的情形， <span
+class="math display">\[E[Y(0,Z(1))]=\int E[Y\mid W=0,Z=z]\,dP(Z=z\mid
+W=1).\]</span> SEM
+提供了相关的跨世界独立性。若中介与结果之间有潜在混杂，或仅作更弱的单世界假设，这个公式就可能不成立。因此，红字“可识别？”提出的是实质性的模型问题。<a
+href="https://imai.sites.fas.harvard.edu/research/files/BaronKenny.pdf">Imai
+等人</a> 区分了定义与识别。</p>
+</div>
+<h1 id="第-14-讲自适应实验">第 14 讲：自适应实验</h1>
+<p><em>原扫描页码：Lecture11-14.pdf, page 24, with the explanatory note
+on page 23</em></p>
+<p>自适应实验动态调整实验设计。此前的固定实验在 IID
+框架下进行，而这一假设有时过于严格。</p>
+<h2 id="设定与记号">设定与记号</h2>
+<p>有动作 <span class="math inline">\(k=1,\ldots,K\)</span> 和受试者
+<span
+class="math inline">\(t=1,\ldots,T\)</span>。不同受试者的潜在结果独立同分布。记
+<span class="math display">\[Y_t(k)\sim F_k,\qquad Y_t=Y_t(W_t),\qquad
+\mu_k=\mathbb E[Y_t(k)].\]</span> <span
+class="math inline">\(W_t\)</span> 是为第 <span
+class="math inline">\(t\)</span> 个受试者选择的动作，<span
+class="math inline">\(F_k\)</span> 是臂 <span
+class="math inline">\(k\)</span> 的潜在结果分布，<span
+class="math inline">\(\mu_k\)</span> 是其均值。定义 regret： <span
+class="math display">\[R_T=\sum_{t=1}^T(\mu^*-\mu_{W_t}),\qquad
+\mu^*=\sup_{1\le k\le K}\mu_k.\]</span> <span
+class="math inline">\(\mu^*\)</span>
+是所有可用动作中最大的期望奖励。Regret
+衡量：相较于始终选择最优动作，选择当前动作序列损失了多少期望奖励。</p>
+<p>定义 <span
+class="math display">\[n_{kt}=\sum_{j=1}^t\mathbf1\{W_j=k\},\qquad
+\widehat\mu_{kt}=\frac1{n_{kt}}\sum_{j=1}^t\mathbf1\{W_j=k\}Y_j.\]</span></p>
+<blockquote>
+<p><span style="color: #000000"><span
+class="math inline">\(n_{kt}\)</span></span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+截至时点 <span class="math inline">\(t\)</span>，选择臂 <span
+class="math inline">\(k\)</span> 的次数。</p>
+</blockquote>
+<blockquote>
+<p><span style="color: #000000"><span
+class="math inline">\(\widehat\mu_{kt}\)</span></span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 臂
+<span class="math inline">\(k\)</span> 的平均奖励。</p>
+</blockquote>
+<p><span style="color: #C92B32">使用的是从第 <span
+class="math inline">\(1\)</span> 期到第 <span
+class="math inline">\(t\)</span> 期收集的信息。</span></p>
+<h4 id="我在左页的重新表述">我在左页的重新表述。</h4>
+<p>可以想象有 <span class="math inline">\(T\)</span>
+个相似、独立的个体。每个人都有 <span class="math inline">\(K\)</span>
+种处理选择，因而有 <span class="math inline">\(K\)</span>
+个潜在结果，各臂对应的分布 <span class="math inline">\(F_k\)</span>
+对所有人相同。对每个人，只能观测被选择处理的结果 <span
+class="math inline">\(Y_t=Y_t(W_t)\)</span>。向量 <span
+class="math inline">\(\mu\)</span> 收集了各臂的期望奖励。总 regret
+就是对 <span class="math inline">\(T\)</span>
+个人累加：所选处理与最优处理之间的差距；在这个设定中，最优臂始终是同一个。</p>
+<p>在普通随机实验中，<span class="math inline">\(W_t\)</span> 在 <span
+class="math inline">\(1,\ldots,K\)</span> 上均匀且非自适应地选择，因此
+regret 随 <span class="math inline">\(T\)</span> 线性增长： <span
+class="math display">\[R_T\sim
+T\sum_{k=1}^K\frac{\mu^*-\mu_k}{K}.\]</span> <span
+style="color: #244DA8">批注把求和项的平均解释为每个个体的期望损失。</span>自适应实验的首要目标是使
+regret 次线性增长。</p>
+<blockquote>
+<p><span style="color: #C92B32">Regret
+不应随实验次数或时间线性增长；选择要逐渐接近最优。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> 次线性
+regret。</p>
+</blockquote>
+<p>这需要平衡<em>探索</em>（尝试）与<em>利用</em>（使用已有知识）。</p>
+<h2 id="面对不确定性时保持乐观">面对不确定性时保持乐观</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 25</em></p>
+<p>置信上界（UCB）方法平衡探索与利用：</p>
+<ol>
+<li><p>对每个臂抽样 <span class="math inline">\(t_0\)</span>
+次进行初始化：<span style="color: #C92B32">选择并观测 <span
+class="math inline">\(t_0\)</span> 次，一共 <span
+class="math inline">\(Kt_0\)</span> 次初始抽样。</span></p></li>
+<li><p>对每个 <span
+class="math inline">\(t=Kt_0+1,Kt_0+2,\ldots\)</span>，基于截至 <span
+class="math inline">\(t-1\)</span> 收集的数据，为每个 <span
+class="math inline">\(\mu_k\)</span> 构造置信区间 <span
+class="math inline">\(\widehat U_{kt}\)</span>。</p></li>
+<li><p>选择置信区间上端点最大的动作 <span
+class="math inline">\(W_t\)</span>，观测 <span
+class="math inline">\(Y_t=Y_t(W_t)\)</span>。</p></li>
+</ol>
+<p><span style="color: #C92B32">每过一个 <span
+class="math inline">\(t\)</span>，只多了一个数据点。</span></p>
+<p>为理解 UCB 控制 regret 的原理，将奖励简化为高斯分布： <span
+class="math display">\[Y_t(k)\sim\mathcal
+N(\mu_k,b^2),\tag{14.4}\]</span> 其中 <span
+class="math inline">\(b^2\)</span> 已知。</p>
+<blockquote>
+<p><span style="color: #244DA8">这里已知是为了简化计算。</span> <span
+class="math inline">\(\textcolor{blue}{\longrightarrow}\)</span> 高斯
+UCB 半径中的 <span class="math inline">\(b^2\)</span>。</p>
+</blockquote>
+<p>使用 <span class="math display">\[\widehat U_{kt}=\widehat\mu_{k,t-1}
+\ \pm\ b\sqrt{\frac{4\log T}{n_{k,t-1}}}.\tag{14.5}\]</span> 当 <span
+class="math inline">\(t_0=1\)</span> 时，笔记给出的 regret 表达式为
+<span class="math display">\[R_T=\sum_{k\ne k^*}
+\left\{\frac{16b^2\log T}{\mu_{k^*}-\mu_k}
++(\mu_{k^*}-\mu_k)\right\},\tag{14.6}\]</span> 以至少 <span
+class="math inline">\(1-K/T\)</span> 的概率成立，其中 <span
+class="math inline">\(k^*\)</span> 表示最优臂。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-025）：UCB 的 regret 结论是上界</strong></p>
+<p><em>来源：Lecture11-14.pdf, pages 25, 27, 28</em></p>
+<p>应将 (14.6)、第 27 页重写的结论以及第 28 页最后一个式子中的 <span
+class="math inline">\(=\)</span> 改为 <span
+class="math inline">\(\le\)</span>。对 <span
+class="math inline">\(\Delta_k=\mu^*-\mu_k&gt;0\)</span>，证明给出的是
+<span class="math inline">\(n_{kT}\le16b^2\log
+T/\Delta_k^2+1\)</span>，而不是等式。求和只应包含严格次优的臂；并列最优的臂
+regret
+为零，不能把它们放进分母为零的项。官方讲义也重复了这个等号笔误。</p>
+</div>
+<p><strong>我对这个界的直觉。</strong></p>
+<blockquote>
+<p><span style="color: #C92B32">分母中的差距 <span
+class="math inline">\(\mu_{k^*}-\mu_k\)</span>。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+style="color: #C92B32">臂与最优臂越接近，UCB
+越需要更长的时间分辨；很差的臂可快速丢弃。</span></p>
+</blockquote>
+<p><span style="color: #C92B32">UCB 的 regret
+只以对数增长。臂与最优臂越接近，越需要更长时间分辨；很差的臂可以快速丢弃。<span
+class="math inline">\(\mu_{k^*}-\mu_k\)</span>
+很小时，看起来会使上面的界趋向无穷。实际上有两个相互竞争的界：effect
+强时，UCB 在置信区间分离后丢弃该臂；effect 弱时，总 regret 至多为 <span
+class="math inline">\(T(\mu_{k^*}-\mu_k)\)</span>。结合两者就得到有限上界；即使对所有均值取最坏情况，笔记仍给出了
+<span class="math inline">\(K\sqrt{T\log T}\)</span>
+阶的上界。</span>续页的两幅草图比较了增长速度（重绘如下）。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-026）：一致最坏情形界不能允许均值差无界</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 25</em></p>
+<p>声称对所有实数均值都成立的一致上界不正确：初始化时每个臂各选一次，就已经付出了
+<span
+class="math inline">\(\sum_k\Delta_k\)</span>，该量可以无界。在置信事件上，
+<span
+class="math display">\[R_T\le\sum_{k:\Delta_k&gt;0}\min\left\{T\Delta_k,\frac{16b^2\log
+T}{\Delta_k}+\Delta_k\right\}.\]</span> 若均值差一致有界且 <span
+class="math inline">\(b\)</span> 固定，强／弱效应比较可以给出所述 <span
+class="math inline">\(O(K\sqrt{T\log T})\)</span>
+量级，再加初始化代价。补上这个限制后，原直觉才成立。</p>
+</div>
+<h2 id="ucb-的-regret-上界">UCB 的 regret 上界</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 27, with the attempted
+concentration calculation on page 26, then page 28</em></p>
+<p>将 regret 改写为 <span class="math display">\[R_T=\sum_{k\ne
+k^*}n_{kT}(\mu_{k^*}-\mu_k).\]</span> 主要任务是控制 <span
+class="math inline">\(n_{kT}\)</span>，即 UCB 选择次优臂的次数。</p>
+<blockquote>
+<p><span style="color: #C92B32">这也是 UCB 的设计原理。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+控制次优臂的选择次数 <span class="math inline">\(n_{kT}\)</span>。</p>
+</blockquote>
+<p>设 <span class="math inline">\(\zeta_{kj}\)</span> 是臂 <span
+class="math inline">\(k\)</span> 第 <span
+class="math inline">\(j\)</span> 次被选择的时间。对 <span
+class="math inline">\(t=K+1,\ldots,T\)</span>，笔记推导以下概率界：
+<span class="math display">\[\begin{align*}
+&amp;P\left[\sup_{K&lt;t\le T}\left\{
+\mu_k-\widehat\mu_{k,t-1}
+-b\sqrt{\frac{4\log T}{n_{k,t-1}}}\right\}\ge0\right]\\
+&amp;\quad\le P\left[\sup_{1\le j\le n_{kT}}\left\{
+\mu_k-\widehat\mu_{k,\zeta_{kj}}
+-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]\\
+&amp;\quad=P\left[\sup_{1\le j\le n_{kT}}\left\{
+\mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)
+-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]\\
+&amp;\quad\le P\left[\sup_{1\le j\le T}\left\{
+\mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)
+-b\sqrt{\frac{4\log T}{j}}\right\}\ge0\right]
+\le\frac1T.
+\end{align*}\]</span> 其中 <span
+class="math inline">\(Y&#39;_\ell(k)\)</span> 是从 <span
+class="math inline">\(\mathcal N(\mu_k,b^2)\)</span>
+独立抽取的观测。</p>
+<blockquote>
+<p><span
+style="color: #C92B32">扩大索引集合，上确界及相应事件只会变大；奖励序列的分布相同。</span>
+<span class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+<span class="math inline">\(K&lt;t\le T\ \leadsto\ 1\le j\le n_{kT}\
+\leadsto\ 1\le j\le T\)</span></p>
+</blockquote>
+<p>对应的两行手写式使用的是 <span
+class="math inline">\(Y&#39;_\ell(0)\)</span>。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-027）：时间变换后的观测仍属于臂 k</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 27</em></p>
+<p>这两处都应为 <span
+class="math inline">\(Y&#39;_\ell(k)\)</span>，如所展示的推导。可以预先为每个臂生成一列
+IID 奖励，每次选中该臂时，揭示其中的下一个观测。对确定的计数 <span
+class="math inline">\(j\le T\)</span> 使用 union
+bound，可避免错误地认为给定随机样本量后，停止采样的样本均值仍由条件 IID
+观测构成。</p>
+</div>
+<p>因此，对每个臂 <span class="math inline">\(k\)</span>，以至少 <span
+class="math inline">\(1-1/T\)</span> 的概率， <span
+class="math display">\[\mu_k\le\widehat\mu_{k,t-1}
++b\sqrt{\frac{4\log T}{n_{k,t-1}}}
+\quad\text{对所有 }t=K+1,\ldots,T.\tag{14.8}\]</span> 再对 <span
+class="math inline">\(K\)</span> 个臂取 union bound，就得到至少 <span
+class="math inline">\(1-K/T\)</span> 的概率。</p>
+<h4
+id="左页推算hoeffding-不等式以及我尚未解决的计算">左页推算：Hoeffding
+不等式，以及我尚未解决的计算。</h4>
+<p>对相互独立的有界随机变量 <span
+class="math inline">\(Z_1,\ldots,Z_n\)</span>，若几乎必然有 <span
+class="math inline">\(Z_i\in[a,b]\)</span>，且 <span
+class="math inline">\(s&gt;0\)</span>，则 <span
+class="math display">\[P\left(\frac1n\sum_{i=1}^n(Z_i-\mathbb E[Z_i])\ge
+s\right)
+\le\exp\left(-\frac{2ns^2}{(b-a)^2}\right).\]</span> 下尾偏差 <span
+class="math inline">\(\le-s\)</span>
+也满足同样的界；双侧绝对偏差的界多一个因子 <span
+class="math inline">\(2\)</span>。</p>
+<blockquote>
+<p><span style="color: #C92B32">几乎肯定有界。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span> <span
+class="math inline">\(Z_i\in[a,b]\)</span></p>
+</blockquote>
+<p>对事件 <span class="math inline">\(A_1,\ldots,A_n\)</span>，union
+bound 为 <span class="math display">\[P(A_1\cup\cdots\cup
+A_n)\le\sum_{i=1}^nP(A_i).\]</span> 笔记将它与 <span
+class="math inline">\(1-K/T\)</span> 的保证联系起来。</p>
+<p><strong>我的计算尝试（保留尚未解决的疑问）：</strong>猜吧，只需证明
+<span
+class="math display">\[P\left(\mu_k-\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)
+-b\sqrt{\frac{4\log T}{j}}\ge0\right)\le\frac1T.\]</span> 而左边为 <span
+class="math display">\[P\left(\frac1j\sum_{\ell=1}^jY&#39;_\ell(k)-\mu_k
+\le-b\sqrt{\frac{4\log T}{j}}\right).\]</span>
+套用上面针对有界变量的不等式，似乎会得到 <span
+class="math display">\[\exp\left(-\frac{2j\,b^2(4\log
+T)/j}{(b-a)^2}\right)
+=\exp\left(-\frac{8b^2}{(b-a)^2}\log T\right)
+\le\frac1T.\]</span> <span
+style="color: #C92B32"><strong>作者的红字疑问：</strong>“<span
+class="math inline">\(Y&#39;_\ell(k)\)</span> 无界，<span
+class="math inline">\(k\)</span>
+是否写错了？”以及“不知道怎么化的，可能有未说明的假设。”</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-028）：补完尚未完成的高斯尾概率计算</strong></p>
+<p><em>来源：Lecture11-14.pdf, pages 26, 27</em></p>
+<p>作者的红字质疑是对的：有界变量的 Hoeffding 不等式不能用于这里。应改用
+<span class="math display">\[\sqrt j(\overline Y&#39;_{kj}-\mu_k)/b\sim
+N(0,1),\]</span> <span class="math display">\[P\left(|\overline
+Y&#39;_{kj}-\mu_k|&gt;b\sqrt{4\log T/j}\right)
+=2\Phi(-2\sqrt{\log T})\le T^{-2}\quad(T\ge2).\]</span>
+最后一步来自正态分布的 Mills 界 <span
+class="math inline">\(2\Phi(-x)\le2e^{-x^2/2}/(x\sqrt{2\pi})\)</span>。对至多
+<span class="math inline">\(KT\)</span> 个“臂／计数”组合取 union
+bound，可得至少 <span class="math inline">\(1-K/T\)</span>
+的同时双侧覆盖概率。若每个计数只有 <span
+class="math inline">\(1/T\)</span> 的界，再对 <span
+class="math inline">\(T\)</span>
+个计数取并集就不够了。这些是补充的证明细节，并非原扫描已有的陈述。字母
+<span class="math inline">\(b\)</span>
+在两处代表的不同含义也不应混淆。</p>
+</div>
+<h4 id="继续推导臂的选择次数界">继续推导臂的选择次数界。</h4>
+<p>若 (14.8) 对所有臂都成立，且 <span
+class="math inline">\(W_t=k\)</span>，则由 UCB 的选择规则， <span
+class="math display">\[\begin{align*}
+\widehat\mu_{k,t-1}+b\sqrt{\frac{4\log T}{n_{k,t-1}}}
+&amp;\ge\widehat\mu_{k^*,t-1}+b\sqrt{\frac{4\log T}{n_{k^*,t-1}}}\\
+&amp;\ge\mu_{k^*}.
+\end{align*}\]</span> 笔记接着写道 <span
+class="math display">\[\mu_k+2b\sqrt{\frac{4\log
+T}{n_{k,t-1}}}\ge\mu_{k^*},
+\qquad
+n_{k,t-1}\le\frac{16b^2\log T}{(\mu_{k^*}-\mu_k)^2}.\]</span></p>
+<blockquote>
+<p><span style="color: #C92B32">置信结论（1），然后 UCB 选择 <span
+class="math inline">\(k\)</span>。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+次数界（2）：<span class="math inline">\(n_{k,t-1}\le16b^2\log
+T/\Delta_k^2\)</span>。</p>
+</blockquote>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-029）：次数界还需要另一方向的偏差控制</strong></p>
+<p><em>来源：Lecture11-14.pdf, pages 27, 28</em></p>
+<p>仅有 (14.8) 不足以推出这一步。记 <span
+class="math inline">\(r_{kt}=b\sqrt{4\log
+T/n_{k,t-1}}\)</span>。在前面所述双侧事件上，选择 <span
+class="math inline">\(k\)</span> 意味着 <span
+class="math display">\[\mu^*\le\widehat\mu_{k^*,t-1}+r_{k^*t}
+\le\widehat\mu_{k,t-1}+r_{kt}\le\mu_k+2r_{kt}.\]</span> 最后一步需要
+<span class="math inline">\(\widehat\mu_{k,t-1}-\mu_k\le
+r_{kt}\)</span>，这正是遗漏的偏差方向。平方后即可得到次数阈值。使用相同的高斯置信常数可以补全定理，但手写证明本身不完整。</p>
+</div>
+<p><span style="color: #C92B32"><strong>我的理解：</strong>选择臂 <span
+class="math inline">\(k\)</span>，说明它的置信区间上端点还必须高于最优臂的上端点。一旦选择次数超过阈值，而阈值只随
+<span class="math inline">\(\log T\)</span>
+增长，在这个论证中就不能再选择它了。</span></p>
+<p>把次数上界代入 regret 的定义：</p>
+<div class="center">
+<p><img src="assets/STATS361-Chinese-figure-012.png" alt="image" /></p>
+</div>
+<p><span class="math display">\[R_T=\sum_{k\ne
+k^*}(\mu_{k^*}-\mu_k)n_{kT}
+\ =\ \sum_{k\ne k^*}\left\{
+\frac{16b^2\log T}{\mu_{k^*}-\mu_k}+(\mu_{k^*}-\mu_k)\right\}.\]</span>
+<span style="color: #C92B32">最后加上的均值差，是该臂初始化时 <span
+class="math inline">\(t_0=1\)</span> 次选择带来的 regret；第一项对应
+<span
+class="math inline">\(t=K+1,\ldots,T\)</span>。</span>等号按扫描原样保留；前面的紫色上界校注也适用于这里。</p>
+<h2 id="自适应随机化方案">自适应随机化方案</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 29</em></p>
+<p>UCB 有局限：难以与为 IID
+采样开发的方法结合，也难以推广到更复杂的采样设计。例如，不同臂的不确定性可能不同，在更一般的设计中，构造可比较的区间
+<span class="math inline">\(\widehat U_{kt}\)</span> 会比较麻烦
+[手写括号内部分不清楚]。<span style="color: #C92B32">红字将 UCB
+对历史观测的依赖，与基于随机 IID 数据的方法作对比
+[最右边括号中的简短批注不清楚]。</span></p>
+<h4 id="thompson-采样">Thompson 采样。</h4>
+<p>这是 UCB 的替代方案：<span style="color: #C92B32">基于 Bayesian
+更新的启发式算法。</span></p>
+<ol>
+<li><p>为每个潜在结果分布 <span class="math inline">\(F_k\)</span>
+选择先验 <span class="math inline">\(\Pi_{k,0}\)</span>。</p></li>
+<li><p>在时点 <span class="math inline">\(t\)</span>，计算臂 <span
+class="math inline">\(k\)</span> 是最优臂的后验概率： <span
+class="math display">\[e_{k,t-1}=P_{\Pi_{t-1}}(\mu_k=\mu^*).\]</span></p></li>
+<li><p>随机选择动作： <span
+class="math display">\[W_t\sim\operatorname{Multinomial}(e_{\cdot,t-1}).\]</span></p></li>
+<li><p>观测 <span
+class="math inline">\(Y_t=Y_t(W_t)\)</span>，并将后验更新为 <span
+class="math inline">\(\Pi_t\)</span>。</p></li>
+</ol>
+<p>Thompson 采样与 UCB
+有相似的统计行为：周期性地对每个臂采样，直到基本确信该臂较差。</p>
+<blockquote>
+<p><span style="color: #C92B32">后验概率降到 <span
+class="math inline">\(1/T\)</span> 以下。</span> <span
+class="math inline">\(\textcolor{red}{\longrightarrow}\)</span>
+基本确信该臂较差。</p>
+</blockquote>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-031）：并列最优臂与 Thompson
+的启发式解释</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 29</em></p>
+<p>若后验下的最优臂几乎必然唯一，各臂最优的概率才直接加和为一；否则需要规定打破平局的规则。这里的
+<span class="math inline">\(\operatorname{Multinomial}\)</span>
+指一次分类抽样。概率降到 <span class="math inline">\(1/T\)</span>
+以下，是对剩余被选概率可忽略的直觉说明，不是算法强制设置的截断点。UCB 与
+Thompson 具有相似 regret 行为，还需要相应的模型、先验及正则条件。</p>
+</div>
+<p>Thompson
+采样中的动作是随机的，自适应随机化概率依赖过去的数据。这自然可以与因果推断结合。</p>
+<blockquote>
+<p><span style="color: #000000">Thompson
+采样使用依赖历史数据的概率随机选择动作。</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span>
+与因果推断结合。</p>
+</blockquote>
+<p>笔记指出，调整先验 <span class="math inline">\(\Pi_0\)</span>
+可能比调整 UCB 区间 <span class="math inline">\(\widehat U_{kt}\)</span>
+更合理。</p>
+<h2 id="自适应实验中的统计推断">自适应实验中的统计推断</h2>
+<p><em>原扫描页码：Lecture11-14.pdf, page 31, with the derivation on
+page 30</em></p>
+<p>分析由 UCB 或 Thompson
+采样得到的数据，并对问题背后的参数给出置信结论。这比 IID
+情形困难得多。</p>
+<p><span class="math inline">\(\mu_k\)</span>
+的两个自然估计量，一是样本均值： <span
+class="math display">\[\widehat\mu_k^{\mathrm{AVG}}=\widehat\mu_{kT}
+=\frac1{n_{kT}}\sum_{t=1}^T\mathbf1\{W_t=k\}Y_t,\tag{14.11}\]</span>
+二是 Thompson 采样下的 IPW 估计量：</p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-033）：使用观测当前结果之前的分配概率</strong></p>
+<p><em>来源：Lecture11-14.pdf, pages 29, 31</em></p>
+<p>定义 <span class="math inline">\(e_{tk}=P(W_t=k\mid\mathcal
+H_{t-1})\)</span>，在第 <span class="math inline">\(t\)</span>
+个受试者的结果出现之前计算；它就是前面的 <span
+class="math inline">\(e_{k,t-1}\)</span>。需要正性条件。通常的确定性 UCB
+给出的条件概率是 <span class="math inline">\(0\)</span> 或 <span
+class="math inline">\(1\)</span>，因此这些 IPW／AW
+公式不能直接用于其未选择的臂。样本均值还要求 <span
+class="math inline">\(n_{kT}&gt;0\)</span>。</p>
+</div>
+<p><span
+class="math display">\[\widehat\mu_k^{\mathrm{IPW}}=\frac1T\sum_{t=1}^T
+\frac{\mathbf1\{W_t=k\}Y_t}{e_{tk}}.\tag{14.12}\]</span>
+由于数据收集是自适应的，这些估计量没有渐近正态极限分布，所以置信区间难以构造。</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-032）：自适应性并不排除所有正态极限</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 31</em></p>
+<p>正确的提醒是：在不加限制的自适应设计下，这些估计量<em>未必</em>具有正态极限。固定的正分配概率适用普通
+CLT；经过适当稳定化的自适应设计也可能满足
+CLT。正的可预测概率仍可使固定终点下、未归一化的 IPW
+均值保持无偏，但无偏并不蕴含正态性。参见 <a
+href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8054003/">Hadad
+等（2021）</a>。</p>
+</div>
+<p>自适应加权估计量可以得到高斯枢轴量： <span
+style="color: #C92B32">高斯枢轴量接近，或依分布收敛到 <span
+class="math inline">\(N(0,1)\)</span>。</span> <span
+class="math display">\[\widehat\mu_k^{\mathrm{AW}}
+=\frac{\displaystyle\sum_{t=1}^T
+\frac{\mathbf1\{W_t=k\}Y_t}{\sqrt{e_{tk}}}}
+{\displaystyle\sum_{t=1}^T
+\frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}}.\tag{14.13}\]</span>
+在合理的正则条件下， <span class="math display">\[\widehat
+V_k^{-1/2}(\widehat\mu_k^{\mathrm{AW}}-\mu_k)
+\ \Rightarrow\ \mathcal N(0,1),\]</span> 其中 <span
+class="math display">\[\widehat V_k=
+\frac{\displaystyle\sum_{t=1}^T
+\left\{\frac{\mathbf1\{W_t=k\}(Y_t-\widehat\mu_k^{\mathrm{AW}})}
+{\sqrt{e_{tk}}}\right\}^{\!2}}
+{\displaystyle\left\{\sum_{t=1}^T
+\frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}\right\}^{\!2}}.\tag{14.14}\]</span>
+<strong>我的解释：</strong>由于估计量稳定了方差，便可以恢复
+CLT。它的方差变得可控制，从而能应用中心极限定理。</p>
+<h4 id="左页推导估计量背后的鞅">左页推导：估计量背后的鞅。</h4>
+<p>页顶先给出了鞅的定义：变量对可用历史可测，满足 <span
+class="math inline">\(\mathbb
+E[X_i]&lt;\infty\)</span>，并满足条件均值恒等式。另一行将适应过程 <span
+class="math inline">\(M_n\)</span> 描述为只依赖 <span
+class="math inline">\(X_0,\ldots,X_n\)</span>，且 <span
+class="math inline">\(\mathbb E[M_n\mid
+X_0,\ldots,X_{n-1}]=M_{n-1}\)</span>.</p>
+<div class="review-note" style="color: #7A2B91" data-ink="ReviewPurple"
+aria-label="Original-note correction">
+<p><strong>原笔记纠错（S2-034）：鞅的可积性应使用绝对矩</strong></p>
+<p><em>来源：Lecture11-14.pdf, page 30</em></p>
+<p>应写 <span
+class="math inline">\(E|X_i|&lt;\infty\)</span>。仅有单侧不等式 <span
+class="math inline">\(E[X_i]&lt;\infty\)</span> 可能容许 <span
+class="math inline">\(-\infty\)</span>，不能保证所需的条件期望存在。如果“有限期望”本意是有限实数期望，则已经隐含可积性；加上绝对值可将它明确写出。</p>
+</div>
+<p>由 (14.13)， <span
+class="math display">\[\widehat\mu_k^{\mathrm{AW}}-\mu_k
+=\frac{\displaystyle\sum_{t=1}^T
+\frac{\mathbf1\{W_t=k\}(Y_t-\mu_k)}{\sqrt{e_{tk}}}}
+{\displaystyle\sum_{t=1}^T
+\frac{\mathbf1\{W_t=k\}}{\sqrt{e_{tk}}}}.\]</span> 令分子中的部分和为
+<span class="math display">\[M_t=\sum_{j=1}^t
+\frac{\mathbf1\{W_j=k\}(Y_j-\mu_k)}{\sqrt{e_{jk}}}.\]</span> <span
+class="math inline">\(W_t\)</span> 根据截至时点 <span
+class="math inline">\(t\)</span> 可用的信息随机选择，并且给定过去后与
+<span class="math inline">\(Y_t(k)\)</span> 独立。因此，<span
+class="math inline">\(M_t\)</span> 是鞅： <span
+class="math display">\[\mathbb E[M_t\mid
+M_1,\ldots,M_{t-1}]=M_{t-1}.\]</span> <span
+style="color: #C92B32">红字重新写为 <span class="math inline">\(\mathbb
+E[M_{t+1}\mid M_1,\ldots,M_t]=M_t\)</span>。</span></p>
+<p>原稿接着写：“由加权方案”， <span
+class="math display">\[\operatorname{Var}[M_t\mid
+M_1,\ldots,M_{t-1}]=b_k^2,
+\qquad b_k^2=\operatorname{Var}[Y_t(k)].\tag{14.8，原稿标号}\]</span>
+给定之前的部分和后，这也就是新增加一项的条件方差。笔记重复使用了编号
+(14.8)。</p>
+<p>只要 <span class="math inline">\(e_{tk}\)</span> 不衰减得太快，由鞅
+CLT 可得 <span
+class="math display">\[\frac{M_T}{\sqrt{Tb_k^2}}\Rightarrow\mathcal
+N(0,1).\]</span> <span
+style="color: #C92B32"><strong>作者的红字批注：</strong>自适应加权的
+CLT；有限二阶矩；抽样概率 <span class="math inline">\(e_{tk}\)</span>
+的衰减速度应慢于 <span
+class="math inline">\(1/t\)</span>。这排除了最激进的强有效探索方案：一个臂只抽样
+<span class="math inline">\(\log T\)</span> 量级的次数。</span></p>
+<div class="review-note" style="color: #B45A00" data-ink="ReviewOrange"
+aria-label="Qualification / unresolved point">
+<p><strong>补充条件／待确认（S2-035）：鞅枢轴量的一组充分条件</strong></p>
+<p><em>来源：Lecture11-14.pdf, pages 30, 31</em></p>
+<p>一组清楚的充分条件是：<span
+class="math inline">\(0&lt;b_k^2&lt;\infty\)</span>，<span
+class="math inline">\(E|Y_t(k)-\mu_k|^4&lt;\infty\)</span>，可预测的
+<span class="math inline">\(e_{tk}\ge c t^{-\alpha}\)</span>，其中 <span
+class="math inline">\(c&gt;0\)</span>、<span
+class="math inline">\(0\le\alpha&lt;1\)</span>，且当前潜在结果独立于过去的数据。对
+<span
+class="math inline">\(D_t=\mathbf1\{W_t=k\}(Y_t-\mu_k)/\sqrt{e_{tk}}\)</span>，
+<span class="math display">\[E[D_t\mid\mathcal H_{t-1}]=0,\quad
+E[D_t^2\mid\mathcal H_{t-1}]=b_k^2,\quad
+T^{-2}\sum_{t\le T}E[D_t^4]=O(T^{\alpha-1})\to0.\]</span> 由此得到鞅
+Lyapunov 条件，以及 <span class="math inline">\(T^{-1}\sum
+D_t^2\)</span> 的集中性。AW 分母的可预测均值量级至少为 <span
+class="math inline">\(T^{1-\alpha/2}\)</span>，波动为 <span
+class="math inline">\(O_P(\sqrt
+T)\)</span>，因此可得一致性，并允许在方差中使用拟合残差。这些条件充分但非必要。原稿的
+<span class="math inline">\(\operatorname{Var}(M_t\mid
+M_{1:t-1})=b_k^2\)</span> 在这里是正确的：<span
+class="math inline">\(M_{t-1}\)</span>
+已知，而新增一项具有该方差。更一般的条件见 <a
+href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8054003/">Hadad
+等（2021）</a>。</p>
+</div>
+<p>接着， <span class="math display">\[\frac1{Tb_k^2}\sum_{t=1}^T
+\left\{\frac{\mathbf1\{W_t=k\}(Y_t-\widehat\mu_k^{\mathrm{AW}})}
+{\sqrt{e_{tk}}}\right\}^{\!2}
+\xrightarrow{P}1.\]</span>
+这一步证明集中性；页边再次要求概率不要衰减得太快。<span
+class="math inline">\(\widehat\mu_k^{\mathrm{AW}}-\mu_k\)</span> 与
+<span class="math inline">\(\widehat V_k^{1/2}\)</span>
+的分母相消，就得到前面的高斯枢轴量。</p>
+<blockquote>
+<p><span style="color: #000000"><span
+class="math inline">\(\widehat\mu_k^{\mathrm{AW}}-\mu_k\)</span> 与
+<span class="math inline">\(\widehat V_k^{1/2}\)</span>
+的分母相消。</span> <span
+class="math inline">\(\textcolor{black}{\longrightarrow}\)</span> 式
+(14.14) 中的高斯枢轴量。</p>
+</blockquote>
+</body>
+</html>

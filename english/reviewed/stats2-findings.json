@@ -1,0 +1,592 @@
+[
+  {
+    "id": "S2-001",
+    "type": "qualification",
+    "title": "Deterministic deployment removes overlap",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      1
+    ],
+    "diagnosis": "The observation concerns unrestricted off-policy identification from deployment data alone.",
+    "correction": "Causal learning can still use earlier randomized data, renewed exploration or additional structural assumptions.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-002",
+    "type": "qualification",
+    "title": "Fixed versus learned policy",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      3,
+      5
+    ],
+    "diagnosis": "The unbiasedness calculation is for a fixed policy, not the maximized value on training data.",
+    "correction": "Evaluate a fixed policy, or evaluate on data independent of policy learning.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-003",
+    "type": "original",
+    "title": "The first IPW expectation drops the outcome",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      3
+    ],
+    "diagnosis": "The scan omits Y_i in the first expectation.",
+    "correction": "Insert Y_i; consistency then permits Y_i(pi(X_i)).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-004",
+    "type": "qualification",
+    "title": "Minimax regret and pointwise rates",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      4
+    ],
+    "diagnosis": "The red superefficiency remark mixes learning regret and fixed-policy value estimation.",
+    "correction": "Faster regret at easier distributions can coexist with a worst-case n^-1/2 rate.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://arxiv.org/abs/1702.02896"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-005",
+    "type": "qualification",
+    "title": "Conditions for uniform oracle equivalence",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      7
+    ],
+    "diagnosis": "The norms, overlap, moment envelope and class growth are not specified.",
+    "correction": "Use cross-fitting, L2 consistency, o(n^-1/2) nuisance error product, bounded estimated propensities and controlled complexity.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://arxiv.org/abs/1702.02896"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-006",
+    "type": "qualification",
+    "title": "Interpret the efficient-score second moment",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      6
+    ],
+    "diagnosis": "The author doubts the informal optimality statement.",
+    "correction": "V*=E(Gamma*)^2; fixed-policy advantage variance is V*-A(pi)^2.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://arxiv.org/abs/1702.02896"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-007",
+    "type": "qualification",
+    "title": "More covariates do not automatically remove confounding",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      8
+    ],
+    "diagnosis": "Richer adjustment is a heuristic, not a monotone property of ignorability.",
+    "correction": "Choose a valid adjustment set; even a pretreatment collider may introduce bias.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-008",
+    "type": "qualification",
+    "title": "Sequential identification needs support",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      9,
+      10,
+      12,
+      13
+    ],
+    "diagnosis": "Sequential ignorability alone does not identify every policy.",
+    "correction": "Require consistency, no interference and positive probability of target actions at reachable histories.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-009",
+    "type": "qualification",
+    "title": "Feedback example: missing data and ambiguous indexing",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      11
+    ],
+    "diagnosis": "The scan writes zero conditional means and omits the original outcome table; W is undefined.",
+    "correction": "The corresponding uncentered lecture example gives 60; zero needs unstated centering. Specify treatment sequences.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "S2-010",
+    "type": "qualification",
+    "title": "Bellman analogy and the policy argument",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      12
+    ],
+    "diagnosis": "The marginal Bellman equation suppresses policy/action averaging and assumes a Markov reward model.",
+    "correction": "For a deterministic Markov policy use r(s,pi(s)) and P(sprime|s,pi(s)).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-011",
+    "type": "original",
+    "title": "Transition factors need the next covariate",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      13
+    ],
+    "diagnosis": "The source and official notes factor (W_t,X_{t+1}) with X_t transition terms.",
+    "correction": "Replace X_t by X_{t+1} in both transition factors.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-012",
+    "type": "original",
+    "title": "Condition the one-step probability on history",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      13
+    ],
+    "diagnosis": "The source omits conditioning and flags it with a red question.",
+    "correction": "Use P[W_1=pi_1(X_1)|F_1]. An unconditional denominator is valid only when this conditional matching probability is constant in the history; W_1 independent of X_1 alone is insufficient for a varying policy.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-013",
+    "type": "original",
+    "title": "Initialize the IPW recursion at one",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      13,
+      15
+    ],
+    "diagnosis": "The source and official lecture write gamma_i0=0.",
+    "correction": "Use gamma_i0=1, the empty product.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-014",
+    "type": "qualification",
+    "title": "Backward evaluation versus optimization",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      14
+    ],
+    "diagnosis": "The Q-learning label connects related ideas but the recursion evaluates a fixed policy.",
+    "correction": "Optimal Q-learning adds maximization over actions.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-015",
+    "type": "qualification",
+    "title": "Conditions for sequential double robustness",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      15
+    ],
+    "diagnosis": "The handwritten unbiasedness claim lacks independence of nuisance fitting and the scope of correct models.",
+    "correction": "With gamma0=1, true probabilities permit arbitrary fixed or independently trained value functions; true value functions permit positive predictable probability models.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://proceedings.mlr.press/v48/jiang16.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-016",
+    "type": "original",
+    "title": "Match the imposed intervention value",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      16
+    ],
+    "diagnosis": "The condition X_j=w_j disagrees with do(X_j=x_j).",
+    "correction": "Use X_j=x_j; divide out the old observational factor.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-017",
+    "type": "qualification",
+    "title": "Continuous interventions require a point mass",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      16
+    ],
+    "diagnosis": "The ratio is written as if every variable has a probability mass function.",
+    "correction": "For continuous forced coordinates use a Dirac mass times the remaining conditional kernels.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-018",
+    "type": "qualification",
+    "title": "Quantify over every path",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      17
+    ],
+    "diagnosis": "The source starts with an arbitrary path but later refers to blocking one path.",
+    "correction": "D-separation requires every path between the sets to be blocked.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-019",
+    "type": "qualification",
+    "title": "Completeness is relative to a causal model",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      19
+    ],
+    "diagnosis": "Failure of one attempted derivation is not nonidentifiability.",
+    "correction": "No valid reduction may exist in the specified graph, model and observed-variable set.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-020",
+    "type": "transcription",
+    "title": "Back-door special case mistranslated",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      20
+    ],
+    "diagnosis": "The previous translation invented a root-node condition.",
+    "correction": "Restored the condition: W and Y singleton, W has no descendants except Y.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-021",
+    "type": "transcription",
+    "title": "Unspecified was reversed to specified",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      20
+    ],
+    "diagnosis": "The red margin says all factors except w remain unspecified.",
+    "correction": "Restored unspecified: the other random inputs are not fixed by do(W=w).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-022",
+    "type": "original",
+    "title": "A counterfactual variable is not its distribution",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      22
+    ],
+    "diagnosis": "The scan and official lecture equate a distribution to a structural random variable.",
+    "correction": "Write Y(0,Z(1))=f_Y(0,f_Z(1,epsilon_Z),epsilon_Y); use its law for a distribution.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-023",
+    "type": "original",
+    "title": "Potential outcomes can express nested counterfactuals",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      22
+    ],
+    "diagnosis": "The notebook denies that potential-outcome notation can express this combination without a graph.",
+    "correction": "Y(0,Z(1)) is standard potential-outcome notation; identification is separate.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://imai.sites.fas.harvard.edu/research/files/BaronKenny.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-024",
+    "type": "qualification",
+    "title": "Answer to the margin question: which identification assumptions?",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      22
+    ],
+    "diagnosis": "The author asks whether the nested operation is identifiable.",
+    "correction": "The fully observed independent-error SEM and sufficient support give a mediation formula; weaker models need not.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://imai.sites.fas.harvard.edu/research/files/BaronKenny.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-025",
+    "type": "original",
+    "title": "The UCB regret statement is an upper bound",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      25,
+      27,
+      28
+    ],
+    "diagnosis": "The scan and official notes write equality although the proof only bounds arm counts.",
+    "correction": "Use <= and sum only over positive gaps.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-026",
+    "type": "original",
+    "title": "A uniform worst case cannot allow unbounded mean gaps",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      25
+    ],
+    "diagnosis": "The red note claims a uniform bound while Gaussian means have no bounded range.",
+    "correction": "Retain initial-pull sum Delta_k; a uniform K sqrt(T log T) scale needs bounded gaps.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-027",
+    "type": "original",
+    "title": "Time-changed observations belong to arm k",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      27
+    ],
+    "diagnosis": "The scan uses arm 0 in two lines while defining draws from arm k.",
+    "correction": "Use Y_l prime(k); couple to an IID reward stream for each arm.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-028",
+    "type": "qualification",
+    "title": "Resolve the unfinished Gaussian tail calculation",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      26,
+      27
+    ],
+    "diagnosis": "The author correctly doubts bounded Hoeffding for unbounded Gaussian rewards; per-count 1/T is too weak for union over T counts.",
+    "correction": "Use a two-sided Gaussian T^-2 tail for each count, then union over KT pairs.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-029",
+    "type": "original",
+    "title": "The count argument needs the other deviation direction",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      27,
+      28
+    ],
+    "diagnosis": "The one-sided event cannot upper bound the suboptimal arm sample mean.",
+    "correction": "Use the simultaneous two-sided event; mu_star<=muhat_k+r_k<=mu_k+2r_k.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-030",
+    "type": "transcription",
+    "title": "The UCB parenthesis was translated too specifically",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      29
+    ],
+    "diagnosis": "The prior treatment-amount interpretation is not clearly supported by the difficult parenthesis.",
+    "correction": "Use the arm-specific uncertainty context and retain uncertainty about the wording.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "S2-031",
+    "type": "qualification",
+    "title": "Best-arm ties and the Thompson heuristic",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      29
+    ],
+    "diagnosis": "The probabilities need tie handling; the 1/T remark is not an algorithmic cutoff.",
+    "correction": "Assume a posterior-unique best arm or specify tie-breaking; interpret the threshold as intuition.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-032",
+    "type": "original",
+    "title": "Adaptivity does not exclude every normal limit",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      31
+    ],
+    "diagnosis": "The source categorically denies a normal limit; the earlier translation silently softened it.",
+    "correction": "The estimators need not be asymptotically normal without suitable design conditions.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC8054003/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-033",
+    "type": "qualification",
+    "title": "Use the assignment probability before the current outcome",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      29,
+      31
+    ],
+    "diagnosis": "The probability notation changes between the algorithm and inference pages.",
+    "correction": "e_tk=P(W_t=k|H_{t-1}); positivity required. Deterministic UCB does not satisfy it for unselected arms.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-034",
+    "type": "original",
+    "title": "Martingale integrability uses an absolute moment",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      30
+    ],
+    "diagnosis": "The source writes E[X_i]<infinity without absolute values.",
+    "correction": "Require E|X_i|<infinity.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-035",
+    "type": "qualification",
+    "title": "Sufficient conditions for the martingale pivot",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      30,
+      31
+    ],
+    "diagnosis": "Constant conditional variance alone does not ensure a CLT or sample variance concentration.",
+    "correction": "One sufficient regime: IID current rewards, positive predictable e>=c t^-alpha for alpha<1, positive variance, finite fourth moment.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC8054003/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-036",
+    "type": "transcription",
+    "title": "Sketch location restored",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      25,
+      28
+    ],
+    "diagnosis": "The first translation described the continuation-page sketches inside page 25 discussion.",
+    "correction": "Sketches reconstructed with the page 28 count argument.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-037",
+    "type": "original",
+    "title": "History arguments in the one-step recursion",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      13
+    ],
+    "diagnosis": "The scan writes W_2 in V_pi,2(X_1,W_2,X_2) and W_{t+1} at a next-covariate position.",
+    "correction": "Use V_pi,2(X_1,W_1,X_2) and X_{t+1} in the general next-history argument.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "S2-038",
+    "type": "qualification",
+    "title": "Why a surrogate can change the policy target",
+    "source_pdf": "note_for_Causal _inference_STATS_361/Lecture11-14.pdf",
+    "source_pages": [
+      5
+    ],
+    "diagnosis": "The blue warning questions the practical surrogate estimator, not the exact weighted-classification algebra.",
+    "correction": "Exact weighted zero-one classification preserves the objective; an arbitrary surrogate within a restricted class may not. Additional consistency or approximation guarantees are needed.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,661 @@
+[
+  {
+    "id": "B1-001",
+    "type": "transcription",
+    "title": "Variance and inverse relationship restored",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      6
+    ],
+    "diagnosis": "The old translation misread the blue variance annotation as coefficient bias and dropped the inverse in the black prose.",
+    "correction": "Restored variance and inverse relationship; no purple source-error note for the old reading.",
+    "reference_urls": [],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-002",
+    "type": "transcription",
+    "title": "Mediator annotation resolved",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      3
+    ],
+    "diagnosis": "The lower graph margin reads that controlling W also has a negative effect; it is not an unreadable extra claim.",
+    "correction": "Translated the visible annotation without the old unclear-phrase marker.",
+    "reference_urls": [],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-003",
+    "type": "transcription",
+    "title": "Unresolved implementation abbreviation retained",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      38
+    ],
+    "diagnosis": "The old English rendered an uncertain handwritten abbreviation as JS, suggesting JavaScript without adequate scan evidence.",
+    "correction": "Removed the unsupported JS expansion and retained an explicit uncertainty marker.",
+    "reference_urls": [],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-004",
+    "type": "qualification",
+    "title": "Zero selection bias identifies ATT, not automatically ATE",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      1
+    ],
+    "diagnosis": "The blue arrow moves from ATT to ATE after only setting baseline selection bias to zero.",
+    "correction": "Add treatment-effect mean independence or full randomization for ATT=ATE.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/01-Introduction-To-Causality.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-005",
+    "type": "qualification",
+    "title": "Sampling probability and confidence coverage",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      2
+    ],
+    "diagnosis": "The scan uses P(data|H0), an informal confidence-probability description, and a general SE formula.",
+    "correction": "Specify tail probability, repeated-sample coverage, and that s/sqrt(n) is the iid mean SE.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/03-Stats-Review-The-Most-Dangerous-Equation.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-006",
+    "type": "qualification",
+    "title": "Graphical separation and dependence",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      3
+    ],
+    "diagnosis": "The scan asserts dependence from an open path and groups mediator adjustment with collider selection.",
+    "correction": "Use causal Markov d-separation for independence; open paths permit dependence and require faithfulness for converse; mediator adjustment changes total effect.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/04-Graphical-Causal-Models.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-007",
+    "type": "original",
+    "title": "Direction of the residual regression",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      4
+    ],
+    "diagnosis": "The black handwriting defines residual T by regressing covariates on treatment, opposite to FWL; the blue note supplies the intended direction.",
+    "correction": "Regress T on X and residualize treatment.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/05-The-Unreasonable-Effectiveness-of-Linear-Regression.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-008",
+    "type": "qualification",
+    "title": "Regression adjustment still needs identification",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      4
+    ],
+    "diagnosis": "The all-confounders statement is too broad if read without functional-form and causal assumptions.",
+    "correction": "Require exchangeability, positivity, consistency, and correct adjustment model; OVB equation also assumes residual orthogonality.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/05-The-Unreasonable-Effectiveness-of-Linear-Regression.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-009",
+    "type": "qualification",
+    "title": "Normalize the subgroup regression weights",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      5
+    ],
+    "diagnosis": "Variance-weighted subgroup statement is correct in the saturated group-intercept setup but its normalization is unstated.",
+    "correction": "State P(G=g)Var(T|g) weights and common-slope setup.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/06-Grouped-and-Dummy-Regression.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-010",
+    "type": "qualification",
+    "title": "Precision, bad controls, and participation",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      6
+    ],
+    "diagnosis": "The scan loosely uses outcome variance for coefficient precision and inverse variance for SE, and its zero/positive decomposition silently excludes negative outcomes.",
+    "correction": "Specify homoskedastic SE formula and Y nonnegative; retain author intuition as precision and overcontrol claims.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/07-Beyond-Confounders.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-011",
+    "type": "original",
+    "title": "Exclusion is not conditional observed-outcome independence",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      8
+    ],
+    "diagnosis": "The source asks whether Y independent Z given T is an IV requirement and already marks it inaccurate in red.",
+    "correction": "Use potential-outcome exclusion and instrument exogeneity.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/09-Non-Compliance-and-LATE.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-012",
+    "type": "qualification",
+    "title": "IV ratios and finite-sample claims",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      7,
+      8
+    ],
+    "diagnosis": "Calculus analogy and finite-sample 2SLS statements are written without their regimes.",
+    "correction": "Keep covariance derivation for linear constant effect; derivative analogy and weak-IV consistency require conditions.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/08-Instrumental-Variables.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-013",
+    "type": "original",
+    "title": "Non-strict monotonicity and the LATE label",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      9,
+      10,
+      23
+    ],
+    "diagnosis": "Strict inequality for every unit excludes the never- and always-takers drawn in the source; the Wald ratio is labeled ATE.",
+    "correction": "Use T1>=T0 almost surely with positive complier probability; label identified estimand LATE.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/09-Non-Compliance-and-LATE.html",
+      "https://www.nber.org/papers/t0118"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-014",
+    "type": "qualification",
+    "title": "Matching bias and the estimand",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      11,
+      12
+    ],
+    "diagnosis": "The scan uses a single generic i in the root-n bias expression and says correction ensures convergence without conditions.",
+    "correction": "State average conditional matching discrepancy, overlap, smoothness, and distinction consistency/root-n behavior.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/10-Matching.html",
+      "https://www.nber.org/papers/t0283"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-015",
+    "type": "original",
+    "title": "Balancing is not equivalent to ignorability",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      13
+    ],
+    "diagnosis": "The original double arrow equates a propensity balancing identity with potential-outcome independence.",
+    "correction": "Balancing is not equivalent to ignorability. Conditional exchangeability given X implies exchangeability given e(X); overlap is separately required for identifying both treatment-arm means, not for that independence theorem.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/11-Propensity-Score.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-016",
+    "type": "qualification",
+    "title": "Weighted dispersion is not the IPW estimator variance",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      13,
+      14
+    ],
+    "diagnosis": "The source labels a weighted outcome variance IPTW and gives an unexplained 20 percent threshold.",
+    "correction": "Distinguish dispersion from sampling variance; no universal weight cutoff.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/11-Propensity-Score.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-017",
+    "type": "original",
+    "title": "Doubly robust cancellation is conditional",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      15
+    ],
+    "diagnosis": "The blue source writes E[mu1(X_i)]=Y_i and unconditioned residual cancellation.",
+    "correction": "Replace pointwise cancellation by conditional expectation; explain both correctness routes.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/12-Doubly-Robust-Estimation.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-018",
+    "type": "qualification",
+    "title": "Parallel trends is an identifying assumption",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      16,
+      17,
+      18
+    ],
+    "diagnosis": "The source writes potential-outcome growth independent of D and a shorthand unit-level counterfactual equality.",
+    "correction": "Use equality of untreated mean trends and no anticipation; explain FE conditions.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/13-Difference-in-Differences.html",
+      "https://matheusfacure.github.io/python-causality-handbook/14-Panel-Data-and-Fixed-Effects.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-019",
+    "type": "qualification",
+    "title": "Aggregate panels and synthetic-control identification",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      19,
+      20
+    ],
+    "diagnosis": "The source motivates SC by asserting panel methods need disaggregated data, and convexity is presented as protection from overfitting.",
+    "correction": "Clarify aggregate panels work; convexity limits extrapolation but does not establish causal validity.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/15-Synthetic-Control.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-020",
+    "type": "qualification",
+    "title": "Placebo tail probability and its denominator",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      21
+    ],
+    "diagnosis": "The source says higher while its negative-effect inequality counts lower effects; quoted 0.0286 denominator is absent.",
+    "correction": "Use lower-tail rank for negative effect, include observed assignment for exact randomization p, and require exchangeability.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/15-Synthetic-Control.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-021",
+    "type": "original",
+    "title": "Center the running variable before reading the intercept",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      22,
+      23
+    ],
+    "diagnosis": "The source writes an uncentered RDD interaction model then equates beta2 with cutoff jump.",
+    "correction": "Uncentered jump beta2+beta3*c; centered model jump beta2.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/16-Regression-Discontinuity-Design.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-022",
+    "type": "qualification",
+    "title": "RD locality, fuzzy compliance, and density tests",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      22,
+      23,
+      24
+    ],
+    "diagnosis": "Local random experiment, attenuation, and McCrary spike descriptions need precise conditions.",
+    "correction": "Continuity-based RD differs from literal randomization; fuzzy ratio needs local IV assumptions; density test concerns jump.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/16-Regression-Discontinuity-Design.html",
+      "https://www.nber.org/papers/t0334"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-023",
+    "type": "original",
+    "title": "Nonsignificance does not imply a small effect",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      24
+    ],
+    "diagnosis": "The scan directly infers a small effect from large p.",
+    "correction": "Effect magnitude and uncertainty determine significance jointly.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/03-Stats-Review-The-Most-Dangerous-Equation.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-024",
+    "type": "original",
+    "title": "Include perfect fit in the R-squared range",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      25
+    ],
+    "diagnosis": "The original range excludes the value 1.",
+    "correction": "For nonconstant outcomes R2<=1 inclusive; can be negative out of sample.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/17-Predictive-Models-101.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-025",
+    "type": "qualification",
+    "title": "Causal conditional means and elasticity units",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      26
+    ],
+    "diagnosis": "The source optimizes an observational conditional mean and calls a raw derivative elasticity.",
+    "correction": "Use interventional response under ignorability; derivative is sensitivity unless scaled by t/y.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/18-Heterogeneous-Treatment-Effects-and-Personalization.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-026",
+    "type": "qualification",
+    "title": "Evaluate the ranking on an identified effect",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      27,
+      28
+    ],
+    "diagnosis": "The notes mention observational fitting but do not explicitly state the randomized evaluation requirement; cumulative means and negative slopes are underspecified.",
+    "correction": "Use independent identified evaluation, subset-specific means and appropriate sign convention.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/19-Evaluating-Causal-Models.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-027",
+    "type": "original",
+    "title": "Assignment independence uses treatment, not covariates",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      29
+    ],
+    "diagnosis": "The original writes potential outcomes independent X as if sufficient for comparability.",
+    "correction": "Replace with randomized treatment independence or conditional exchangeability.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-028",
+    "type": "original",
+    "title": "CATE risk and individual-effect risk differ",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      29
+    ],
+    "diagnosis": "The scan equates squared CATE error with squared individual-effect error.",
+    "correction": "Add irreducible conditional treatment-effect variance.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-029",
+    "type": "qualification",
+    "title": "What transformed outcomes are unbiased for",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      30
+    ],
+    "diagnosis": "The source calls the transformed target unbiased for individual effects and downplays variance at large N.",
+    "correction": "Under conditional ignorability it has conditional mean CATE; finite second moments/overlap still needed.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-030",
+    "type": "qualification",
+    "title": "Continuous-treatment proof needs conditional moments",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      31
+    ],
+    "diagnosis": "The proof uses sample means as if fixed population moments and assumes the global treatment variance works conditionally.",
+    "correction": "State population conditional centering and linear conditional response; sample version asymptotic or cross-fit.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-031",
+    "type": "original",
+    "title": "A squared individual residual is not treatment variance",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      31
+    ],
+    "diagnosis": "The handwritten proposed extension uses M(T_i) although M predicts T from X and divides by a single squared residual.",
+    "correction": "Use conditional residual variance; retain ratio only as weighted R-loss re-expression with caveats.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html",
+      "https://arxiv.org/abs/1712.04912"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-032",
+    "type": "qualification",
+    "title": "Meta-learner identification and X-learner weights",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      32,
+      33
+    ],
+    "diagnosis": "The source algorithms are correct but causal conditions and the status of e(x) as a weighting choice are unstated.",
+    "correction": "Require exchangeability/overlap; propensity combination is useful not universally optimal.",
+    "reference_urls": [
+      "https://arxiv.org/abs/1706.03461"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-033",
+    "type": "qualification",
+    "title": "Residual regression is not always the ATE",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      34,
+      35
+    ],
+    "diagnosis": "The source labels constant residual slope ATE and treats cross-fitting as sufficient to remove bias.",
+    "correction": "Give heterogeneous slope weighted estimand and nuisance-rate requirements.",
+    "reference_urls": [
+      "https://arxiv.org/html/1608.00060v7#S4.SS1",
+      "https://arxiv.org/html/1608.00060v7#S5.SS1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-034",
+    "type": "original",
+    "title": "R-loss alone does not identify a local derivative",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      36
+    ],
+    "diagnosis": "The handwritten final claim says DML finds a derivative at X for nonlinear treatment response; textbook contains the same overstatement.",
+    "correction": "Its population target is a conditional projection slope; derivatives require additional modeling/localization.",
+    "reference_urls": [
+      "https://arxiv.org/html/1712.04912v4#S2",
+      "https://matheusfacure.github.io/python-causality-handbook/22-Debiased-Orthogonal-Machine-Learning.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-035",
+    "type": "original",
+    "title": "Prediction residual has the subtraction reversed",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      37
+    ],
+    "diagnosis": "The supplement literally instructs predicted T minus Tnew although training uses T minus predicted T.",
+    "correction": "Use r_new=Tnew-mhat(X) and predict residual outcome, not price.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/22-Debiased-Orthogonal-Machine-Learning.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-036",
+    "type": "qualification",
+    "title": "Keep the unfinished nonlinear idea as a proposal",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      37,
+      38
+    ],
+    "diagnosis": "The source labels its residual nonlinear construction unfinished and CATE with a question mark.",
+    "correction": "Interpret conditional outcome curve under identification, without transferring orthogonality guarantees.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/22-Debiased-Orthogonal-Machine-Learning.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-037",
+    "type": "original",
+    "title": "The written simulation does not produce the quoted conversion effect",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      39
+    ],
+    "diagnosis": "The scan follows textbook prose G(20,2) and threshold zero, but textbook code scales income by 100 and uses threshold 0.1.",
+    "correction": "Separate handwritten DGP from reproduced code; latent ATE 1.4 valid, conversion 0.39477 is sample difference from other DGP.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/23-Challenges-with-Effect-Heterogeneity-and-Nonlinearity.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-038",
+    "type": "original",
+    "title": "Low baseline conversion does not always mean a large effect",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      39
+    ],
+    "diagnosis": "The final handwritten line repeats high baseline and says low conversion has high effect, conflicting with both-tail saturation explanation.",
+    "correction": "Give probit threshold contrast and explain small effects at both extremes.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/23-Challenges-with-Effect-Heterogeneity-and-Nonlinearity.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-039",
+    "type": "qualification",
+    "title": "A power transform is a model proposal",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      40
+    ],
+    "diagnosis": "The source proposes a negative price power to linearize a nonlinear response; exponent is not fully certain.",
+    "correction": "Retain tentative transform and require empirical/structural verification and chain rule.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/23-Challenges-with-Effect-Heterogeneity-and-Nonlinearity.html"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "B1-040",
+    "type": "transcription",
+    "title": "Collider and descendant labels restored",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      3
+    ],
+    "diagnosis": "Magnification shows X->W2<-Y and W2->W1, not an unspecified W with two proxies.",
+    "correction": "Restored the precise node labels and the descendant arrow in the translated graph.",
+    "reference_urls": [],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-041",
+    "type": "original",
+    "title": "Matrix products must follow the stated layout",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      18,
+      34
+    ],
+    "diagnosis": "The source explicitly puts observations in rows and features in columns, and describes beta as a row vector, but writes incompatible beta*X matrix products.",
+    "correction": "Use X1*beta1^T+X2*beta2^T with the source row-vector convention, or explicitly adopt column coefficients and use X1*beta1+X2*beta2. Fitted values are the corresponding projection products.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/05-The-Unreasonable-Effectiveness-of-Linear-Regression.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-042",
+    "type": "transcription",
+    "title": "The blue annotation says unrelated",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      29
+    ],
+    "diagnosis": "Magnified scan reads X unrelated to outcome; the old translation incorrectly said related.",
+    "correction": "Translated the original statement as unrelated; its mathematical assertion is reviewed separately.",
+    "reference_urls": [],
+    "confidence": "high"
+  },
+  {
+    "id": "B1-043",
+    "type": "original",
+    "title": "An irrelevant covariate does not automatically bias OLS",
+    "source_pdf": "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf",
+    "source_pages": [
+      29
+    ],
+    "diagnosis": "The original blue margin asserts beta1 and beta3 become biased when X is unrelated to outcome.",
+    "correction": "Under a correctly specified exogenous linear model irrelevant covariates need not create bias; distinguish variance and regularization.",
+    "reference_urls": [
+      "https://matheusfacure.github.io/python-causality-handbook/05-The-Unreasonable-Effectiveness-of-Linear-Regression.html",
+      "https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html"
+    ],
+    "confidence": "high"
+  }
+]

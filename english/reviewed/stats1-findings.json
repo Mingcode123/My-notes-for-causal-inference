@@ -1,0 +1,740 @@
+[
+  {
+    "id": "S1-001",
+    "type": "original",
+    "title": "SUTVA does not mean statistical independence",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      1
+    ],
+    "diagnosis": "The original supplement explicitly describes experimental units as mutually independent and a single treatment level.",
+    "correction": "SUTVA requires no interference between units and no hidden versions of each specified treatment. It does not require statistically independent outcomes, and it permits the two treatment values $0,1$ used here. Independent sampling is a separate assumption. The handwritten phrase ``single treatment level'' is best replaced by ``a well-defined version of each treatment.'' See the discussion and footnote on printed pp.~2--3 of \\href{https://web.stanford.edu/~swager/stats361.pdf}{the lecture}.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-002",
+    "type": "qualification",
+    "title": "Sampling and allocation conditions",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      2
+    ],
+    "diagnosis": "The short scan does not repeat the sampling/allocation conditions needed for the unbiasedness and CLT claims.",
+    "correction": "The difference in means is unbiased under the stated random-assignment setup when both groups are nonempty; the population consistency and normal limits also use IID sampling and finite second moments. The balanced-variance formulas below specialize to $P(W=1)=1/2$ and centered covariates $E[X]=0$. The general variance is $\\operatorname{Var}(Y(1))/e+\\operatorname{Var}(Y(0))/(1-e)$. Centering also explains the displayed OLS decomposition. Its $N(0,\\cdot/n_w)$ labels are asymptotic approximations, not exact finite-sample distributions under merely the stated moment assumptions. See lecture (1.6), (1.8)--(1.13).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-003",
+    "type": "original",
+    "title": "The misspecified-regression covariance need not be block diagonal",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      3
+    ],
+    "diagnosis": "The scan visibly puts zero in both intercept/slope covariance positions. The same simplification occurs in lecture (1.16).",
+    "correction": "The zero off-diagonal entries do not follow from $E[X]=0$. With $q=(1,X')'$, $r_w=Y(w)-c_w^*-X\\beta_w^*$ and $Q=E[qq']$, the covariance is\n\\[\nQ^{-1}E[r_w^2qq']Q^{-1}.\n\\]\nThe intercept--slope block is $E[r_w^2X]A^{-1}$ (with matching row/column orientation), generally nonzero under a misspecified conditional mean. Projection orthogonality gives $E[r_wX]=0$, not $E[r_w^2X]=0$. The intercept variance $E[r_w^2]$ and the subsequent balanced-trial variance-reduction identity remain valid. This is an error in the visible original, also present in lecture (1.16), rather than an OCR error.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-004",
+    "type": "original",
+    "title": "Variance reduction is weak, not always strict",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      3
+    ],
+    "diagnosis": "The red handwritten annotation explicitly asserts strict inequality always.",
+    "correction": "The preceding identity implies $V_{\\rm OLS}\\le V_{\\rm DM}$. Equality occurs whenever $\\|\\beta_0^*+\\beta_1^*\\|_A^2=0$; for nonsingular $A$, this means $\\beta_0^*+\\beta_1^*=0$. Opposite nonzero slopes already give equality. Strict reduction needs a positive squared norm. This follows directly by subtracting the two displayed variances.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-005",
+    "type": "original",
+    "title": "Population and empirical stratum probabilities",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      5
+    ],
+    "diagnosis": "The scan equates the empirical frequency with the population probability; the first translation silently separated them.",
+    "correction": "Use $\\pi(x)=P(X_i=x)$ for the population mass and $\\widehat\\pi(x)=n_x/n$ for its estimate; they are generally unequal in a finite sample. This distinction is already required by the subsequent terms $\\widehat\\pi(x)-\\pi(x)$. The expansion below is read with these distinct definitions. For its fixed-stratum CLT, assume finitely many strata, positive stratum masses and treatment overlap, and finite conditional second moments. See lecture (2.3)--(2.7).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-006",
+    "type": "original",
+    "title": "Conditioning in the propensity-score proof",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      6
+    ],
+    "diagnosis": "The first mixing distribution in the original proof omits potential outcomes. The result is true, but the displayed first equality is not generally justified.",
+    "correction": "Let $\\mathcal Y=(Y(0),Y(1))$. The tower-property integral must initially use $dP(X\\mid\\mathcal Y,e(X))$, not $dP(X\\mid e(X))$. Unconfoundedness changes the integrand to $P(W=w\\mid X)$, which is constant on each propensity-score level set. Integrating that constant gives the claimed result, regardless of the remaining conditional distribution. For continuous $X$, use a regular conditional measure rather than the point probability $P(X=x\\mid\\cdot)\\,dx$. Compare the correctly conditioned proof of Proposition~2.1 in the lecture.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-007",
+    "type": "qualification",
+    "title": "Stratification needs shrinking propensity-score strata",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      7
+    ],
+    "diagnosis": "The blue consistency claim omits the asymptotic conditions on the number of strata.",
+    "correction": "A fixed number of broad propensity-score strata generally leaves residual confounding. Consistency requires increasingly fine strata, sufficiently many treated and control observations within them, overlap, and sufficiently accurate propensity estimates. The lecture explicitly states uniform consistency of $\\widehat e$ and that $J$ grows appropriately with $n$. Equal weighting is appropriate for the approximately equal-size strata used here.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-008",
+    "type": "transcription",
+    "title": "Removed an incorrect translator criticism of the IPW model",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      8,
+      9,
+      10
+    ],
+    "diagnosis": "The prior translator note claimed the coefficients defining c were reversed. Inspection and direct algebra show that claim was mistaken.",
+    "correction": "The original model is correct: c=e mu0+(1-e) mu1, so mu0=c-(1-e)tau and mu1=c+e tau. The oracle IPW signal is tau+c(W-e)/[e(1-e)], giving the displayed c^2/[e(1-e)] variance. The false translator note is removed; no correction box is added.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-009",
+    "type": "qualification",
+    "title": "Variance comparison and causal identification",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      10
+    ],
+    "diagnosis": "The personal comparison is useful but the strictness and the role of linearity require precision.",
+    "correction": "The excess variance is zero exactly when $c(X)=0$ almost surely; it is positive if $P(c(X)\\ne0)>0$, under overlap and finite moments. A correctly specified linear outcome model is an estimation restriction, not by itself a causal identification assumption: observational regression still needs suitable exogeneity/unconfoundedness or another identification argument. The original comparison of estimation methods is retained.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-010",
+    "type": "qualification",
+    "title": "Double robustness and efficiency require regularity",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      11,
+      12,
+      13
+    ],
+    "diagnosis": "The short claims suppress bounded weights, evaluation-sample control, moments, and regular-estimator qualifications.",
+    "correction": "Double robustness is a statement under overlap, suitable integrability and control of fitted-function evaluation (for example cross-fitting); the other nuisance estimate must remain well behaved. Conditioning on $X_i,W_i$ alone does not freeze a function trained on the same observation. In the cross-fitted argument, condition also on the training fold. The efficiency bound below is for regular estimators in the nonparametric unconfoundedness model, not literally every conceivable estimator. The product-risk condition and nuisance consistency listed on the next page are assumptions to verify for a chosen learning method, not automatic properties of all machine-learning algorithms. See lecture (3.8) and the regularity discussion after (3.16).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-011",
+    "type": "original",
+    "title": "A variance rate was attached to the remainder itself",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      14
+    ],
+    "diagnosis": "The scan places <= o_p(1)/n next to the first sum, with no variance or square shown. The lecture proof bounds its conditional second moment.",
+    "correction": "If $T_1$ denotes the first average and $\\mathcal D_2$ its training data, cross-fitting gives $E[T_1\\mid\\mathcal D_2]=0$ and\n\\[\nE[T_1^2\\mid\\mathcal D_2]\n\\le \\frac{E[(\\widehat\\mu_1(X)-\\mu_1(X))^2\\mid\\mathcal D_2]}{\\eta|I_1|}\n=o_p(n^{-1}).\n\\]\nThus $T_1=o_p(n^{-1/2})$, not generally $o_p(n^{-1})$. The smaller rate belongs to its conditional variance/second moment. The second average is handled similarly, and the product term uses the displayed product-risk assumption. This identifies the likely omitted variance operation without changing the original annotation.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-012",
+    "type": "original",
+    "title": "Likelihood score and efficient influence function are different objects",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      15,
+      16
+    ],
+    "diagnosis": "The left supplement calls an ordinary likelihood derivative an efficient score and uses a sample-score notation S(theta_i).",
+    "correction": "The displayed derivative is the ordinary likelihood score. With nuisance parameters, an efficient score additionally removes the nuisance-score component. For ATE estimation, the centered AIPW summand $\\psi_i^*-\\tau$ below is the efficient influence function; its variance is the efficiency bound. It is not the same as a raw likelihood score, whose variance is Fisher information. For observations $O_i$, empirical score variance would use $S_\\theta(O_i)$ at a common $\\theta$, rather than different parameter values $\\theta_i$. The empirical-variance formula for AIPW on p.~16 is correct under the stated consistency and moment conditions.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-013",
+    "type": "qualification",
+    "title": "Confidence level convention",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      16
+    ],
+    "diagnosis": "The original says alpha-level but shades 1-alpha; the interval formula itself is correct.",
+    "correction": "The formula below has asymptotic coverage $1-\\alpha$; $\\alpha$ is the error probability. The handwritten ``$\\alpha$-level'' can be read as a significance-level convention. No formula correction is needed.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-014",
+    "type": "original",
+    "title": "Use the regression residual in the Robinson sandwich",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      18
+    ],
+    "diagnosis": "The scan and lecture (4.6) both use Var(Ztilde Ytilde) in the sandwich.",
+    "correction": "Let $Z=\\widetilde Z_i^*$ be a column vector, $Q=E[ZZ']$ and $\\varepsilon=\\widetilde Y_i^*-Z'\\beta$. The normal equations give influence function $Q^{-1}Z\\varepsilon$, hence\n\\[\nV_R=Q^{-1}E[ZZ'\\varepsilon^2]Q^{-1}.\n\\]\nThe middle term is $\\operatorname{Var}(Z\\varepsilon)$, not $\\operatorname{Var}(Z\\widetilde Y^*)$. The latter includes random variation of $ZZ'\\beta$ that the estimated denominator cancels. Here $E[Z]=0$, so $Q=\\operatorname{Var}(Z)$. Under conditional homoskedasticity the corrected variance is $b^2Q^{-1}$, with $Q$ nonsingular and finite required moments. The source's efficiency discussion refers to this corrected sandwich.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-015",
+    "type": "qualification",
+    "title": "R-loss identification and the RCT parenthesis",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      20
+    ],
+    "diagnosis": "The scan omits positivity for uniqueness and says m,e are unknown unless an RCT.",
+    "correction": "The excess population R-loss is\n\\[\nL(t)-L(\\tau)=E[e(X)(1-e(X))(t(X)-\\tau(X))^2].\n\\]\nTherefore the CATE is uniquely determined only where $0<e(X)<1$ (up to null sets). In an RCT, $e$ is known by design; the outcome mean $m(x)=E[Y\\mid X=x]$ is generally still unknown and must be estimated. Thus the parenthetical RCT exception does not make both nuisance functions known.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-016",
+    "type": "qualification",
+    "title": "The constant-coefficient residual regression changes the target",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      19
+    ],
+    "diagnosis": "The personal recommendation to use the constant-effect estimator under poor overlap is a target choice, not an ATE equivalence.",
+    "correction": "With heterogeneous effects, its population limit is\n\\[\n\\frac{E[e(X)(1-e(X))\\tau(X)]}{E[e(X)(1-e(X))]},\n\\]\nprovided the denominator is positive and nuisances converge sufficiently fast. It emphasizes regions of overlap. It equals the population ATE only with additional conditions, for example constant effects or zero covariance between $e(X)(1-e(X))$ and $\\tau(X)$. It does not identify effects where treatment is deterministic. This makes precise the author's nonnegative-weight intuition.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-017",
+    "type": "qualification",
+    "title": "Scope of the RDD identification and rate claims",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      21,
+      22,
+      24
+    ],
+    "diagnosis": "The scan ties overlap failure directly to impossibility of root-n estimation and gives a smoothness rate without all design conditions.",
+    "correction": "The no-$\\sqrt n$ statement concerns the nonparametric smoothness class used here, not every possible parametric restriction. The $n^{-2/5}$ rate uses a second-derivative bound on a neighborhood of the cutoff, positive continuous design density on both sides, independent observations, and bounded conditional variance. Continuity identifies the boundary contrast only when the cutoff is approached from both observed sides. The arithmetic balancing squared bias $h^4$ against variance $(nh)^{-1}$ is correct; under order-$k$ smoothness and suitable local polynomial fitting it gives error $n^{-k/(2k+1)}$.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-018",
+    "type": "original",
+    "title": "Lipschitz continuity is not bounded nondifferentiability",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      23
+    ],
+    "diagnosis": "The source explicitly glosses Lipschitz as bounded but not differentiable.",
+    "correction": "Lipschitz continuity means $|f(x)-f(y)|\\le L|x-y|$ for a finite constant $L$. It permits both differentiable functions and functions with corners, such as $|x|$. Boundedness alone does not imply Lipschitz continuity, and a Lipschitz function need not be bounded on an unbounded domain. The author's intended weaker-smoothness comparison remains valid.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-019",
+    "type": "original",
+    "title": "The local-linear weights need a sample-size denominator",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      24
+    ],
+    "diagnosis": "The source weight formula lacks the number of in-band observations; summing the displayed weights gives N rather than 1.",
+    "correction": "Let $N_+=|\\{i:c\\le Z_i\\le c+h_n\\}|$, $u_i=Z_i-c$, and $m_j=N_+^{-1}\\sum_i u_i^j$ within this band. The normalized intercept weights are\n\\[\n\\gamma_i=\\frac{m_2-m_1u_i}{N_+(m_2-m_1^2)}.\n\\]\nAssume $m_2-m_1^2>0$. Then $\\sum_i\\gamma_i=1$ and $\\sum_i\\gamma_i u_i=0$, as required. The source formula without $N_+$ sums to $N_+$. The later bias/noise calculations require the normalized weights.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-020",
+    "type": "original",
+    "title": "Keep the Taylor remainder normalization consistent",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      23,
+      24
+    ],
+    "diagnosis": "The source Taylor expansion uses half rho, but the intercept decomposition drops that half.",
+    "correction": "With the earlier definition, the curvature term is $\\tfrac12\\sum_i\\gamma_i\\rho_{(1)}(Z_i-c)$. Equivalently redefine $r_w=\\rho_w/2$, with $|r_w(u)|\\le Bu^2/2$, and write $\\sum_i\\gamma_i r_w(u_i)$. The omission affects constants, not the stated rate. Bounds on curvature bias use $\\sum_i|\\gamma_i|u_i^2$ because local-linear weights may have either sign.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-021",
+    "type": "original",
+    "title": "The noisy running variable must be centered at the latent variable",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      25
+    ],
+    "diagnosis": "The scan clearly writes Z|U ~ N(0,nu^2), whereas its next formulas use z-u and c-u.",
+    "correction": "The subsequent propensity and convolution formulas require $Z_i\\mid U_i=u\\sim N(u,\\nu^2)$, equivalently $Z_i-U_i\\mid U_i\\sim N(0,\\nu^2)$. If the written mean were really zero for every $u$, the propensity would be $1-\\Phi(c/\\nu)$, independent of $u$. The source therefore omits $u$ in the conditional mean. The later decomposition is correct for the latent-location model; its weight normalization alone does not remove confounding bias unless the induced $h_+$ and $h_-$ are suitably balanced.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-022",
+    "type": "qualification",
+    "title": "What the finite-sample minimax guarantee says",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      26,
+      27,
+      29,
+      30
+    ],
+    "diagnosis": "The source comparison and exact Gaussian claim suppress sampling and minimax qualifications.",
+    "correction": "The exact conditional normal calculation needs independent Gaussian errors across units (or the corresponding joint Gaussian covariance), with known variance and a valid curvature bound $B$. Marginal normality alone is insufficient. Minimizing $b^2\\|\\gamma\\|_2^2+I_B(\\gamma)^2$ minimizes worst-case conditional MSE over the stated function class; it does not guarantee smaller actual MSE at every particular pair of response functions, nor strict improvement. The bias-adjusted interval is valid conditional on the design, including discrete designs, whenever the optimization is feasible. A plug-in choice of $b$ or $B$ requires further justification.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-023",
+    "type": "original",
+    "title": "The red group labels refer to treatment, not outcome",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      28
+    ],
+    "diagnosis": "The supplement labels the two weight groups Y=1 and Y=0, but splits treated/control terms.",
+    "correction": "These labels should be $W=1$ and $W=0$. The outcome $Y$ need not be binary. The sum constraints themselves are correct: treated weights sum to $1$ and control weights to $-1$.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-024",
+    "type": "qualification",
+    "title": "Residual variance estimates are not automatically conservative",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      31
+    ],
+    "diagnosis": "The blue annotation says a wrong local mean inflates residuals and therefore yields conservative inference.",
+    "correction": "For an independent evaluation observation and a fixed fitted mean, expected squared residual equals conditional variance plus squared mean error. With an in-sample fitted regression, overfitting and leverage can instead shrink residuals. Conservativeness therefore needs suitable leave-one-out/cross-fitted variance estimation or a theorem controlling the in-sample fit. The conditional Gaussian approximation also needs a weighted Lindeberg condition (no dominant observation), and the variance estimate must be consistent or conservatively valid. These requirements are not supplied merely by changing $b^2$ to $b_i^2$.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-025",
+    "type": "qualification",
+    "title": "Answer to the basis-expansion regularity question",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      33
+    ],
+    "diagnosis": "The author explicitly questions interchange of an infinite sum and expectation.",
+    "correction": "The question is justified: pointwise convergence of a series alone does not justify exchanging its sum and expectation. A sufficient condition is $\\sum_j|\\beta_{j(w)}|E|\\psi_j(X)|<\\infty$; alternatively, convergence of partial sums in $L^1$ suffices. $L^2$ convergence under a probability distribution also implies $L^1$ convergence. Under overlap, the same reasoning controls the weighted expectation. The population identity can also be proved directly by conditioning on $X$, without an infinite basis expansion.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-026",
+    "type": "original",
+    "title": "Convexity alone does not guarantee a unique finite solution",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      35
+    ],
+    "diagnosis": "The scan, like lecture (7.10), infers uniqueness from convexity.",
+    "correction": "The Hessian is $n^{-1}\\sum_iW_i e^{-X_i\\theta}X_i'X_i$. It is positive semidefinite, and positive definite only with suitable span/rank conditions on treated covariates. A finite minimizer also needs existence; exact balance can fail when the target covariate mean lies outside the attainable treated convex support. Thus convexity alone establishes neither uniqueness nor attainment, and Newton iterations require the usual safeguards. The displayed first-order balance equation is correct.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-027",
+    "type": "qualification",
+    "title": "Two calibration fits versus one true propensity",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      35
+    ],
+    "diagnosis": "The blue margin describes two different propensity models as necessary.",
+    "correction": "The treatment mechanism has one propensity $e(x)$; control probabilities are $1-e(x)$. Two separate calibration fits are one way to enforce arm-specific balance in this construction, but two distinct true propensity models are not mathematically required for estimating both means.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-028",
+    "type": "original",
+    "title": "Correct the norm shorthand and specify Holder exponents",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      34,
+      35
+    ],
+    "diagnosis": "The left scan gives sum x_i^0 as zero-norm and omits absolute values from the general p-norm.",
+    "correction": "Use $\\|x\\|_0=\\sum_i\\mathbf1\\{x_i\\ne0\\}$ (a count, not a norm) and $\\|x\\|_p=(\\sum_i|x_i|^p)^{1/p}$ for $p\\ge1$. $x_i^0$ does not properly handle zero entries, and odd/noninteger powers do not define the intended real norm for negative entries. Holder requires $p,q\\ge1$ with $1/p+1/q=1$, including the $(1,\\infty)$ endpoint. The displayed imbalance bound follows by this endpoint inequality; its absolute-value version bounds the magnitude of the error.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-029",
+    "type": "qualification",
+    "title": "Conditions behind high-dimensional balancing inference",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      32,
+      36,
+      37
+    ],
+    "diagnosis": "The scan outlines rates without complete tail, weight-dispersion, and variance-estimation assumptions.",
+    "correction": "Overlap does not by itself give finite variance: require $E[Y(w)^2]<\\infty$. The concentration bounds also use controlled sub-Gaussian covariates, and the lasso rate needs an appropriate tuning level, restricted eigenvalues and noise assumptions. The stated sparsity condition makes the remainder $o_p(n^{-1/2})$ by multiplying the two rates. Conditional on $(X,W)$, weights must depend on these variables rather than outcome noise. A CLT additionally needs no dominant weighted residual; the displayed studentization uses the unknown true $\\beta_1$, so feasible inference must justify replacing it by an estimate.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-030",
+    "type": "qualification",
+    "title": "Sample-target and population-target uncertainty",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      37
+    ],
+    "diagnosis": "The personal caveat correctly distinguishes targets but gives a stronger-than-necessary requirement on weight convergence.",
+    "correction": "For the population target, also include the sampling fluctuation $n^{-1}\\sum_i\\mu_1(X_i)-E[\\mu_1(X)]$. Convergence of the fitted weights to a stable function is a useful sufficient route to an influence-function result; it is not a logically necessary condition in every construction. One must establish the joint limit and its variance. The author's warning that the displayed conditional interval only covers the sample mean is correct.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-031",
+    "type": "qualification",
+    "title": "Strict exogeneity and unconfoundedness have different scopes",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      39
+    ],
+    "diagnosis": "The red comparison compresses distinct panel and cross-sectional assumptions.",
+    "correction": "Here strict exogeneity requires mean-zero errors conditional on the entire treatment path and the fixed effects; treatment decisions cannot respond to the idiosyncratic errors in any period. It is stronger than a corresponding contemporaneous mean-exogeneity condition, but it is not literally a universal implication ordering with every distributional unconfoundedness assumption. State the conditioning sets and whether mean or full independence is intended.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-032",
+    "type": "original",
+    "title": "General two-way OLS still has a closed form",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      39
+    ],
+    "diagnosis": "The source says OLS has no closed-form solution in the general two-way setting.",
+    "correction": "For a balanced panel, residualize $Y$ and $W$ on unit and time indicators: $\\widetilde W_{it}=W_{it}-\\overline W_{i\\cdot}-\\overline W_{\\cdot t}+\\overline W_{\\cdot\\cdot}$, and similarly for $Y$. When $\\sum_{it}\\widetilde W_{it}^2>0$,\n\\[\n\\widehat\\tau=\\frac{\\sum_{it}\\widetilde W_{it}\\widetilde Y_{it}}{\\sum_{it}\\widetilde W_{it}^2}.\n\\]\nThus the simple two-group before/after expression need not apply, but a closed-form OLS coefficient exists. The fixed-effect model implies parallel conditional mean trends, not exactly parallel noisy realized paths.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-033",
+    "type": "qualification",
+    "title": "Latent-factor balance and panel asymptotics",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      40,
+      41
+    ],
+    "diagnosis": "The scan states consistency under an appropriate large-panel regime, with the final qualification clipped.",
+    "correction": "A close pretreatment fit alone does not prove that posttreatment counterfactual trends are balanced: preperiod factors must reveal the directions relevant after treatment, and noise/weight concentration must be controlled. The factorization has rank at most $k$; exact rank $k$ needs full-rank factors. The consistency claim is conditional on a suitable asymptotic regime and assumptions, not on $n,T\\to\\infty$ alone. The full synthetic-DID method may also use time weights and regularization. See \\href{https://www.aeaweb.org/articles?id=10.1257/aer.20190159}{Arkhangelsky et al. (2021)} and lecture (8.7)--(8.9); the clipped handwriting is not reconstructed from that reference.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://www.aeaweb.org/articles?id=10.1257/aer.20190159"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-034",
+    "type": "qualification",
+    "title": "Exchangeability across units and the variance criterion",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      42,
+      43
+    ],
+    "diagnosis": "The conditioning and cancellation arguments require a common conditional mean across units, and sum of squared weights is a homoskedastic independent-cell variance criterion.",
+    "correction": "For the cancellation, require a common conditional mean $E[Y_{it}(0)\\mid S_i=s]=m_t(s)$ across units, and conditions such as IID rows ensuring that conditioning on the full assignment matrix adds no information about a row beyond its own path. Within-row independence of $Y_i(0)$ and $W_i$ given $S_i$ alone does not impose cross-unit exchangeability. The combined restrictions give the claimed double robustness when feasible. Minimizing $\\sum_{it}\\gamma_{it}^2$ minimizes variance for conditionally uncorrelated homoskedastic cells; with within-unit covariance $\\Sigma_i$, the variance criterion is $\\sum_i\\gamma_i'\\Sigma_i\\gamma_i$. Unbiasedness of feasible weights does not require that working variance model to be correct.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-035",
+    "type": "qualification",
+    "title": "Dependence need not create a nonzero linear bias",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      45
+    ],
+    "diagnosis": "The scan writes nonzero conditional mean and nonzero OLS bias as consequences of dependence.",
+    "correction": "The exact identity $\\tau_{\\rm OLS}=\\tau+\\operatorname{Cov}(\\varepsilon,W)/\\operatorname{Var}(W)$ is correct. However, dependence of $Y(0)$ and $W$ does not necessarily imply nonzero conditional mean or nonzero covariance. For example, $Y(0)$ can have treatment-dependent variance but the same conditional mean. The displayed $\\ne\\tau$ describes the confounded case with nonzero covariance, not a consequence of every dependence. Identification by the subsequent IV ratio requires its nonzero denominator.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-036",
+    "type": "original",
+    "title": "The IV normal limit uses square-root-n scaling",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      47,
+      48
+    ],
+    "diagnosis": "The main scan clearly writes n, whereas the supplement and official lecture use square root n.",
+    "correction": "The correct limit is $\\sqrt n(\\widehat\\tau_w-\\tau)\\Rightarrow N(0,V_w)$. The first-order expansion is\n\\[\n\\sqrt n(\\widehat\\tau_w-\\tau)=\n\\frac{n^{-1/2}\\sum_i(w(Z_i)-E[w(Z)])\\varepsilon_i}\n{\\operatorname{Cov}(W,w(Z))}+o_p(1),\n\\]\nwith centered errors, IID observations, finite required moments and a nonzero limiting covariance. This gives the displayed $V_w$ under $\\varepsilon\\perp Z$. Compare official lecture (9.12); its equation numbering differs from the handwritten notes.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-037",
+    "type": "original",
+    "title": "Maximize the covariance ratio",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      47
+    ],
+    "diagnosis": "The handwritten optimizer is argmin of covariance squared over variance; the objective must be maximized.",
+    "correction": "Minimizing $V_w$ requires\n\\[\n\\arg\\max_w\\frac{\\operatorname{Cov}(W,w(Z))^2}{\\operatorname{Var}(w(Z))}.\n\\]\nWriting $m(Z)=E[W\\mid Z]$, conditional expectation and Cauchy--Schwarz give $\\operatorname{Cov}(W,w)^2=\\operatorname{Cov}(m,w)^2\\le\\operatorname{Var}(m)\\operatorname{Var}(w)$. Equality holds for $w=a+bm$, $b\\ne0$, provided $\\operatorname{Var}(m)>0$. Thus the prediction intuition is correct; the optimization direction is not. The result uses the source's independence/homoskedastic-instrument setup; it is not the general heteroskedastic optimal-instrument formula. See official lecture (9.13)--(9.15).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-038",
+    "type": "qualification",
+    "title": "What the conditional IV ratio identifies",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      46
+    ],
+    "diagnosis": "The source conditional extension omits the structural restriction needed to interpret the ratio as a CATE.",
+    "correction": "The ratio equals $\\tau(x)$ under a conditional structural model $Y=a(X)+W\\tau(X)+\\varepsilon$ with $E[\\varepsilon\\mid Z,X]=0$ and nonzero conditional first-stage covariance. Under unrestricted individual treatment heterogeneity, conditional exogeneity of the instrument alone does not make this ratio the general CATE; with appropriate monotonicity it may instead identify a conditional local effect. A doubly robust estimator or forest must target the identified effect under its particular assumptions.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-039",
+    "type": "original",
+    "title": "Substituting a fitted treatment changes the structural residual",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      49
+    ],
+    "diagnosis": "The blue example calls equations with W and fitted W equivalent while keeping the same error symbol.",
+    "correction": "From $Y=\\gamma+\\delta W+\\varepsilon$ one obtains\n\\[\nY=\\gamma+\\delta\\widehat W+\\{\\varepsilon+\\delta(W-\\widehat W)\\}.\n\\]\nThe same $\\varepsilon$ cannot generally be retained unless $\\delta(W-\\widehat W)=0$. The author's warning about first-stage overfitting is sound, but the displayed equivalence needs this changed residual. If $Z$ is pure noise, relevance fails; cross-fitting prevents reuse of an observation's noise but does not create a relevant instrument.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-040",
+    "type": "qualification",
+    "title": "Cross-fitted IV still needs a nonvanishing first stage",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      49
+    ],
+    "diagnosis": "The source gives mean-square consistency as the main condition for equivalence to oracle IV.",
+    "correction": "With independent observations, a fixed number of folds, suitable moments, and $\\operatorname{Var}(E[W\\mid Z])>0$ bounded away from zero, mean-square-consistent first-stage prediction can emulate the oracle at first order. Training outside the observation's fold removes own-observation dependence under $\\varepsilon\\perp Z$. It does not justify normal inference when instruments become weak, nor independence across all fitted observations (their training sets overlap).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-041",
+    "type": "original",
+    "title": "The linear structural coefficient multiplies treatment",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      50
+    ],
+    "diagnosis": "The original parenthesis, also reflected in the lecture prose, names Z although the displayed structural model is linear in W.",
+    "correction": "The constant structural effect is linear in $W_i$, not necessarily in $Z_i$. The instrument may influence treatment nonlinearly. The subsequent generalization replaces $W_i\\tau$ by $g(W_i)$; that formula correctly describes the intended extension.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-042",
+    "type": "qualification",
+    "title": "NPIV identification and inverse-problem regularization",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      50
+    ],
+    "diagnosis": "The author notes that consistency requires conditions; these conditions are not established in the scan.",
+    "correction": "Let $(Th)(z)=E[h(W)\\mid Z=z]$. The moment equation identifies $g$ only if $T$ is injective on the chosen function class: $E[h(W)\\mid Z]=0$ implies $h(W)=0$ almost surely (a completeness condition). Even then inversion may be ill posed, so accurate first-stage density estimates alone do not ensure accurate recovery of $g$. Sieve dimension or other regularization must control this instability and approximation error. Also, $E[Y\\mid W=w]=g(w)+E[\\varepsilon\\mid W=w]$; inequality with $g(w)$ holds when that conditional error mean is nonzero. See \\href{https://doi.org/10.1111/1468-0262.00459}{Newey and Powell (2003)}, which characterizes identification through completeness and develops regularized series estimation.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf",
+      "https://doi.org/10.1111/1468-0262.00459"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-043",
+    "type": "qualification",
+    "title": "LATE, ATE, and individual contrasts",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      51,
+      52
+    ],
+    "diagnosis": "The binary LATE derivation is correct; the blue IATE/ATE label is ambiguous and lacks conditioning.",
+    "correction": "The derivation also requires $0<P(Z=1)<1$ and a positive complier share. Under the stated exclusion, exogeneity and monotonicity, the Wald ratio identifies the complier average effect, not the population ATE in general. The blue expression $E[Y(1)-Y(0)]$ is an ATE; an individual effect is $Y_i(1)-Y_i(0)$. The marginal label itself remains ambiguous. The author's point that never-takers reveal no treated outcome is correct.",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high for formulas; unresolved label"
+  },
+  {
+    "id": "S1-044",
+    "type": "qualification",
+    "title": "Supply-demand existence and the derivative representation",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      53
+    ],
+    "diagnosis": "The scan infers a unique equilibrium from monotonicity and extends an ordinary-derivative integral to distributional derivatives.",
+    "correction": "Continuity and opposing strict slopes give at most one intersection; existence also requires that the curves cross. The supply shift must hold at every relevant price to imply $P_i(1)\\ge P_i(0)$. The displayed ordinary integral with $Q_i'(p)\\,dp$ is valid when demand is absolutely continuous over the affected price intervals and integrable enough to interchange expectation and integration. A monotone continuous demand curve can have a singular continuous component, so a distributional derivative must instead be treated as a signed measure $dQ_i(p)$. Then use $Q_i(P_i(1))-Q_i(P_i(0))=\\int_{(P_i(0),P_i(1)]}dQ_i$. The author's distributional-derivative idea is valid with this measure interpretation, not as an ordinary density in all cases.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-045",
+    "type": "original",
+    "title": "Increasing cutoffs decrease treatment receipt",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      55,
+      57
+    ],
+    "diagnosis": "The blue margin says treatment is nondecreasing; the stated threshold convention implies the opposite. The later complier label uses the earlier orientation.",
+    "correction": "For fixed $U_i$, $W_i(z)=\\mathbf1\\{U_i\\ge c(z)\\}$ is nonincreasing when $c$ is nondecreasing. The single-jump middle group therefore switches from treated to untreated as $z$ increases. Relative to the earlier increasing-treatment instrument convention it is the opposite switching direction; it can be called a complier group after reversing the instrument orientation. Both IV covariances change sign together, so the positive-weight treatment-effect interpretation still holds. This convention issue does not invalidate the IV ratio.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-046",
+    "type": "qualification",
+    "title": "Uniform normalization and cutoff support",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      55
+    ],
+    "diagnosis": "The source calls uniform latent heterogeneity without loss of generality before listing exogeneity.",
+    "correction": "The identity $c(z)=1-P(W=1\\mid Z=z)$ uses $U\\perp Z$, $U\\sim\\mathrm{Unif}[0,1]$ and an effective cutoff in $[0,1]$. Uniform normalization follows directly from a continuous latent CDF (with a suitable monotone reparameterization); atoms need additional care, such as a randomized latent rank. These are assumptions/normalizations of the threshold model, not a consequence of the indicator rule alone.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-047",
+    "type": "original",
+    "title": "The Gaussian factor is a density, not point probability",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      54
+    ],
+    "diagnosis": "The red arrows call phi(z) the probability of a jump location/probability weight.",
+    "correction": "For continuous Gaussian $Z$, $P(Z=z)=0$ at every individual jump location. The factor $\\varphi(z)$ is the Gaussian density evaluated there, arising from integration by parts; it is not a point mass or $P(Z\\in S)$. The jump's weight is $(c(z)-c_-(z))\\varphi(z)$, normalized by the total denominator.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-048",
+    "type": "original",
+    "title": "Monotone cutoffs may have singular continuous variation",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      54,
+      55,
+      56,
+      57
+    ],
+    "diagnosis": "The original and lecture footnote assert an integral-of-derivative representation for any monotone cutoff. This omits jumps and singular continuous variation.",
+    "correction": "A bounded monotone cutoff has a Stieltjes measure $dc$, not necessarily a density $c'(z)\\,dz$. It may have an absolutely continuous part, atoms at jumps, and a singular continuous part (the Cantor function supplies a counterexample). Thus the jump-plus-ordinary-integral formula also needs absence of a singular continuous part; ``no jumps'' alone is insufficient for the later continuous formula.\n\nTake $c$ to be right-continuous, nondecreasing, $[0,1]$-valued and nonconstant, and assume the outcome/covariance moments exist. Then $\\int\\varphi\\,dc>0$. A formulation that retains all parts is obtained by defining $F(u)=\\int_0^u\\tau(v)\\,dv$ (for bounded or suitably integrable $\\tau$):\n\\[\n\\tau_{\\rm IV}=\\frac{\\int_{\\mathbb R}\\varphi(z)\\,d[F(c(z))]}{\\int_{\\mathbb R}\\varphi(z)\\,dc(z)}.\n\\]\nIndeed $E[W\\mid Z=z]=1-c(z)$ and $E[Y\\mid Z=z]=E[Y(0)]+F(1)-F(c(z))$; Gaussian integration by parts gives a minus sign in both covariances, which cancels. At a jump, $d[F(c)]$ has mass $\\int_{c_-}^{c}\\tau(u)\\,du$, explaining the author's strip intuition. On an absolutely continuous part it has density $\\tau(c(z))c'(z)$. The source's p.~56 distributional derivative should be read as this measure, rather than as a piecewise ordinary function. A Dirac delta is a measure/distribution, not an ordinary function with the displayed pointwise properties. This corrects an error also present in lecture footnote~4 and qualifies (10.7)--(10.11).",
+    "reference_urls": [
+      "https://web.stanford.edu/~swager/stats361.pdf"
+    ],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-049",
+    "type": "original",
+    "title": "The jump width is a cutoff difference",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      57
+    ],
+    "diagnosis": "The scan numerator explicitly has z_k minus c_-(z_k), whereas its denominator and preceding general formula use c(z_k) minus c_-(z_k).",
+    "correction": "Replace the numerator's factor $z_k-c_-(z_k)$ by $c(z_k)-c_-(z_k)$. The stratum is $[c_-(z_k),c(z_k))$ in $U$-space; its probability under uniform $U$ is the difference of these cutoff values, not a difference between instrument location and cutoff. With that correction the formula is the stated convex combination.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  },
+  {
+    "id": "S1-050",
+    "type": "qualification",
+    "title": "Where the local-IV derivative identifies an MTE",
+    "source_pdf": "Lecture1-10.pdf",
+    "source_pages": [
+      58
+    ],
+    "diagnosis": "The source mostly states the needed derivative conditions; support and pointwise-versus-almost-everywhere distinctions remain implicit.",
+    "correction": "The chain-rule proof is correct at points where $c$ and the conditional mean are differentiable, $c'(z)\\ne0$, and $F'(c(z))=\\tau(c(z))$. For merely integrable $\\tau$, the last equality is an almost-everywhere statement; continuity of $\\tau$ at the target is a convenient sufficient condition. Identification is restricted to latent ranks reached by the instrument propensity support. Smoothness of $c$ alone does not identify MTEs outside that range.",
+    "reference_urls": [],
+    "evidence_confidence": "high"
+  }
+]

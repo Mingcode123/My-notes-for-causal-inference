@@ -1,0 +1,1024 @@
+{\color{black}
+\section{第1章：因果推断入门}
+\sourcepages{Chapter1-23.pdf, p. 1}
+$T_i$ 表示是否接受处理，$Y_i$ 是观测结果。笔记把“现实（分组）”与“真相”作了区分。
+\[
+\mathrm{ATE}=E[Y_1-Y_0],\qquad \mathrm{ATT}=E[Y_1-Y_0\mid T=1].
+\]
+ATE 是平均处理效应；ATT 是已接受处理者的平均处理效应。因果量来自潜在结果之差。观测到的相关关系可分解为
+\[
+\underbrace{E[Y\mid T=1]-E[Y\mid T=0]}_{\inkblue{\text{相关关系}}}
+=\underbrace{E[Y_1-Y_0\mid T=1]}_{\inkblue{\mathrm{ATT}}}
++\underbrace{E[Y_0\mid T=1]-E[Y_0\mid T=0]}_{\inkblue{\text{偏差}}}.
+\]
+\begin{inkblock}{blue}
+\textbf{我的批注。} 偏差为零时，相关关系代表 ATT；再用箭头把 ATT 连到 $E[Y_1-Y_0]$，标作“因果关系”。
+\end{inkblock}
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{偏差 $=0$：相关关系代表 ATT}{$\mathrm{ATT}$}
+\notearrow{blue}{可转为因果关系（原笔记箭头）}{$E[Y_1-Y_0]$；条件见下方校注}
+\begin{reviewnote}{qualification}{B1-004}{选择偏差为零识别的是 ATT，不一定是 ATE}{Chapter1-23.pdf, pp. 1}
+这条箭头确实出现在原笔记的蓝色批注中。$E[Y_0\mid T=1]-E[Y_0\mid T=0]$ 为零时，相关关系 $=\mathrm{ATT}$。若要进一步把 ATT 换成 ATE，还需 $E[Y_1-Y_0\mid T=1]=E[Y_1-Y_0]$；处理与两个潜在结果均独立的随机分配是一个充分条件。实际上，$\mathrm{ATE}=P(T=1)\mathrm{ATT}+P(T=0)\mathrm{ATU}$。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/01-Introduction-To-Causality.html}{教材第1章}.
+\end{reviewnote}
+\section{第2章：随机实验}
+\sourcepages{Chapter1-23.pdf, p. 1}
+随机实验可以消除偏差。图中把已有条件与潜在结果的联系（需要消除）和处理与观测结果的联系（需要研究）分开。RCT 给出
+\begin{inkblock}{blue}
+\[
+(Y_0,Y_1)\perp T,\qquad E[Y_0\mid T=0]=E[Y_0\mid T=1]=E[Y_0],
+\]
+因此选择偏差项为零。
+\end{inkblock}
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{RCT 提供这一条件}{$(Y_0,Y_1)\perp T$}
+\notearrow{blue}{需要消除的联系}{已有条件 $\longrightarrow$ 潜在结果}
+\notearrow{blue}{需要研究的联系}{处理 $\longrightarrow$ 观测结果}
+\section{第3章：统计学回顾}
+\sourcepages{Chapter1-23.pdf, p. 2}
+估计量的标准误写作 $\mathrm{SE}=\hat\sigma/\sqrt n$，其中
+\[\hat\sigma^2=\frac{1}{N-1}\sum_i(x_i-\bar x)^2.\]
+样本量更小 $\Rightarrow$ 标准误更大 $\Rightarrow$ 置信区间更宽。原假设是处理组与对照组的分布均值相等。两组各自的置信区间即使重叠，均值之差仍可能显著不为零。\inkblue{蓝色批注区分了两组均值各自的 95\% 置信区间与两组均值之差。}
+
+笔记把 $p$ 值写作 $P(\text{data}\mid H_0)$：在 $H_0$ 下，观测到当前数据或更极端数据的概率，并提醒第一类错误。置信水平被描述为估计值与总体参数之差不超过某一范围的概率。置信水平更高 $\Rightarrow$ 区间更宽 $\Rightarrow$ 精度更低。显著性水平是第一类错误的概率。
+
+\textbf{我的直觉。} 若 $p$ 值很小，那么在 $H_0$ 下极不容易出现的数据却出现了，说明 $H_0$ 可能不对。\inkblue{把样本算出的 $p$ 值与理论上预先选定的显著性水平比较。}
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{$\mathrm{SE}=\hat\sigma/\sqrt n$}{$\hat\sigma^2=(N-1)^{-1}\sum_i(x_i-\bar x)^2$}
+\notearrow{blue}{各自的置信区间}{$T=1$ 或 $T=0$ 组均值的 95\% 置信区间}
+\notearrow{blue}{差值仍可能显著}{两组均值之差}
+\begin{reviewnote}{qualification}{B1-005}{抽样概率与置信区间覆盖率}{Chapter1-23.pdf, pp. 2}
+原笔记的简写需结合抽样来理解。对于独立同分布样本的均值，$\widehat{\mathrm{SE}}(\bar X)=s/\sqrt n$；这不是所有估计量通用的标准误。$p$ 值是 $P_{H_0}\{S\text{ 至少与 }S_{\rm obs}\text{ 一样极端}\}$，不是 $P(H_0\mid\text{data})$。95\% 置信区间程序的重复抽样覆盖率为 $P_\theta\{\theta\in C(X)\}=0.95$。小 $p$ 值提供反对原假设的证据，并不从逻辑上证明原假设为假。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/03-Stats-Review-The-Most-Dangerous-Equation.html}{教材第3章}.
+\end{reviewnote}
+\section{第4章：图模型}
+\sourcepages{Chapter1-23.pdf, p. 3}
+$A\to B$ 表示 $A$ 影响 $B$；依赖关系沿箭头传递。
+\begin{enumerate}
+\item 链：$A\to B\to C$。边际上 $A\not\perp C$；给定已知的中间变量 $B$ 后，路径被阻断：$A\perp C\mid B$。
+\item 叉：$A\leftarrow C\to B$。未条件化时，$A\not\perp B$；给定 $C$ 后，$A\perp B\mid C$。
+\item 碰撞点：$A\to C\leftarrow B$。边际上 $A\perp B$；给定 $C$ 后，$A\not\perp B\mid C$。
+\end{enumerate}
+混杂偏差还可能涉及混杂因素的代理变量，以及不能直接测量的变量。
+
+\textbf{我的总结。} 混杂偏差来自没有控制住的开放路径，例如 $X\leftarrow W\to Y$，同时存在 $X\to Y$。选择偏差来自多余的条件化：控制共同结果会打开路径，控制因果路径上的中间变量则会阻断部分因果作用。例子中 $X$ 是教育，$Y$ 是工资，$W$ 是投资。碰撞点图为 $X\to W_2\leftarrow Y$、$W_2\to W_1$ 和 $X\to Y$，“投资”写在 $W_1$ 旁；中介图则是教育先影响 $W$，再影响工资，同时还有教育到工资的直接箭头。笔记说控制 $W$ 对这里的分析也有负面影响。
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\node (a) at (0,0) {$A$}; \node (b) at (1.5,0) {$B$}; \node (c) at (3,0) {$C$}; \draw[->] (a)--(b); \draw[->] (b)--(c);
+\node (d) at (5,0) {$A$}; \node (e) at (6,1) {$C$}; \node (f) at (7,0) {$B$}; \draw[->] (e)--(d); \draw[->] (e)--(f);
+\node (g) at (9,1) {$A$}; \node (h) at (11,1) {$B$}; \node (i) at (10,0) {$C$}; \draw[->] (g)--(i); \draw[->] (h)--(i);
+\node (w) at (0,-2.1) {$W$}; \node (x) at (1.5,-1.4) {$X$}; \node (y) at (1.5,-2.8) {$Y$}; \draw[->] (w)--(x);\draw[->] (w)--(y);\draw[->] (x)--(y);
+\node (x2) at (5.5,-1.4) {$X$};\node (y2) at (5.5,-2.8) {$Y$};\node (w2) at (4.2,-2.1) {$W_2$};\node (w1) at (2.9,-2.1) {$W_1$};\draw[->] (x2)--(y2);\draw[->] (x2)--(w2);\draw[->] (y2)--(w2);\draw[->] (w2)--(w1);
+\node (x3) at (10,-1.4) {$X$};\node (y3) at (10,-2.8) {$Y$};\node (w3) at (8.7,-2.1) {$W$};\draw[->] (x3)--(y3);\draw[->] (x3)--(w3);\draw[->] (w3)--(y3);
+
+\end{tikzpicture}
+\par{\small 原扫描第3页：链、叉、碰撞点；下方依次为混杂及两种不当控制。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{额外控制共同结果，打开路径}{碰撞点 $W_2$，或其后代 $W_1$}
+\notearrow{black}{额外控制，阻断部分因果路径}{$X\to W\to Y$ 中的中介变量 $W$}
+\begin{reviewnote}{qualification}{B1-006}{图上的分离与统计依赖}{Chapter1-23.pdf, pp. 3}
+以上是原笔记的三节点路径规则。在因果 Markov 性质下，若不存在其他开放路径，阻断路径可推出所写的独立关系。开放路径允许依赖，但若不另加忠实性（faithfulness）条件，并不必然产生依赖，因为效应可能相互抵消。调整中介变量会阻断部分总效应，属于过度控制；调整碰撞点则可能产生选择偏差。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/04-Graphical-Causal-Models.html}{教材第4章}.
+\end{reviewnote}
+\section{第5章：线性回归的作用}
+\sourcepages{Chapter1-23.pdf, p. 4}
+对个体 $i$，写作 $Y_{1i}=Y_{0i}+k$，目标是估计 $k$。一元回归为
+\[Y_i=\beta_0+kT_i+u_i,\qquad \hat\beta_1=\frac{\operatorname{Cov}(Y_i,T_i)}{\operatorname{Var}(T_i)}.\]
+图中的直线从 $T=0$ 时的截距，连到 $T=1$ 时的“截距加 $k$”（原图画的是负斜率）。当 $T$ 随机分配时，其回归系数就是 ATE。
+
+多元回归用来处理影响 $T_i$ 的多个因素：
+\[y_i=\beta_0+kT_i+\beta_1X_{1i}+\cdots+\beta_KX_{Ki}+u_i.\]
+\inkblue{$X$ 是辅助协变量。} 此时
+\[k=\frac{\operatorname{Cov}(Y_i,\widetilde T_i)}{\operatorname{Var}(\widetilde T_i)}.\]
+\begin{inkblock}{blue}
+\textbf{我的批注。} 先把 $X$ 能解释的部分去掉，取残差 $\widetilde T$；剩下的就是 $X$ 解释不了的部分。
+\end{inkblock}
+
+本来需要多元回归，却在一元回归中漏掉变量时，考虑正确模型
+\[\mathrm{Wage}_i=\alpha+k\,\mathrm{Educ}_i+A_i'\beta+u_i,\]
+其中 $A_i$ 是能力。遗漏变量的计算为
+\[\frac{\operatorname{Cov}(\mathrm{Wage}_i,\mathrm{Educ}_i)}{\operatorname{Var}(\mathrm{Educ}_i)}=k+\beta'\delta_{\mathrm{Ability}}.\]
+\inkblue{$\delta_A$ 是把能力对教育回归得到的系数向量。}\inkred{多出来的项就是遗漏变量偏差（OVB）。} 若所有混杂因素都纳入，就没有 OVB。\textbf{旁注：} RCT 打破这层关系；回归则控制它，使其固定。
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\draw[->] (0,0)--(4,0) node[right] {$T$};\draw[->] (0,0)--(0,2.5) node[above] {$Y$};
+\draw (0,2)--(3,1);\draw[dashed] (0,1) node[left] {$\beta_0+k$}--(3,1)--(3,0) node[below] {$1$};\node[left] at (0,2) {$\beta_0$};\node[below] at (0,0) {$0$};
+
+\end{tikzpicture}
+\par{\small 原扫描第4页：二元处理回归，保留原图的负斜率。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{先用 $X$ 预测，再取无法解释的部分}{$\widetilde T=T-\widehat{E[T\mid X]}$（此处为线性投影）}
+\notearrow{blue}{遗漏项是能力}{$A_i^{\prime}\beta$}
+\notearrow{blue}{能力对教育回归}{$\delta_A$}
+\notearrow{red}{OVB：遗漏变量偏差}{$\beta^{\prime}\delta_A$}
+\begin{reviewnote}{original}{B1-007}{残差回归的方向}{Chapter1-23.pdf, pp. 4}
+原笔记黑色句子中的回归方向写反了，蓝色批注已指向正确做法。令 $P_X$ 包含截距，取 $\widetilde T=(I-P_X)T$，则 $\hat k=\widetilde T'Y/(\widetilde T'\widetilde T)$。反过来把 $X$ 对 $T$ 回归，得不到这个残差。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/05-The-Unreasonable-Effectiveness-of-Linear-Regression.html}{教材第5章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-008}{回归调整仍需要因果识别条件}{Chapter1-23.pdf, pp. 4}
+纳入所有混杂因素，还需结合一致性、重叠性、条件可交换性及合适的调整模型。所写的 OVB 恒等式使用了 $\operatorname{Cov}(\mathrm{Educ},u)=0$。即使相关协变量都已测量，加性线性模型仍可能设定错误；在效应异质时，加入协变量也不会自动识别未加权的 ATE。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/05-The-Unreasonable-Effectiveness-of-Linear-Regression.html}{教材第5章}.
+\end{reviewnote}
+\section{第6章：分组与虚拟变量回归}
+\sourcepages{Chapter1-23.pdf, p. 5}
+异方差是指在不同协变量取值下，结果的方差不相同。分组越细，组内样本越少；分组减少变异，但系数标准误可能增大，$t$ 统计量变小。各组的回归应按组内处理变量的方差加权。
+
+处理为虚拟变量时（笔记举例：“是否为12年教育”），
+\[\mathrm{wage}_i=\beta_0+\beta_1T_i+e_i.\]
+$T=0$ 时，期望等于截距；$T=1$ 时，等于截距加 $\beta_1$。IQ 为连续变量时，
+\[\mathrm{wage}_i=\beta_0+\beta_1T_i+\beta_2\mathrm{IQ}_i+\beta_3\mathrm{IQ}_iT_i+e_i.\]
+\begin{inkblock}{blue}
+\begin{itemize}
+\item $\beta_0$：$T=0$、IQ $=0$ 时的期望。
+\item $\beta_1$：IQ 为零时，$T$ 增加一单位的影响（其他项均为零）。
+\item $\beta_2$：$T=0$ 时，IQ 增加一单位的影响。
+\item $\beta_3$：$T=1$ 时 IQ 也有回报；当 $\beta_3>0$，这一组的回归斜率更大。
+\end{itemize}
+\end{inkblock}
+分析 $T_i$ 的系数，需要算各组对总系数的贡献：按教育年限分组（笔记以12年为例），求相应的类别教育／处理差异 $C(\mathrm{educ})[T_i]$。
+
+有更多协变量时，目标系数是各虚拟变量子组效应的加权平均：
+\[E\!\left[\{E[Y_i\mid T=1,G_i]-E[Y_i\mid T=0,G_i]\}\,w(G_i)\right],\qquad
+w(G_i)\propto\operatorname{Var}(T_i\mid G_i).
+\]
+\inkblue{权重取决于子组内 $T_i$ 的分布。旁注要求求出教育分组和 IQ 分箱的处理差异。}
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{二元处理从0变为1}{此回归中的 $E[Y\mid T=1]-E[Y\mid T=0]=\beta_1$}
+\notearrow{blue}{IQ 也改变 $T=1$ 组的斜率}{交互项系数 $\beta_3$}
+\begin{reviewnote}{qualification}{B1-009}{子组回归权重需归一化}{Chapter1-23.pdf, pp. 5}
+若每组有独立截距、共用一个处理系数，则 $\beta=\sum_g P(G=g)v_g\tau_g/\sum_gP(G=g)v_g$，其中 $v_g=\operatorname{Var}(T\mid G=g)$。等价地，原笔记外层期望中的权重为 $w(g)=v_g/E[v_G]$。这一般是按方差加权的效应，而不是通常的 ATE；因果解释还需要组内调整有效。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/06-Grouped-and-Dummy-Regression.html}{教材第6章}.
+\end{reviewnote}
+\section{第7章：控制混杂因素之外}
+\sourcepages{Chapter1-23.pdf, p. 6}
+本章讨论控制特定变量的后果。在 $X\to Y\leftarrow T$ 中，研究 $X\to Y$ 时控制 $T$，可以把 $X$ 的作用看得更清楚，降低其估计方差。第二幅图是 $B\to A\to X\to Y$ 及 $B\to Y$：$A$ 只与 $X$ 相关，$B$ 则同时与 $X$、$Y$ 相关。\inkblue{批注说加入仅与 $X$ 相关的 $A$ 会增大方差（原手写标的是 $Y$ 的方差）。}
+\[\hat\sigma^2=\frac{1}{n-2}\sum_i(y_i-\hat y_i)^2,\qquad
+\operatorname{Var}(\hat\beta_2)=\frac{\hat\sigma^2}{\sum_i(x_i-\bar x)^2}.\]
+旁边的黑色文字写道：“标准误与 $X$ 的方差成反比。”\inkblue{样本的变化越大，标准误越小。}
+
+没有控制共同原因而产生的是混杂偏差；控制共同结果，或控制因果路径上的变量，会产生选择偏差。
+
+\paragraph{不当控制与参与行为。}
+若处理影响结果是否为零，RCT 下均值之差具有因果解释。笔记将其分为参与效应与正结果中的效应：
+\begin{align*}
+E[Y\mid T=1]-E[Y\mid T=0]
+={}&\{P(Y>0\mid T=1)-P(Y>0\mid T=0)\}E[Y\mid Y>0,T=1]\\
+&+\{E[Y\mid Y>0,T=1]-E[Y\mid Y>0,T=0]\}P(Y>0\mid T=0).
+\end{align*}
+\inkblue{旁注把第一部分标为结果为正的概率变化，并区分顾客“是否参与”和“消费能力”。} 只分析参与者时，
+\begin{inkblock}{blue}
+\begin{align*}
+E[Y_{i1}\mid Y_{i1}>0]-E[Y_{i0}\mid Y_{i0}>0]
+={}&\underbrace{E[Y_{i1}-Y_{i0}\mid Y_{i1}>0]}_{\text{参与者中的因果效应}}\\
+&+\underbrace{E[Y_{i0}\mid Y_{i1}>0]-E[Y_{i0}\mid Y_{i0}>0]}_{\text{选择偏差}}.
+\end{align*}
+最后一项比较参与者与未参与者［批注结尾被扫描边缘截去］。\end{inkblock}
+配图为 $X\to T_1\to Y\to T_2$，另有 $X\to T_2$。\inkred{$T_1,T_2$ 用红色标为不当选择／控制：“不要控制！”}
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\node[draw,circle] (x) at (0,1) {$X$};\node (t) at (2,1) {$T$};\node[draw,circle] (y) at (1,0) {$Y$};\draw[->] (x)--(y);\draw[->] (t)--(y);
+\node (b) at (5.5,1.5) {$B$};\node (a) at (4.2,.8) {$A$};\node[draw,circle] (xx) at (4.2,-.2) {$X$};\node[draw,circle] (yy) at (5.5,-1) {$Y$};\draw[->] (b)--(a);\draw[->] (a)--(xx);\draw[->] (xx)--(yy);\draw[->] (b)--(yy);
+\node[draw,circle] (xxx) at (9,1.5) {$X$};\node[draw=red,circle] (t1) at (8,.5) {$T_1$};\node[draw,circle] (yyy) at (8.5,-.6) {$Y$};\node[draw=red,circle] (t2) at (10,-1) {$T_2$};\draw[->] (xxx)--(t1);\draw[->] (t1)--(yyy);\draw[->] (yyy)--(t2);\draw[->] (xxx)--(t2);
+
+\end{tikzpicture}
+\par{\small 原扫描第6页：改善精度的控制、处理变量的预测因素，以及红圈标出的不当控制。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{只与 $X$ 有关；加入后增大方差（原文）}{第二幅图中的 $A$}
+\notearrow{blue}{同时与 $X$、$Y$ 有关}{第二幅图中的 $B$}
+\notearrow{red}{不当控制：不要条件化}{下方图中的中介 $T_1$ 和碰撞点 $T_2$}
+\notearrow{blue}{参与效应}{$P(Y>0\mid T=1)-P(Y>0\mid T=0)$}
+\notearrow{blue}{选择偏差}{$E[Y_0\mid Y_1>0]-E[Y_0\mid Y_0>0]$}
+\begin{reviewnote}{qualification}{B1-010}{精度、不当控制与参与行为}{Chapter1-23.pdf, pp. 6}
+在同方差的一元 OLS 中，$\mathrm{SE}(\hat\beta)=\sigma/\sqrt{\sum_i(x_i-\bar x)^2}$：标准误与处理变量变异的平方根成反比。多元回归应使用残差化后的处理变量和正确的残差自由度。这里的方差直觉针对处理效应估计量，并非说 $\operatorname{Var}(Y)$ 本身发生了变化。参与效应分解假设 $Y\ge0$（或结果只可能为零和正数）；若无额外假设，两个代数分量不能分别解释为因果效应。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/07-Beyond-Confounders.html}{教材第7章}.
+\end{reviewnote}
+\section{第8章：工具变量}
+\sourcepages{Chapter1-23.pdf, pp. 7--8}
+假设
+\[Y_i=\beta_0+kT_i+\beta W_i+u_i,\]
+其中 $T$ 是处理，$W$ 是混杂变量。当 $W_i$ 不可观测时，拟合 $Y_i=\beta_0+kT_i+v_i$，其中 $v_i=\beta W_i+u_i$。此时 $\operatorname{Cov}(T,v)\ne0$，所以 $k$ 的估计有偏。\inkblue{未观测项携带着联系 $T$、$Y$ 的信息。}
+
+引入工具变量 $Z$：它与 $T$ 相关，只通过 $T$ 影响 $Y$，且 $\operatorname{Cov}(Z,v)=0$。图为 $Z\to T\to Y$、$W\to T$、$W\to Y$。因此
+\begin{align*}
+\operatorname{Cov}(Z,Y)&=\operatorname{Cov}(Z,\beta_0+kT+v)\\
+&=k\operatorname{Cov}(Z,T)+\operatorname{Cov}(Z,v)=k\operatorname{Cov}(Z,T),\\
+k&=\frac{\operatorname{Cov}(Z,Y)}{\operatorname{Cov}(Z,T)}
+=\frac{\operatorname{Cov}(Y,Z)/\operatorname{Var}(Z)}{\operatorname{Cov}(T,Z)/\operatorname{Var}(Z)}.
+\end{align*}
+分子、分母都是回归系数。\inkblue{分子是简约式（reduced form）系数：$Z$ 只经过 $T$ 对 $Y$ 产生的影响。}
+
+\textbf{我的微积分直觉。}
+\[k=\frac{dY/dZ}{dT/dZ}=\frac{dY}{dZ}\frac{dZ}{dT}=\frac{dY}{dT}.\]
+若工具变量是二元的，Wald 估计量为
+\[k=\frac{E[Y\mid Z=1]-E[Y\mid Z=0]}{E[T\mid Z=1]-E[T\mid Z=0]}.\]
+笔记将其理解为：把 $Z\to Y$ 的变化换算回 $T\to Y$ 的作用。
+
+\paragraph{工具变量的使用。}
+例子中，$Z_0$ 为 qob（出生季度），$T$ 为教育，$W$ 为能力，$Y$ 为工资，另有变量 $Z_1,Z_2$。写出的要求是：(1) $\operatorname{Cov}(Z,T)\ne0$，可直接用数据检验；(2) $Y\perp Z\mid T$，后面打了问号，并写“$Z$ 仅通过 $T$ 影响 $Y$”。\inkred{\textbf{作者的红色更正：}“不准确，Chapter 09 中更正。”} 因此这里保留的是作者后来已否定的旧说法，而非认可这一条件独立假设。
+
+先回归 $T\sim Z_0$，检查第一阶段关系；再回归 $Y\sim Z_0$，看简约式关系。方法一是取两个回归系数之比。方法二是 2SLS：
+\begin{enumerate}
+\item 将 $T$ 对 $Z_0,Z_1,Z_2$ 回归。
+\item 将 $Y$ 对拟合后的 $T$ 及 $Z_1,Z_2$ 回归；图中用 $(Z_0,Z_1,Z_2)$ 代指拟合后的 $T$。
+\end{enumerate}
+\inkblue{代码旁注说可以指定 $T\sim Z_0$，因为其他项会在第二阶段自动加入。} 用作比较的 OLS 写作 $Y\sim T+C(Z_0,Z_1,Z_2)$。
+
+当 $T$ 与 $Z$ 的相关性很弱时，OLS 与 2SLS 的估计不同，标准误较大［末尾括号内的词无法辨清］。2SLS 在有限样本中偏向 OLS，偏差方向与 OLS 相同；2SLS 一致，而 OLS 不一致。工具变量越多，偏差越大；工具变量过多时，2SLS 越来越像 OLS。
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\node (z) at (0,1) {$Z_0$};\node[blue] at (0,1.55) {出生季度};\node[draw,circle] (t) at (3,1) {$T$};\node[blue] at (3,1.55) {教育};\node (w) at (6,1) {$W$};\node[blue] at (6,1.55) {能力};\node[draw,circle] (y) at (3,-1) {$Y$};\node[blue] at (3,-1.6) {工资};\node (z1) at (0,0) {$Z_1$};\node (z2) at (0,-1) {$Z_2$};\draw[->] (z)--(t);\draw[->] (z1)--(t);\draw[->] (z2)--(t);\draw[->] (w)--(t);\draw[->] (w)--(y);\draw[->] (t)--(y);
+
+\end{tikzpicture}
+\par{\small 原扫描第7--8页：工具变量、处理、混杂因素与结果。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{联系 $T$、$Y$ 的信息}{$v_i=\beta W_i+u_i$}
+\notearrow{blue}{简约式：$Z$ 经过 $T$ 影响 $Y$}{$\operatorname{Cov}(Y,Z)/\operatorname{Var}(Z)$}
+\notearrow{red}{不准确；Chapter 09 中更正}{原先提出的条件 $Y\perp Z\mid T$}
+\begin{reviewnote}{original}{B1-011}{排除限制不是观测结果的条件独立}{Chapter1-23.pdf, pp. 8}
+作者的红色更正是恰当的。排除限制是 $Y(t,z)=Y(t)$，并需结合工具变量外生性；一般并不是 $Y\perp Z\mid T$。图中条件化碰撞点 $T$ 会打开 $Z\to T\leftarrow W\to Y$。因此，一个有效工具变量在给定处理后，仍可能与观测到的 $Y$ 相关。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/09-Non-Compliance-and-LATE.html}{教材第9章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-012}{IV 比值与有限样本结论}{Chapter1-23.pdf, pp. 7, 8}
+在所写的常斜率模型中，协方差比值来自 $\operatorname{Cov}(Z,v)=0$ 与非零的第一阶段。导数约分适合帮助理解一条可微的单一路径，不能作为随机、异质 IV 模型的一般证明。通常的 2SLS 一致性要求有效且足够强的工具变量，以及维数固定的常规渐近条件；弱工具或工具过多时，不能无条件声称一致。这里的 $Z_1,Z_2$ 应理解为纳入的外生控制变量，在两个阶段都保留。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/08-Instrumental-Variables.html}{教材第8章}.
+\end{reviewnote}
+\section{第9章：不依从与局部平均处理效应}
+\sourcepages{Chapter1-23.pdf, pp. 9--10}
+依从者（compliers）服从分配；从不接受者（never-takers）始终不接受处理；总是接受者（always-takers）始终接受处理；违抗者（defiers）则反着做。在 $Z\to T\to Y$、$W\to T$ 和 $W\to Y$ 中，从不接受者与总是接受者削弱第一阶段。\inkblue{蓝色直觉说明：例如从不接受者会把简约式中的结果差异拉向对照状态。}
+
+现在潜在结果有两个自变量：$Y_i(t,z)$；笔记以 $T_i=1,Z_i=0$ 时的 $Y_i(1,0)$ 为例。潜在处理 $T_{0i}$ 对应 $Z_i=0$。
+\paragraph{原笔记列出的 IV 假设。}
+\begin{enumerate}
+\item $(T_{0i},T_{1i})\perp Z_i$ 且 $(Y_i(T_{1i},1),Y_i(T_{0i},0))\perp Z_i$。$Z$ 与潜在处理无关，不同工具变量组中的人具有可比性。
+\item 排除限制：$Y_i(1,0)=Y_i(1,1)=Y_{i1}$，$Y_i(0,0)=Y_i(0,1)=Y_{i0}$。工具变量只能通过处理影响结果。
+\item $E[T_{1i}-T_{0i}]\ne0$：存在第一阶段，工具变量确实会影响处理。
+\item 原扫描写作 $T_{1i}>T_{0i}$，并说明打开工具变量会提高接受处理的概率。
+\end{enumerate}
+
+\paragraph{推导 Wald 目标量。}
+原笔记起初把下面的比值标为“ATE”：
+\[\frac{E[Y\mid Z=1]-E[Y\mid Z=0]}{E[T\mid Z=1]-E[T\mid Z=0]}.\]
+利用排除限制和随机分配，
+\begin{align*}
+E[Y_i\mid Z_i=1]&=E[Y_{i0}+T_{i1}(Y_{i1}-Y_{i0})\mid Z_i=1]\\
+&=E[Y_{i0}+T_{i1}(Y_{i1}-Y_{i0})],\\
+E[Y_i\mid Z_i=0]&=E[Y_{i0}+T_{i0}(Y_{i1}-Y_{i0})].
+\end{align*}
+分子为
+\begin{align*}
+E[(Y_{i1}-Y_{i0})(T_{i1}-T_{i0})]
+=E[Y_{i1}-Y_{i0}\mid T_{i1}>T_{i0}]P(T_{i1}>T_{i0}),
+\end{align*}
+分母为 $E[T_{i1}-T_{i0}]=P(T_{i1}>T_{i0})$。所以比值为
+\[E[Y_{i1}-Y_{i0}\mid T_{i1}>T_{i0}].\]
+\inkred{\textbf{作者的红色批注：}这个平均处理效应还附带一个条件：依从。} IV 只识别依从者的处理效应。依从者满足 $T_{i1}>T_{i0}$；从不接受者满足 $T_{i1}=T_{i0}=0$；总是接受者满足 $T_{i1}=T_{i0}=1$；违抗者与分配方向相反。
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{从不接受者／总是接受者削弱第一阶段}{$Z\longrightarrow T$}
+\notearrow{black}{工具变量各组具有可比性}{工具变量外生性假设}
+\notearrow{black}{工具变量只通过处理影响结果}{$Y_i(t,0)=Y_i(t,1)$}
+\notearrow{red}{这个条件表示依从}{最终条件期望中的 $T_{i1}>T_{i0}$}
+\begin{reviewnote}{original}{B1-013}{非严格单调性与 LATE 的名称}{Chapter1-23.pdf, pp. 9, 10, 23}
+原假设写了 $T_1>T_0$，但随后列出的类型包含 $T_1=T_0$。总体条件应改为几乎处处 $T_1\ge T_0$，且 $P(T_1>T_0)>0$。在联合工具变量外生性和排除限制下，令 $C=\{T_1>T_0\}$，分子为 $P(C)E[Y_1-Y_0\mid C]$，分母为 $P(C)$。比值是 LATE，而非总体 ATE。第23页模糊断点回归也应使用同样的非严格单调条件。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/09-Non-Compliance-and-LATE.html}{教材第9章}; \href{https://www.nber.org/papers/t0118}{Imbens--Angrist，LATE 识别}.
+\end{reviewnote}
+\section{第10章：匹配}
+\sourcepages{Chapter1-23.pdf, pp. 11--12}
+按混杂因素分组估计 ATE 时，对各组处理效应加权。按样本量加权会更偏向大组，即使该组的处理变异很小；这里标为“非参数估计”。\inkblue{按方差加权时，方差较大的组权重更大；这与线性、参数回归更强调高变异协变量的做法相联系。}
+
+\paragraph{分层。}
+如果 $X$ 造成混杂，就把 $X$ 相同的观测分在一组。在 $(Y_0,Y_1)\perp T\mid X$ 下，
+\begin{align*}
+\mathrm{ATE}&=\int\{E[Y\mid X=x,T=1]-E[Y\mid X=x,T=0]\}\,dP(x),\\
+\widehat{\mathrm{ATE}}&=\sum_{k=1}^{K}(\bar Y_{k1}-\bar Y_{k0})\frac{N_k}{N}.
+\end{align*}
+\inkblue{蓝色批注是在协变量取值 $\{x_1,\ldots,x_K\}$ 上取平均。}
+
+\paragraph{匹配估计量。}
+用观测之间的距离定义相似程度，再比较接受不同处理的相似／邻近个体。\inkred{旁边记了 K 近邻。}\inkblue{定义距离时，对坐标作标准化：$(x_i-\bar x)/\sqrt{\operatorname{Var}(x)}$。}
+\[\widehat{\mathrm{ATE}}=\frac1N\sum_i(2T_i-1)(Y_i-Y_{j(i)}).\]
+\inkblue{$j(i)$ 是另一个处理组中与 $i$ 最相似的观测。}\inkred{$2T_i-1$ 根据个体所属的处理组调整正负号。}
+
+\paragraph{匹配偏差及修正。}
+对处理组，考虑
+\[\widehat{\mathrm{ATET}}=\frac1{N_1}\sum_{i:T_i=1}(Y_i-Y_{j(i)}),\qquad
+\inkblue{\mu_0(x)=E[Y\mid X=x,T=0]}.\]
+中心化偏差写作
+\[E[\sqrt{N_1}(\widehat{\mathrm{ATET}}-\mathrm{ATET})]
+=E[\sqrt{N_1}\{\mu_0(X_i)-\mu_0(X_{j(i)})\}],\]
+它不一定趋于零。\inkblue{乘上 $\sqrt{N_1}$ 会把偏差放大。}\inkblue{蓝色解释比较的是 $X_i$ 对应个体未处理的潜在结果（因为 $i$ 已接受处理，所以是反事实）与 $X_j$ 对应个体实际观测到的未处理结果；用 $X_i\approx X_j$ 希望二者未处理结果也接近。} 对估计量作修正，使其收敛：
+\[\widehat{\mathrm{ATET}}_{\mathrm{bc}}=
+\frac1{N_1}\sum_{i:T_i=1}\left[(Y_i-Y_{j(i)})-
+\{\hat\mu_0(X_i)-\hat\mu_0(X_{j(i)})\}\right].\]
+\inkblue{$\hat\mu_0$ 可以用最小二乘等方法估计。} 局部 LS 修正不改变匹配估计量原本的目标。
+
+\textbf{维数灾难。} 协变量越多，匹配距离越大，因为每个小格子里的观测更少。
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{对协变量取值求平均}{$\int \tau(x)\,dP(x)$}
+\notearrow{red}{按处理组调整符号}{$2T_i-1$}
+\notearrow{blue}{另一处理组里最相似的个体}{$j(i)$}
+\notearrow{blue}{已处理个体未处理时的反事实均值}{$\mu_0(X_i)$}
+\notearrow{blue}{观测对照个体的对应均值}{$\mu_0(X_{j(i)})$}
+\notearrow{blue}{修正中心化偏差}{减去 $\hat\mu_0(X_i)-\hat\mu_0(X_{j(i)})$}
+\notearrow{black}{特征更多，匹配距离更大}{每个格子内的观测更少}
+\begin{reviewnote}{qualification}{B1-014}{匹配偏差与目标量}{Chapter1-23.pdf, pp. 11, 12}
+相关偏差应为 $B_N=N_1^{-1}\sum_{i:T_i=1}[\mu_0(X_i)-\mu_0(X_{j(i)})]$，所以中心化后的偏差是 $\sqrt{N_1}B_N$；原笔记只写一个 $i$，是对该平均的简写。近邻估计一致，不代表根号 $N$ 尺度的偏差就可忽略。偏差修正需要合适的光滑性、重叠性及一致的回归逼近。按样本占比加权以 ATE 为目标，按处理方差加权一般对应另一个平均量。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/10-Matching.html}{教材第10章}; \href{https://www.nber.org/papers/t0283}{Abadie--Imbens，偏差修正匹配}.
+\end{reviewnote}
+\section{第11章：倾向得分}
+\sourcepages{Chapter1-23.pdf, pp. 13--14}
+处理混杂偏差的另一种办法，是用一个介于0和1之间的数概括混杂因素。图为 $X\to p(X)\to T\to Y$，并有 $X\to Y$。这一页把 $(Y_1,Y_0)\perp T\mid p(X)$ 与下面的平衡恒等式用双向箭头相连：
+\[E[T\mid p(X),X]=E[T\mid p(X)].\]
+
+
+\textbf{我的例子。} 两个人，一个已处理，一个未处理。若接受处理的概率相同，即使他们的 $X$ 不同，也可以比较。
+\begin{align*}
+E[T\mid p(X),X]&=E[T\mid X]=p(X), &&\text{因为 }p(X)\text{ 是 }X\text{ 的函数},\\
+E[T\mid p(X)]&=E[E[T\mid p(X),X]\mid p(X)]\\
+&=E[p(X)\mid p(X)]=p(X).
+\end{align*}
+
+\paragraph{逆倾向加权（IPW）。}
+条件差异可以改写为
+\begin{align*}
+E[Y\mid X,T=1]-E[Y\mid X,T=0]
+={}&p(X)E\!\left[\frac{Y}{p(X)}\,\middle|\,X,T=1\right]\\
+&-\{1-p(X)\}E\!\left[\frac{Y}{1-p(X)}\,\middle|\,X,T=0\right].
+\end{align*}
+\inkblue{?}\quad\textbf{我的理解。} 我们观测到个体 $i$ 接受了处理，但 $i$ 接受处理的概率只有由 $X$ 决定的 $p(X_i)$。给每个观测到的处理个体乘上 $1/p(X_i)$ 来修正。若 $p(X_i)$ 很小，该观测在未加权的结果分布中占比不足，就用概率倒数提高其代表性。$T=1$ 和 $T=0$ 的权重分别为 $1/p(X)$ 与 $1/(1-p(X))$。这样重建“人人都处理”的总体（$Y_1$）和“人人都不处理”的总体（$Y_0$），两者之差就是 ATE。
+
+笔记写出的加权方差为
+\[\hat\sigma_w^2=\frac{\sum_{i=1}^n w_i(Y_i-\hat\mu)^2}{\sum_{i=1}^n w_i}.\]
+但倾向得分估计 $\hat p(X)$ 本身也有误差。随意加入并非混杂因素的协变量，可能使倾向得分估计变得非常不稳定。已处理者估计出的处理概率可能高于未处理者。页底提醒：倾向权重超过 20\% 会增大方差（此阈值按原文保留）。
+
+\paragraph{倾向得分匹配。}
+用 $p(X)$ 替代原本的匹配距离。作者评语是“这个不是很好”。处理预测更准确，不一定使因果估计更好，反而可能增加方差。处理组与未处理组的倾向得分分布若缺乏重叠，匹配就会有问题。
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\node (x) at (0,1.5) {$X$};\node (p) at (1.4,.8) {$p(X)$};\node[draw,circle] (t) at (1.4,-.3) {$T$};\node[draw,circle] (y) at (0,-1.5) {$Y$};\draw[->] (x)--(p);\draw[->] (p)--(t);\draw[->] (t)--(y);\draw[->] (x)--(y);
+\node (top) at (6,1) {$(Y_0,Y_1)\perp T\mid p(X)$};\node (bot) at (6,-1) {$E[T\mid p(X),X]=E[T\mid p(X)]$};\draw[<->,double] (top)--(bot);
+
+\end{tikzpicture}
+\par{\small 原扫描第13页：倾向得分图及原有双向箭头，其含义在校注中加以限定。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{平衡恒等式：分别展开两边}{$E[T\mid p(X),X]=E[T\mid p(X)]=p(X)$}
+\notearrow{black}{对观测处理组加权}{构造人人都处理的 $Y_1$ 总体}
+\notearrow{black}{对观测对照组加权}{构造人人都未处理的 $Y_0$ 总体}
+\begin{reviewnote}{original}{B1-015}{平衡不等价于可忽略性}{Chapter1-23.pdf, pp. 13}
+原图的双向箭头并不是逻辑等价。对真实的二元处理倾向得分 $e(X)=P(T=1\mid X)$，恒等式 $E[T\mid e(X),X]=E[T\mid e(X)]$ 成立。条件可交换性 $(Y_0,Y_1)\perp T\mid X$ 可推出 $(Y_0,Y_1)\perp T\mid e(X)$。要在目标总体上识别两个处理状态的均值，还需重叠性；但上述条件独立命题本身不需要重叠性。相同倾向得分平衡的是协变量分布，并不意味着两个具体个体的潜在结果完全相同。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/11-Propensity-Score.html}{教材第11章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-016}{结果的加权离散程度不是 IPW 估计量的方差}{Chapter1-23.pdf, pp. 13, 14}
+$\sum w_i(Y_i-\hat\mu)^2/\sum w_i$ 衡量结果的加权离散程度，并非 IPW ATE 估计量的抽样方差。倾向得分已知时，定义 $\psi_i=T_iY_i/e_i-(1-T_i)Y_i/(1-e_i)$；独立同分布样本下，其样本均值的方差估计为 $s_\psi^2/n$。若干扰函数需要估计，则应使用恰当的影响函数或其他有效推断方法。原笔记的 20\% 是没有说明归一化方式的经验提醒，不是通用阈值。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/11-Propensity-Score.html}{教材第11章}.
+\end{reviewnote}
+\section{第12章：双重稳健估计}
+\sourcepages{Chapter1-23.pdf, p. 15}
+结合线性结果回归与倾向加权，估计给定 $X$ 时处理和对照的差异：
+\begin{align*}
+\widehat{\mathrm{ATE}}={}&\frac1N\sum_i\left[\frac{T_i\{Y_i-\hat\mu_1(X_i)\}}{\hat p(X_i)}+\hat\mu_1(X_i)\right]\\
+&-\frac1N\sum_i\left[\frac{(1-T_i)\{Y_i-\hat\mu_0(X_i)\}}{1-\hat p(X_i)}+\hat\mu_0(X_i)\right].
+\end{align*}
+其中 $\hat p(X)$ 估计倾向得分（例如用 logistic 回归），$\hat\mu_1(X)$ 和 $\hat\mu_0(X)$ 分别估计 $E[Y\mid X,T=1]$ 和 $E[Y\mid X,T=0]$。\inkblue{第一个平均估计 $E[Y_1]$，第二个估计 $E[Y_0]$。倾向模型与结果模型只需有一个正确。}
+
+\begin{inkblock}{blue}
+\textbf{我的代数解释。} 对 $E[Y_1]$，
+\[\widehat E[Y_1]=\frac1N\sum_i\left[\frac{T_i\{Y_i-\hat\mu_1(X_i)\}}{\hat p(X_i)}+\hat\mu_1(X_i)\right].\]
+若 $\hat p$ 错了，但 $\hat\mu_1$ 正确：$T_i=0$ 时第一项为零，$T_i=1$ 时它的均值为零，所以剩下回归预测。原笔记简写为 $E[\hat\mu_1(X_i)]=Y_i$。
+
+也可以改写为
+\[\widehat E[Y_1]=\frac1N\sum_i\left[\frac{T_iY_i}{\hat p(X_i)}-\frac{T_i-\hat p(X_i)}{\hat p(X_i)}\hat\mu_1(X_i)\right].\]
+若结果模型错误、倾向模型正确，则给定 $X_i$ 时 $T_i-\hat p(X_i)$ 的均值为零，修正项的期望因此消失。\end{inkblock}
+最后提醒：理论与数据都要正确；即使从单个模型入手，也尽量使用 DRE。
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{把两种方法结合}{结果回归 + 倾向加权 $\longrightarrow$ 双重稳健估计量}
+\notearrow{blue}{第一组括号估计 $E[Y_1]$，第二组估计 $E[Y_0]$}{两者相减即为 ATE}
+\notearrow{blue}{倾向模型错误、结果模型正确时}{第一种写法中的残差均值抵消}
+\notearrow{red}{原笔记星号条件：$E[T_i-\hat p(X_i)]=0$}{另一种写法；需给定 $X_i$ 才能据此抵消}
+\begin{reviewnote}{original}{B1-017}{双重稳健的抵消依赖条件期望}{Chapter1-23.pdf, pp. 15}
+原文 $E[\hat\mu_1(X_i)]=Y_i$ 不是恒等式。若 $\mu_1$ 正确，则 $E[T(Y-\mu_1(X))/q(X)\mid X]=0$。若倾向得分 $e$ 正确，则对任意固定函数 $m$，$E[TY/e-(T-e)m(X)/e\mid X]=\mu_1(X)$。对两个处理状态分别应用，再平均。这里需要一致性、条件可交换性、重叠性及恰当的估计控制；对 ATE，“结果模型正确”指两个处理状态的结果回归都正确。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/12-Doubly-Robust-Estimation.html}{教材第12章}.
+\end{reviewnote}
+\section{第13章：双重差分}
+\sourcepages{Chapter1-23.pdf, p. 17; placed before Chapter 14 on pp. 16 and 18}
+双重差分用于评估宏观干预的效果。$D$ 表示处理，$T$ 表示时间；$Y_D(T)$ 是在时期 $T$、处理状态 $D$ 下的潜在结果。
+
+\paragraph{两种比较及其问题。}
+处理组的目标为 $E[Y_1(1)-Y_0(1)\mid D=1]$，即比较同一时期处理与未处理的结果；其中 $Y_0(1)$ 是反事实。处理前，$E[Y_1(0)\mid D=1]=E[Y_0(0)\mid D=1]$。前后比较用干预前的结果代替干预后未处理的结果；但若有时间趋势，这两个未处理潜在结果未必相同。
+
+在干预后作处理组／对照组比较：
+\[E[Y(1)\mid D=1]-E[Y(1)\mid D=0].\]
+它用对照组干预后的未处理结果估计处理组的反事实。\inkblue{蓝色批注提醒：这种比较也可能失败。}
+
+将两种比较结合：
+\begin{align*}
+\widehat{\mathrm{ATET}}={}&\{E[Y(1)\mid D=1]-E[Y(1)\mid D=0]\}\\
+&-\{E[Y(0)\mid D=1]-E[Y(0)\mid D=0]\}.
+\end{align*}
+\inkblue{连接箭头给出等价理解：实验组的“后减前”，再减去对照组的“后减前”。旁注记了带交互项的线性模型、未知方差，以及“检查平行［趋势］”。}
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{同一干预后时期的反事实}{$Y_0(1)\mid D=1$}
+\notearrow{blue}{前后比较可能失败}{未处理潜在结果也可能随时间变化}
+\notearrow{blue}{弯曲连接箭头的另一种读法}{$(\text{处理组后期}-\text{处理组前期})-(\text{对照组后期}-\text{对照组前期})$}
+\begin{reviewnote}{qualification}{B1-018}{平行趋势是识别假设}{Chapter1-23.pdf, pp. 16, 17, 18}
+两期 ATT 需要无预期效应以及 $E[Y_0(1)-Y_0(0)\mid D=1]=E[Y_0(1)-Y_0(0)\mid D=0]$，还需一致性、无溢出及可比的群体构成。这是关于未处理结果均值趋势的条件；它既不识别每个人的反事实，也不要求对 $d=0,1$ 都满足完全独立。前期检验不能证明未来仍满足平行趋势。组内变换消除的是加性的、不随时间变化的效应；固定效应的因果估计仍需外生性，通常为 $E[e_{it}\mid X_{i1},\ldots,X_{iT},U_i]=0$。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/13-Difference-in-Differences.html}{教材第13章}; \href{https://matheusfacure.github.io/python-causality-handbook/14-Panel-Data-and-Fixed-Effects.html}{教材第14章}.
+\end{reviewnote}
+\section{第14章：面板数据与固定效应}
+\sourcepages{Chapter1-23.pdf, pp. 16 and 18}
+面板数据在多个时间反复观测同一个人，固定个体身份，避免固定特征造成的混杂偏差。笔记把固定效应模型理解为控制个体因素的办法［扫描中写有一个简短的“IV”缩写］。
+
+回顾 DID。对处理城市，干预后的未处理反事实可用“其干预前未处理结果 + 未处理城市随时间的变化”估计：
+\[Y_0(1)\mid D=1
+=Y_0(0)\mid D=1+\{Y_0(1)\mid D=0-Y_0(0)\mid D=0\}.
+\]
+
+于是 $\widehat{\mathrm{ATT}}=Y_1(1)\mid D=1-\widehat Y_0(1)\mid D=1$：第一项已知，第二项估计。例子旁注提到在 DMA 投放广告的效果。
+
+平行趋势意味着处理分配与潜在结果随时间的增长无关。原扫描写作 $(Y_d(t)-Y_d(t-1))\perp D$。
+\[y_{it}=\beta X_{it}+\gamma U_i+e_{it}.\]
+\inkblue{$y_{it}$ 是个体 $i$ 在时间 $t$ 的结果，$X_{it}$ 是随时间变化的处理／协变量，$U_i$ 是一组无法观测、但不随时间变化的特征。}
+
+\paragraph{面板数据的局限（续页上方批注）。}
+\begin{inkblock}{blue}
+面板数据不能解决反向因果：原因和结果互相增强，固定效应无法控制这种关系。它也不能消除随时间变化的未观测混杂因素。
+\end{inkblock}
+
+\paragraph{线性面板模型的残差化。}
+对于两组特征 $X_1,X_2$，
+\[\hat y=\hat\beta_1X_1+\hat\beta_2X_2.\]
+图中的特征矩阵以观测为行、特征为列。
+\begin{enumerate}
+\item 将 $y$ 对第二组特征回归：$\hat y^*=\hat\gamma_1X_2$。
+\item 将 $X_1$ 对 $X_2$ 回归：$\hat X_1=\hat\gamma_2X_2$。
+\item 取残差 $\widetilde X_1=X_1-\hat X_1$ 和 $\widetilde y=y-\hat y^*$。
+\item 将结果残差对特征残差回归，得到 $X_1$ 的系数。
+\end{enumerate}
+
+\paragraph{组内变换（within transformation）。}
+计算 $\ddot Y_{it}=Y_{it}-\bar Y_i$ 和 $\ddot X_{it}=X_{it}-\bar X_i$，再将 $\ddot Y_{it}$ 对 $\ddot X_{it}$ 回归。因为 $\bar U_i=U_i$，固定效应消失：
+\begin{align*}
+Y_{it}&=\beta X_{it}+\gamma U_i+e_{it},\\
+\bar Y_i&=\beta\bar X_i+\gamma\bar U_i+\bar e_i,\\
+Y_{it}-\bar Y_i&=\beta(X_{it}-\bar X_i)+\gamma(U_i-\bar U_i)+(e_{it}-\bar e_i),\\
+\ddot Y_{it}&=\beta\ddot X_{it}+\ddot e_{it}.
+\end{align*}
+\inkblue{这样去掉了所有不随时间变化的未观测特征。} 对通胀等时间效应，可为每个时期加入一个虚拟变量；随时间变化的因素也可能重要。按个体分组后，对偏差求和：固定特征的偏差总和为零，体现它在同一个体内部不变。
+
+图中画了多条平行的“购买量—成本”直线。固定效应模型给每个城市拟合一条线，并假定不同条件下的因果效应相同。
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\draw[->] (0,0)--(4,0) node[right] {成本};\draw[->] (0,0)--(0,3) node[above] {购买量};\draw[blue] (.5,1.5)--(1.5,2.5);\draw[blue] (1.3,1.1)--(2.3,2.1);\draw[blue] (2,.6)--(3,1.6);\draw[blue] (2.6,.25)--(3.6,1.25);
+
+\end{tikzpicture}
+\par{\small 原扫描第18页：各城市内部平行的购买量—成本直线，保留蓝色。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{反复观测同一个人}{固定个体特征}
+\notearrow{blue}{个体 $i$ 在时间 $t$ 的结果}{$y_{it}$}
+\notearrow{blue}{处理随时间变化}{$X_{it}$}
+\notearrow{blue}{未观测特征不随时间变化}{$U_i$}
+\notearrow{blue}{$\bar U_i=U_i$}{组内变换消除固定效应}
+\section{第15章：合成控制}
+\sourcepages{Chapter1-23.pdf, pp. 19--21}
+面板方法需要分解到个体的数据。如果只有聚合数据，或者找不到相似的对照单位，就把若干单位组合成一个相似单位。
+
+共有 $J+1$ 个单位。单位1接受处理，$2,\ldots,J+1$ 未接受处理，组成供体库。$Y_{jt}^{I}$、$Y_{jt}^{N}$ 是单位 $j$ 在时间 $t$ 有干预和无干预的潜在结果。处理从 $T_0$ 开始。对 $t>T_0$，
+\[\tau_{1t}=Y_{1t}^{I}-Y_{1t}^{N}.\]
+\inkblue{已处理结果是事实，未处理结果是反事实；效应是时间的函数。} 给定权重 $W=(w_2,\ldots,w_{J+1})$，
+\[\widehat Y_{1t}^{N}=\sum_{j=2}^{J+1}w_jY_{jt}.\]
+\inkblue{可用回归选择这些权重：最小化干预前处理单位与供体加权平均之间的平方距离。}
+
+\paragraph{把合成控制看作回归。}
+用供体州构建一个虚拟加州。矩阵以年份为行、州为列，元素为香烟销量。将加州序列设为 $Y$，其他州序列设为 $X$，回归 $Y\sim X$。例子中的权重有 $-0.436$ 和 $-0.032$（39个州对应39个权重）。\inkblue{它们的加权和就是虚拟州，权重的选择使虚拟州与处理州尽量接近。}
+
+\begin{inkblock}{blue}
+这样很容易过拟合：虚拟州在干预前几乎与加州重合，干预后却剧烈波动，甚至超过加州。笔记提到 Ridge 或 Lasso 回归。手写的规模比较是“$T$ 大，$N$ 大”［无法明确其本意是哪种不等关系］。
+\end{inkblock}
+
+\paragraph{避免外推。}
+前述过拟合归因于外推：权重把观测推到了数据范围以外。施加凸组合约束。合成控制仍为 $\widehat Y_{1t}^{N}=\sum_{j=2}^{J+1}w_jY_{jt}$，但选择 $W$ 来最小化
+\[\|X_1-X_0W\|_V=
+\left\{\sum_{h=1}^{k}v_h\left(X_{h1}-\sum_{j=2}^{J+1}w_jX_{hj}\right)^2\right\}^{1/2},
+\qquad w_j\ge0,\quad\sum_{j=2}^{J+1}w_j=1.
+\]
+两幅图分别画出：从供体点无约束外推到三角形外的处理点；以及将拟合限制在供体凸包内。
+
+$v_h$ 反映各变量在匹配处理单位和合成控制时的重要性；不同 $v_h$ 会得到不同权重。可把各变量标准化为均值零、方差一，或给更能预测 $Y$ 的变量更高权重。这里的实现给各变量同等重要性：定义损失函数，用 SciPy 做二次优化，要求权重和为一，并将每个权重限制在 $[0,1]$。得到的权重稀疏、较小，且和为一（原手写示例向量含多个零及一个约为 $0.3852$ 的元素）。
+
+\paragraph{显著性与安慰剂比较。}
+采用 Fisher 精确／置换检验的思路。对39个州逐一重新拟合合成控制、估计效应。加州给出真实干预的估计，其他州给出安慰剂效应。若没有处理的州也出现很大效应，就有问题。干预后的变异大于干预前；一些单位在干预前就拟合不好，应剔除。用下式设置前期拟合阈值：
+\[\mathrm{MSE}=\frac1N\sum_t(Y_t-\widehat Y_t^{\mathrm{synth}})^2.\]
+笔记的检验步骤是算出各州效应，再计算
+\[p=\frac1N\sum_j\mathbf1\{\hat\tau_{\mathrm{California}}>\hat\tau_j\},\]
+并提醒加州的效应为负。\inkblue{蓝色批注说只有一个州的效应“比加州高”，给出 $p=0.0286$，认为加州的干预效应很极端（有效）。}
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\foreach \x/\y in {0/2,2/2,1/.5}{\fill (\x,\y) circle(2pt);}\fill (3,0) circle(2pt) node[right,blue] {处理单位};\draw[->] (0,2)--(3,0);\draw[->] (2,2)--(3,0);\node at (1.3,-.55) {外推};
+\draw[dashed] (6,2)--(8,2)--(7,.5)--cycle;\foreach \x/\y in {6/2,8/2,7/.5}{\fill (\x,\y) circle(2pt);}\fill (9,0) circle(2pt) node[right,blue] {处理单位};\draw[->,blue] (9,0)--(7.5,1.2);\node[blue] at (7.2,-.55) {凸包};
+
+\end{tikzpicture}
+\par{\small 原扫描第20页：外推与凸包约束，按原图几何关系示意。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{事实与反事实}{$Y^I_{1t}$ 与 $Y^N_{1t}$}
+\notearrow{blue}{效应是时间的函数}{$\tau_{1t}$}
+\notearrow{blue}{用回归寻找这些权重}{$\widehat Y^N_{1t}=\sum_jw_jY_{jt}$}
+\notearrow{blue}{前期几乎完美拟合也可能过拟合}{合成单位在干预后大幅波动}
+\notearrow{black}{对每个州重复同一程序}{加州：实际效应；其他州：安慰剂效应}
+\notearrow{black}{干预前拟合很差}{设置前期 MSE 剔除阈值}
+\begin{reviewnote}{qualification}{B1-019}{聚合面板与合成控制的识别}{Chapter1-23.pdf, pp. 19, 20}
+面板也可以由城市或州的聚合数据构成，并不要求个体层面数据。合成控制还需要供体未受处理、无溢出／预期效应，以及把干预前后未处理结果联系起来的可信稳定关系。凸权重限制了供体凸包之外的外推，但本身不能消除过拟合，也不能保证因果识别。无法辨清的 $T,N$ 大小批注应作为提醒，而非已证明的样本量规则。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/15-Synthetic-Control.html}{教材第15章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-020}{安慰剂检验的尾概率与分母}{Chapter1-23.pdf, pp. 21}
+负效应对应的单侧尾部应是 $\hat\tau_j\le\hat\tau_{\rm CA}$，即“更负”，而不是“更高”。在均匀分配下，精确秩检验为 $p=\#\{j:S_j\le S_{\rm obs}\}/J_{\rm eligible}$，包含实际分配；抽样置换可用 $(1+b)/(B+1)$。精确性需要分配机制／可交换性的依据，并统一使用统计量和筛选规则。扫描中的信息不足以重建 $0.0286$；观察性研究中的安慰剂排名并不自动是 Fisher 精确检验。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/15-Synthetic-Control.html}{教材第15章}.
+\end{reviewnote}
+\section{第16章：断点回归设计}
+\sourcepages{Chapter1-23.pdf, pp. 22--24}
+一个断点能告诉我们什么效应？令 $R$ 为驱动变量，在阈值 $c$ 处不连续地分配处理：
+\[D_i=\mathbf1\{R_i>c\}.\]
+\inkblue{低于 $c$ 时处理为零，高于 $c$ 时处理为一。} 因而 $R>c$ 时观测 $Y_1$，$R<c$ 时观测 $Y_0$。图中潜在结果曲线 $Y_1,Y_0$ 光滑，观测曲线在阈值处从 $Y_0$ 切换到 $Y_1$。例子画年龄与所有死亡／机动车死亡／自杀之间的关系，寻找断点。
+
+若潜在结果的均值光滑，左右极限相同，例如
+\[\lim_{r\to c^-}E[Y_{1i}\mid R_i=r]=\lim_{r\to c^+}E[Y_{1i}\mid R_i=r].\]
+因此观测结果的跳跃识别
+\begin{align*}
+&\lim_{r\to c^+}E[Y_i\mid R_i=r]-\lim_{r\to c^-}E[Y_i\mid R_i=r]\\
+&\quad=\lim_{r\to c^+}E[Y_{1i}\mid R_i=r]-\lim_{r\to c^-}E[Y_{0i}\mid R_i=r]\\
+&\quad=E[Y_{1i}-Y_{0i}\mid R_i=c].
+\end{align*}
+原笔记称之为局部平均处理效应。\inkblue{\textbf{我的批注。} 这是一个局部随机实验，最接近 RCT。}
+
+用断点两侧斜率不同的线性回归估计处理效应：
+\[y_i=\beta_0+\beta_1r_i+\beta_2\mathbf1\{r_i>c\}+\beta_3\mathbf1\{r_i>c\}r_i.\]
+\inkblue{低侧直线对应前一部分，高侧加上指示项和交互项。} 下一页把 $\beta_0$ 看作左极限，$\beta_0+\beta_2$ 看作右极限，$\beta_2$ 看作断点效应。用标准误判断显著性。
+
+\paragraph{核加权。}
+RDD 很依赖线性回归的外推。拟合可能过于照顾远处观测，反而在断点处拟合不好。应给距离阈值更近的观测更高权重。三角核为
+\[K(R,c,h)=\mathbf1\{|R-c|<h\}\left(1-\frac{|R-c|}{h}\right).\]
+\inkblue{指示函数只保留 $c\pm h$ 内的观测，第二个因子随离 $c$ 的距离增加而减小。使用 WLS，即加权最小二乘。}
+
+\paragraph{模糊断点回归。}
+在阈值处，处理不一定确定地从0变为1，可能只是处理概率跳跃。把是否跨过阈值作为 IV；忽略不依从，会把处理估计拉向零。图中处理概率发生跳跃，结果也对应跳跃。原文假设所有 $i$ 都有 $T_{1i}>T_{0i}$，没有负向变化［原说明较简略］。Wald 比值为
+\[
+\frac{\lim_{r\to c^+}E[Y_i\mid R_i=r]-\lim_{r\to c^-}E[Y_i\mid R_i=r]}
+{\lim_{r\to c^+}E[T_i\mid R_i=r]-\lim_{r\to c^-}E[T_i\mid R_i=r]}
+=E[Y_{1i}-Y_{0i}\mid T_{1i}>T_{0i},R_i=c].
+\]
+旁注区分了单纯估计 RD 断点与使用 IV 估计。
+
+续页写“大 $p$ 值表示不显著，效应较小”［这是作者简写，显著性与效应大小并不等价］。McCrary 检验查看驱动变量分布是否聚集：阈值附近有没有尖峰？
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\draw[->] (0,0)--(5,0) node[right] {$R$};\draw[->] (0,0)--(0,3) node[above] {$Y$};
+\draw (0.2,.2) .. controls (1,2.5) and (2,2.2) .. (4.8,2.7) node[right] {$Y_1$};\draw (.2,.2) .. controls (1,1.2) and (3,.4) .. (4.8,2.7) node[right,yshift=-12pt] {$Y_0$};
+\draw[red,thick] (.2,.2) .. controls (1,1.2) and (1.9,.8) .. (2.5,.95)--(2.5,2.25) .. controls (3,2.3) and (4,2.3) .. (4.8,2.7);\draw[red,dashed] (2.5,0)--(2.5,.95);\node[red,below] at (2.5,0) {$c$};
+\begin{scope}[xshift=7cm]\draw[->] (0,0)--(4,0) node[right] {$R$};\draw[->] (0,0)--(0,2.7) node[above] {$E[T\mid R]$};\draw[dashed] (0,.3)--(4,1);\draw[dashed] (0,1.5)--(4,2.2);\draw[red,thick] (0,.3)--(2,.65)--(2,1.85)--(4,2.2);\draw[dotted] (2,0)--(2,.65);\node[below] at (2,0) {$c$};\end{scope}
+
+\end{tikzpicture}
+\par{\small 原扫描第22--23页：黑色为潜在结果曲线；红色观测曲线在阈值处切换。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{局部实验，最接近 RCT}{$E[Y_1-Y_0\mid R=c]$}
+\notearrow{blue}{阈值以下的回归}{$\beta_0+\beta_1r_i$}
+\notearrow{blue}{阈值以上的回归再加上}{$\beta_2+\beta_3r_i$}
+\notearrow{blue}{指示函数：仅用 $c\pm h$ 内的数据}{$\mathbf1\{|R-c|<h\}$}
+\notearrow{blue}{离阈值越远，权重越小}{$1-|R-c|/h$}
+\notearrow{black}{处理概率的跳跃作为第一阶段}{结果跳跃除以处理跳跃：模糊 RD 的 Wald 比值}
+\begin{reviewnote}{original}{B1-021}{解释截距前，先将驱动变量中心化}{Chapter1-23.pdf, pp. 22, 23}
+按原公式，$m(c^-)=\beta_0+\beta_1c$，$m(c^+)=\beta_0+\beta_1c+\beta_2+\beta_3c$，所以跳跃为 $\beta_2+\beta_3c$。令 $r_i=R_i-c$，并使用 $1\{r_i>0\}$，才能得到笔记所说的截距解释和跳跃 $\beta_2$。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/16-Regression-Discontinuity-Design.html}{教材第16章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-022}{RD 的局部性、模糊依从与密度检验}{Chapter1-23.pdf, pp. 22, 23, 24}
+清晰 RD 在两个潜在结果均值连续、阈值两侧都有支持的条件下，识别阈值处的 ATE；把它严格理解为局部随机化，是更强的解释。模糊 RD 还需非零的处理概率跳跃、局部排除／外生性及单调性。其简约式等于第一阶段跳跃乘依从者 LATE；这是目标量的缩放关系，不能普遍断言任何朴素估计都向零偏。McCrary 检验针对阈值处密度的不连续，而非附近任何尖峰，也不能证明 RD 的所有假设。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/16-Regression-Discontinuity-Design.html}{教材第16章}; \href{https://www.nber.org/papers/t0334}{McCrary，驱动变量密度检验}.
+\end{reviewnote}
+
+\begin{reviewnote}{original}{B1-023}{不显著不意味着效应小}{Chapter1-23.pdf, pp. 24}
+原页顶端这一步推论不成立。$\hat\tau/\mathrm{SE}(\hat\tau)$ 这样的检验统计量同时取决于效应大小和估计精度。估计值很大但标准误也很大，仍可能得到很大的 $p$ 值。应报告估计值与区间；仅凭不显著，不能说明效应很小或不存在。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/03-Stats-Review-The-Most-Dangerous-Equation.html}{教材第3章}.
+\end{reviewnote}
+\section{第二部分：应用}
+\section{第17章：预测模型基础}
+\sourcepages{Chapter1-23.pdf, p. 25}
+机器学习估计 $E[Y\mid X]$，即给定 $X$ 的结果期望，得到 $\widehat E[Y\mid X]$。模型过于复杂就会过拟合。交叉验证图将训练数据、测试数据和未见过的数据区分开。还要区分预测与策略。笔记另记了估计量和极大似然。
+
+\inkblue{$R^2$ 用于评价连续结果模型，描述模型解释了多少结果变异。} 原文范围为 $(-\infty,1)$，并提醒它衡量相对于均值预测的表现。\inkblue{树越深，训练集 $R^2$ 越高，但测试集 $R^2$ 可能下降，这就是过拟合。}
+
+\texttt{pandas.qcut} 按预测值的分位数分箱，也就是模型分群。收益策略可以设阈值，决定是否交易／放贷，以及投入多少金额。
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{ML 从数据学习}{$\widehat E[Y\mid X]$}
+\notearrow{blue}{深度增加，训练拟合变好，测试拟合变差}{过拟合}
+\notearrow{black}{决策阈值}{是否放贷，以及投入多少}
+\begin{reviewnote}{original}{B1-024}{R 平方的范围应包含完美拟合}{Chapter1-23.pdf, pp. 25}
+结果不是常数且 $R^2=1-\mathrm{SSE}/\mathrm{SST}$ 时，完美预测给出 $R^2=1$，所以范围为 $(-\infty,1]$。含截距的样本内 OLS 满足 $0\le R^2\le1$；样本外 $R^2$ 可以为负。结果方差为零时，需另作约定。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/17-Predictive-Models-101.html}{教材第17章}.
+\end{reviewnote}
+\section{第18章：异质处理效应与个性化}
+\sourcepages{Chapter1-23.pdf, p. 26}
+与普通 ML 不同，这里的目标是进行干预，并预测干预的效果。考虑 $E[Y\mid X,T]$，其中 $X$ 是不能控制的外在特征（原文举例为销量），$T$ 是处理（如价格）。优化 $\arg\max_T E[Y\mid X,T]$。
+
+从 ATE 转向 CATE。二元处理的 ATE 为 $E[Y_1-Y_0]$；连续处理时，笔记用 $E[y'(t)]$，即结果对处理的导数。相应的条件版本为
+\[E[Y_1-Y_0\mid X],\qquad E[y'(t)\mid X].\]
+\begin{inkblock}{blue}
+\textbf{我的批注。} 加上条件 $X$，对每个 $X$ 分别求期望，再制定个性化策略。
+\end{inkblock}
+
+预测弹性就是估计 $\partial Y_i/\partial T_i$，近似为
+\[\frac{Y(T_i)-Y(T_i+\varepsilon)}{T_i-(T_i+\varepsilon)}.\]
+但同一个人的这两个结果不能同时观测，这就是因果推断的问题。一元处理的回归 $y_i=\beta_0+\beta_1t_i+\beta_2X_i+e_i$ 中，导数只有 $\beta_1$，弹性对所有人都一样。加入交互项：
+\[y_i=\beta_0+\beta_1t_i+\beta_2X_i+\beta_3t_iX_i+e_i,
+\qquad \frac{\partial\hat y_i}{\partial t_i}=\hat\beta_1+\hat\beta_3X_i.
+\]
+\inkblue{交互项使 CATE 随协变量变化。}\inkred{$\beta_1,\beta_3$ 决定导数关系。} 笔记还写了有限差分 $\{y(t+\varepsilon)-y(t)\}/\varepsilon$，以及实践中的一单位近似 $\hat y(t+1)-\hat y(t)$。
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{给定 $X$，分别求平均}{个性化策略}
+\notearrow{red}{交互项}{$\beta_3t_iX_i$}
+\notearrow{blue}{协变量使效应发生变化}{$\hat\beta_1+\hat\beta_3X_i$}
+\begin{reviewnote}{qualification}{B1-025}{因果条件均值与弹性的单位}{Chapter1-23.pdf, pp. 26}
+策略目标是 $\arg\max_t E[Y(t)\mid X=x]$；只有在一致性、可交换性及重叠性下，才等同于优化观测条件均值。$X$ 必须是处理前变量，例如过去销量，而非受今天价格影响的销量。原尺度导数表示敏感度；弹性为 $(t/y)\,\partial y/\partial t=\partial\log y/\partial\log t$。一单位差分只有在线性响应下才等于导数，否则需说明它为何是合适近似。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/18-Heterogeneous-Treatment-Effects-and-Personalization.html}{教材第18章}.
+\end{reviewnote}
+\section{第19章：评价因果模型}
+\sourcepages{Chapter1-23.pdf, pp. 27--28}
+目的是预测与排序（分组）。用非随机数据估计因果模型，比较：
+\begin{enumerate}
+\item $\mathrm{sales}_i=\beta_0+\beta_1\mathrm{price}_i+\beta_2X_i+\beta_3X_i\mathrm{price}_i+e_i$，线性模型（特征项可以是矩阵）。
+\item $\mathrm{sales}_i=G(X_i,\mathrm{price}_i)+e_i$，用回归树。检查 $R^2$，判断是否过拟合。
+\item 用随机数预测，作为安慰剂比较。
+\end{enumerate}
+弹性模型按对处理的敏感程度给个体排序。在每个分组中，用一元回归 $y_i=\beta_0+\beta_1t_i+e_i$ 估计弹性：
+\[\hat\beta_1=\frac{\sum_i(t_i-\bar t)(y_i-\bar y)}{\sum_i(t_i-\bar t)^2},\]
+其中 $\bar t$ 为处理均值，$\bar y$ 为结果均值。
+
+\paragraph{累计弹性曲线。}
+按预测弹性排序，最敏感的排在前面。先估计第一组的斜率，再不断加入后面的组，直到全部观测都纳入，曲线到达 ATE：
+\[\widehat{y'}(t)_k=\hat\beta_k=
+\frac{\sum_{i=1}^{k}(t_i-\bar t)(y_i-\bar y)}{\sum_{i=1}^{k}(t_i-\bar t)^2}.\]
+笔记中的目标是 $\widehat{y'}(t)_k>\widehat{y'}(t)_{k+a}$，并且差异要大。草图向总体效应下降，表示排序区分得好的模型更理想。
+
+\paragraph{累计增益曲线。}
+\[\widehat F(k)=\hat\beta_k\frac{k}{N}
+=\frac{\sum_{i=1}^{k}(t_i-\bar t)(y_i-\bar y)}{\sum_{i=1}^{k}(t_i-\bar t)^2}\frac{k}{N}.\]
+图中把弯曲的增益线与直线基准比较。构造置信区间时，标准误为
+\[S_{\hat\beta_1}=\sqrt{\frac{\sum_i\hat\varepsilon_i^2}{(n-2)\sum_i(t_i-\bar t)^2}}.\]
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\draw[->] (0,0)--(4,0);\draw[->] (0,0)--(0,2.7);\draw (.2,2.5) .. controls (.8,1) and (2,.6) .. (3.8,.5);\draw[dashed] (0,.5)--(3.8,.5);\node[right] at (3.8,.5) {总体};\node[below] at (2,0) {排序后纳入的样本占比};
+\begin{scope}[xshift=7cm]\draw[->] (0,0)--(4,0);\draw[->] (0,0)--(0,2.7);\draw (0,0)--(3.6,2.1);\draw (0,0) .. controls (.8,2.2) and (2,2.6) .. (3.6,2.1);\node[below] at (2,0) {$k/N$};\end{scope}
+
+\end{tikzpicture}
+\par{\small 原扫描第27--28页：左为累计斜率，右为累计增益与直线基准。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{特征项可以是矩阵}{$\beta_2X_i$ 和 $\beta_3X_i\mathrm{price}_i$}
+\notearrow{black}{不断加入排序后的组}{纳入全部观测时，累计斜率到达总体效应}
+\begin{reviewnote}{qualification}{B1-026}{用可识别的效应评价排序}{Chapter1-23.pdf, pp. 27, 28}
+排序模型的拟合与评价应分开。分组一元斜率在随机化评价样本上（或经有效调整后）才有因果含义，不能仅因模型在观察数据上训练就获得因果解释。每个 $k$ 都应在前 $k$ 个观测内重新计算 $\bar t_k,\bar y_k$。价格效应为负时，“最敏感”指更负或绝对值更大；原笔记正值递减曲线的约定需相应调整符号。所写标准误假设误差独立同分布、同方差且模型线性，给出的是逐点区间，不是整条曲线的同时置信带。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/19-Evaluating-Causal-Models.html}{教材第19章}.
+\end{reviewnote}
+\section{第20章：即插即用估计量}
+\sourcepages{Chapter1-23.pdf, pp. 29--31}
+作者将本部分标为“翻译参考”。此前通过可比的处理组和对照组得到 ATE。这里原文写 $Y(0),Y(1)\perp X$［独立关系中的条件／分配符号与上下文不符］。现在问：处理对谁更有效，谁更敏感？
+\[\tau_i=Y_i(1)-Y_i(0),\qquad
+Y_i^{\mathrm{obs}}=\begin{cases}Y_i(1),&t=1,\\Y_i(0),&t=0,\end{cases}
+\]
+\[\mathrm{ATE}=\tau=E[Y_i(1)-Y_i(0)]=E[\tau_i],\qquad
+\mathrm{CATE}=\tau(x)=E[Y_i(1)-Y_i(0)\mid X=x]=E[\tau_i\mid X=x].\]
+在 $y_i=\beta_0+\beta_1t_i+\beta_2X_i+\beta_3t_iX_i+e_i$ 中，拟合效应为 $\hat\tau(x)=\hat\beta_1+\hat\beta_3x$。\inkblue{蓝色批注说，效应不涉及 $\beta_2$；但若 $X$ 与结果无关，$\beta_1,\beta_3$ 会有偏。}
+
+结果预测的 MSE 是 $E[(Y_i-\hat Y_i)^2]$。这里希望最小化的却是处理效应误差，原文写作
+\[E[(\tau(x)-\hat\tau(x))^2]=E[(Y_i(1)-Y_i(0)-\hat\tau(x))^2].\]
+
+
+\paragraph{二元处理的变换结果。}
+引入 $Y_i^*=2Y_iT_i-2Y_i(1-T_i)$。在各半的随机分配下，$T\perp(Y(0),Y(1))$，所以 $E[TY(t)]=E[T]E[Y(t)]$。另外 $Y_iT_i=Y_i(1)T_i$，$Y_i(1-T_i)=Y_i(0)(1-T_i)$。因此
+\begin{align*}
+E[Y_i^*\mid X_i=x]
+&=2E[Y_i(1)T_i\mid X_i=x]-2E[Y_i(0)(1-T_i)\mid X_i=x]\\
+&=2E[Y_i(1)\mid X_i=x]\,0.5-2E[Y_i(0)\mid X_i=x]\,0.5\\
+&=\tau(x).
+\end{align*}
+非随机分配时，引入倾向得分 $e(X_i)$，在相应的条件独立假设下使用
+\[Y_i^*=Y_i\frac{T_i-e(X_i)}{e(X_i)(1-e(X_i))}.\]
+若已知随机处理概率为 $p$，则用 $p$ 代替 $e(X_i)$。原扫描用红线强调的推导，是展开条件期望：
+\begin{align*}
+E[Y_i^*\mid X_i=x]
+={}&\frac{E[Y_i(1)\mid X_i=x]E[T_i\mid X_i=x]}{e(x)}\\
+&-\frac{E[Y_i(0)\mid X_i=x]E[1-T_i\mid X_i=x]}{1-e(x)}=\tau(x).
+\end{align*}
+从累计增益曲线来看，变换后的目标提供了个体处理效应的无偏但噪声很大的估计。数据量大时，这个问题会减轻。
+
+\paragraph{连续处理。}
+目标为 $\tau(x)=E[\partial Y_i(t)/\partial t\mid X=x]=E[\tau_i\mid X=x]$。草图为需求随价格向下倾斜。线性斜率估计为
+\[\hat\tau(x)=\frac{\operatorname{Cov}(Y_i,T_i)}{\operatorname{Var}(T_i)}
+=\frac{\sum_i(Y_i-\bar Y)(T_i-\bar T)}{\sum_i(T_i-\bar T)^2}.
+\]
+在随机处理下，对单个观测定义
+\[Y_i^*=(Y_i-\bar Y)\frac{T_i-\bar T}{\sigma_T^2}.\]
+设 $V_i=(T_i-\bar T)/\sigma_T^2$。推导使用 $E[V_i\mid X_i=x]=0$、$E[T_iV_i\mid X_i=x]=1$，以及
+\[E[T_i(T_i-\bar T)\mid X_i=x]=E[(T_i-\bar T)^2\mid X_i=x],\]
+还使用 $E[T_ie_i\mid X_i=x]=E[T_i\mid X_i=x]E[e_i\mid X_i=x]$。在 $X_i=x$ 时，若 $Y_i=\alpha+\beta T_i+e_i$，
+\begin{align*}
+E[Y_i^*\mid X_i=x]
+&=E[(Y_i-\bar Y)V_i\mid X_i=x]\\
+&=E[(\alpha+\beta T_i+e_i-\bar Y)V_i\mid X_i=x]=\beta=\tau(x).
+\end{align*}
+笔记提出的连续处理推广写作
+\[Y_i^*=(Y_i-\bar Y)\frac{T_i-M(T_i)}{\{T_i-M(T_i)\}^2},\]
+旁注说明 $M$ 估计 $E[T_i\mid X_i=x]$。\inkred{作者红色批注说这个分母会带来数值问题；这里想要的只是相对排序，而非数值解释。}
+
+对于非线性关系，作者写“还没办法”，随后提出 $D_i=1/P_i^\alpha$，于是 $\log D=-\alpha\log P_i$。
+
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{CATE}{加入处理与协变量的交互项}
+\notearrow{blue}{代数上，效应中没有 $\beta_2$}{$\hat\tau(x)=\hat\beta_1+\hat\beta_3x$}
+\notearrow{red}{最小化处理效应风险}{$E[(\tau(X)-\hat\tau(X))^2]$}
+\notearrow{red}{展开条件期望（原红色下划线）}{在所列假设下，$E[Y^*\mid X=x]=\tau(x)$}
+\notearrow{black}{连续处理的目标}{需求对价格的斜率}
+\notearrow{red}{数值困难；只需要相对排序}{所提议的分母 $\{T_i-M(T_i)\}^2$}
+\begin{reviewnote}{original}{B1-027}{随机分配的独立性涉及处理，而非协变量}{Chapter1-23.pdf, pp. 29}
+原扫描确实写了 $(Y(0),Y(1))\perp X$。这不能使处理组具有可比性。随机分配应写 $(Y(0),Y(1))\perp T$；调整观察数据时，则使用 $(Y(0),Y(1))\perp T\mid X$ 并要求重叠性。CATE 可以随 $X$ 变化。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html}{教材第20章}.
+\end{reviewnote}
+
+\begin{reviewnote}{original}{B1-028}{CATE 风险与个体效应风险不同}{Chapter1-23.pdf, pp. 29}
+令 $\Delta=Y(1)-Y(0)$，$\tau(X)=E[\Delta\mid X]$。对于独立于评价噪声的预测 $f(X)$，$E[(\Delta-f(X))^2]=E[(\tau(X)-f(X))^2]+E[\operatorname{Var}(\Delta\mid X)]$。交叉项因条件中心化而消失。因此两种风险有相同的最小化解，但除非条件效应方差为零，二者数值并不相等。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html}{教材第20章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-029}{变换结果究竟对什么无偏}{Chapter1-23.pdf, pp. 30}
+在条件可交换性和 $0<e(X)<1$ 下，$E[Y^*\mid X]=\tau(X)$；这是精确的条件均值保证。若要说对固定个体的个体效应具有设计无偏性，还需在随机分配下给定该个体的潜在结果。大 $N$ 无法修复缺乏重叠，也不能消除逆权重导致的无限方差／重尾问题。公式推导中的期望分解必须在给定 $X$ 后成立。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html}{教材第20章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-030}{连续处理的证明需要条件矩}{Chapter1-23.pdf, pp. 31}
+若 $E[Y\mid T,X=x]=a(x)+\tau(x)T$，定义 $m(x)=E[T\mid X=x]$、$v(x)=\operatorname{Var}(T\mid X=x)>0$ 和 $\ell(x)=E[Y\mid X=x]$，则 $E[(Y-\ell(X))(T-m(X))/v(X)\mid X=x]=\tau(x)$。每个 $x$ 下随机化分布相同时，使用全局处理矩就足够。若使用同一样本中的 $\bar T,\bar Y$，笔记的有限样本期望证明只是近似；应按具体情况使用总体矩、交叉拟合及一致性条件。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html}{教材第20章}.
+\end{reviewnote}
+
+\begin{reviewnote}{original}{B1-031}{单个残差的平方不是处理方差}{Chapter1-23.pdf, pp. 31}
+两个问题都在原手写公式中。干扰函数的输入应为 $X_i$，即 $r_i=T_i-\hat m(X_i)$。除以 $r_i^2$ 后，所提目标变成 $(Y_i-\bar Y)/r_i$，在残差接近零时可能爆炸，并不是一般无偏的 CATE 目标。上方的条件矩目标使用 $v(X_i)$ 作分母。另一种思路是：以 $r_i^2$ 为权重拟合 $\widetilde Y_i/r_i$，它等价于 R-loss；$r_i=0$ 时应保留未作除法的原始损失形式。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html}{教材第20章}; \href{https://arxiv.org/abs/1712.04912}{Nie--Wager，R-learner}.
+\end{reviewnote}
+\begin{reviewnote}{original}{B1-043}{无关协变量不会自动导致 OLS 有偏}{Chapter1-23.pdf, pp. 29}
+原蓝色旁注中“无关”二字可辨，旧英文曾把含义译反。在正确设定、$E[e\mid T,X]=0$ 且设计矩阵满秩的 OLS 中，无关协变量本身不会使 $\hat\beta_1$ 或 $\hat\beta_3$ 有偏：给定设计矩阵，$E[\hat\beta]=\beta$。它可能降低精度。偏差需要其他机制，例如遗漏混杂、模型设定错误、测量误差或正则化。$\beta_2$ 从处理导数中消去这一代数观察仍正确。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/05-The-Unreasonable-Effectiveness-of-Linear-Regression.html}{教材第5章}; \href{https://matheusfacure.github.io/python-causality-handbook/20-Plug-and-Play-Estimators.html}{教材第20章}.
+\end{reviewnote}
+
+\section{第21章：元学习器}
+\sourcepages{Chapter1-23.pdf, pp. 32--33}
+这些是估计 CATE 的 ML 方法。笔记说在非随机数据上拟合、随机数据上验证，又补充必须先去掉混杂。目标是 $E[Y_i(1)-Y_i(0)\mid X]$，连续处理时则为条件导数。
+
+\paragraph{S-learner（“Go-Horse Learner”）。}
+用一个 ML 模型 $M_S$ 估计 $\mu(X,T)=E[Y\mid T,X]$。以 $(X,T)$ 拟合，然后把同一个 $X$ 分别与 $T=0$、$T=1$ 输入模型，两次预测之差得到 CATE。累计增益曲线可以检查过拟合，调节 \texttt{max\_depth}。
+
+缺点是容易把处理效应压向零。S-learner 是带正则化的 ML 模型，正则化会限制估计出的处理效应。如果其他协变量预测能力很强，模型甚至可能完全不用处理变量。
+
+\paragraph{T-learner.}
+把数据分开，可以避免处理变量被彻底忽略。分别拟合
+\[\mu_0(x)=E[Y\mid T=0,X=x],\qquad \mu_1(x)=E[Y\mid T=1,X=x],\]
+再估计 $\hat\tau(x)=M_1(x)-M_0(x)$。流程图将处理组和对照组交给不同模型，再将同一个 $X$ 输入两个模型，预测结果相减。
+
+\begin{inkblock}{blue}
+\textbf{我的批注。} 分开之后，每份数据也变少。例如 $T=0$ 数据很多，可以拟合得很好；$T=1$ 数据很少，为避免过拟合，就只能用简单模型。这样正则化又和效应估计发生矛盾。
+\end{inkblock}
+
+\paragraph{X-learner.}
+第一阶段类似 T-learner；再增加一层来拟合填补出的效应，并使用倾向模型。
+\begin{enumerate}
+\item 拟合 $\hat M_0(x)\approx E[Y\mid T=0,X=x]$ 和 $\hat M_1(x)\approx E[Y\mid T=1,X=x]$。\inkred{红色批注认为 $T=0$ 与 $T=1$ 下的关系可以不同。}
+\item 将观测结果与预测出的缺失结果作差，填补处理效应：
+\[\hat\tau_i^{(0)}=\hat M_1(X_i)-Y_i\quad(T_i=0),\qquad
+\hat\tau_i^{(1)}=Y_i-\hat M_0(X_i)\quad(T_i=1).
+\]
+\item 拟合效应模型 $\hat M_{\tau0}(x)\approx E[\hat\tau^{(0)}\mid X=x,T=0]$ 和 $\hat M_{\tau1}(x)\approx E[\hat\tau^{(1)}\mid X=x,T=1]$。
+\item 将二者组合：
+\[\hat\tau(x)=\hat M_{\tau0}(x)\hat e(x)+\hat M_{\tau1}(x)\{1-\hat e(x)\}.\]
+\end{enumerate}
+流程图将两个结果模型交叉用于另一组，构造 CATE 伪结果，再拟合两个模型，最后用倾向得分 $PS(X)$ 组合。\inkred{红色批注说，$e(X)$ 较大意味着 $T=1$ 的数据更多，对应结果模型更准，所以应给更大权重。} 这里指的是为另一组效应回归提供反事实填补的结果模型。
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\node (s0) at (0,0) {$(X,0)$};\node (s1) at (2,0) {$(X,1)$};\node[draw] (sm) at (1,-1) {$M_S$};\node (sy0) at (0,-2) {$\hat Y(0)$};\node (sy1) at (2,-2) {$\hat Y(1)$};\node (sc) at (1,-3) {CATE};\draw[->] (s0)--(sm);\draw[->] (s1)--(sm);\draw[->] (sm)--(sy0);\draw[->] (sm)--(sy1);\draw[->] (sy0)--(sc);\draw[->] (sy1)--(sc);
+\node (tx) at (5,0) {$X$};\node[draw] (t0) at (4,-1) {$M_0$};\node[draw] (t1) at (6,-1) {$M_1$};\node (ty0) at (4,-2) {$\hat Y(0)$};\node (ty1) at (6,-2) {$\hat Y(1)$};\node (tc) at (5,-3) {CATE};\draw[->] (tx)--(t0);\draw[->] (tx)--(t1);\draw[->] (t0)--(ty0);\draw[->] (t1)--(ty1);\draw[->] (ty0)--(tc);\draw[->] (ty1)--(tc);
+\node[draw] (xm0) at (9,0) {$M_0$};\node[draw] (xm1) at (11,0) {$M_1$};\node (xd0) at (9,-1.2) {$M_1(X)-Y_0$};\node (xd1) at (11.8,-1.2) {$Y_1-M_0(X)$};\node[draw] (xt0) at (9,-2.2) {$M_{\tau0}$};\node[draw] (xt1) at (11.8,-2.2) {$M_{\tau1}$};\node (xc) at (10.4,-3.4) {CATE};\draw[->] (xm1)--(xd0);\draw[->] (xm0)--(xd1);\draw[->] (xd0)--(xt0);\draw[->] (xd1)--(xt1);\draw[->] (xt0)--(xc);\draw[->] (xt1)--(xc);\node (ps) at (7.4,-3.4) {$PS(X)$};\draw[->] (ps)--(xc);
+
+\end{tikzpicture}
+\par{\small 原扫描第32--33页：S、T、X 三种学习器的指向关系。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{black}{先去掉混杂}{非随机数据拟合，随机数据评价}
+\notearrow{blue}{分组后，各组数据变少}{处理组数据少，需要更强正则化}
+\notearrow{blue}{矛盾：既要简单拟合，又要估计效应}{避免过拟合与正则化偏差}
+\notearrow{red}{实际结果与填补的缺失结果作差}{X-learner 的两组伪效应}
+\notearrow{red}{$e(X)$ 大：处理数据多，$M_1$ 更准确}{给 $M_{\tau0}(X)$ 更大权重}
+\begin{reviewnote}{qualification}{B1-032}{元学习器的识别与 X-learner 权重}{Chapter1-23.pdf, pp. 32, 33}
+S、T、X 学习器都需要一致性、条件可交换性、重叠性及充分的估计精度，才能识别 CATE。X-learner 中，较大的 $e(x)$ 有利于准确估计 $M_1$，再为对照组填补缺失的处理结果，因此可给 $M_{\tau0}$ 更高权重。选择 $g(x)=e(x)$ 是有用的组合规则，但并非普遍的最小方差选择。正则化可能使效应收缩，但偏差并非总向零。
+\par\smallskip\textit{参考：} \href{https://arxiv.org/abs/1706.03461}{Künzel 等，元学习器}.
+\end{reviewnote}
+\section{第22章：去偏／正交机器学习}
+\sourcepages{Chapter1-23.pdf, pp. 34--36}
+笔记引用了2016年的“Double Machine Learning for Treatment and Causal Parameters”。ML 用于估计干扰参数。现有数据因特征互相关联而有偏；以销量为例，价格、温度、成本、星期几等关系可能很复杂。
+
+\paragraph{Frisch--Waugh--Lovell.}
+对 $\hat Y=\hat\beta_1X_1+\hat\beta_2X_2$，$X_1,X_2$ 为特征矩阵（每列一个特征，每行一个观测），原文称 $\hat\beta_1,\hat\beta_2$ 为行向量。按下列步骤可得到相同的 $X_1$ 系数：
+\begin{enumerate}
+\item 将 $Y$ 对 $X_2$ 回归，得到 $\hat Y^*=\hat\gamma_1X_2$。
+\item 将 $X_1$ 对 $X_2$ 回归，得到 $\hat X_1=\hat\gamma_2X_2$。
+\item 取 $\widetilde X_1=X_1-\hat X_1$ 和 $\widetilde Y=Y-\hat Y^*$。
+\item 将 $\widetilde Y$ 对 $\widetilde X_1$ 回归，恢复 $\hat\beta_1$。
+\end{enumerate}
+所以 $(Y-\widehat{Y\sim X})\sim(T-\widehat{T\sim X})$ 可以估计下式中的 $\tau$：
+\[Y_i-E[Y_i\mid X_i]=\tau\{T_i-E[T_i\mid X_i]\}+\varepsilon_i.\]
+
+\paragraph{加强版 FWL：用 ML 估计 ATE。}
+\[Y_i-\hat M_Y(X_i)=\tau\{T_i-\hat M_T(X_i)\}+\varepsilon_i.\]
+\inkred{$\hat M_Y$ 估计 $E[Y\mid X]$，是去噪模型，解释 $X$ 带来的 $Y$ 变异。}\inkred{$\hat M_T$ 估计 $E[T\mid X]$，是去偏模型，去除与 $X$ 相关的处理分配偏差。}
+\begin{enumerate}
+\item 用灵活的 ML 回归 $M_Y$，从特征 $X$ 估计结果 $Y$。
+\item 用 $M_T$ 从 $X$ 估计处理 $T$。
+\item 得到残差 $\widetilde Y=Y-M_Y(X)$ 和 $\widetilde T=T-M_T(X)$。
+\item 将结果残差对处理残差回归：$\widetilde Y=\alpha+\tau\widetilde T$。
+\end{enumerate}
+笔记称为“两次预测，一次回归”；$\tau$ 是因果 ATE 参数。
+
+\begin{inkblock}{blue}
+\textbf{我对过拟合的解释。} 若 $M_Y$ 过拟合，它不只拟合了 $Y$ 与 $X$ 的关系，还吞掉了一部分 $Y$ 与 $T$ 的关系。因果关系被结果模型吸收，没有留给残差回归，因此最后的效应偏向零。若 $M_T$ 过拟合，它解释了过多 $T$ 的变异，剩下的处理残差方差很小，最后效应估计的方差就很大。旁注将此与倾向得分预测过准／过于极端、违反正值性联系起来。
+\end{inkblock}
+
+为解决过拟合，把数据分成 $K$ 折。每次用其余 $K-1$ 折训练 ML 模型，在留出的一折上计算残差。合并所有折的预测／残差，再拟合 $\widetilde Y=\alpha+\tau\widetilde T$。
+
+\paragraph{CATE 与 R-learner。}
+让斜率随 $X$ 变化：
+\[Y_i-M_Y(X_i)=\tau(X_i)\{T_i-M_T(X_i)\}+\varepsilon_i.\]
+最后一层回归可为 $\widetilde Y_i=\alpha+\beta_1\widetilde T_i+\beta_2X_i\widetilde T_i+\varepsilon_i$。最终模型用 $M(\mathrm{Price}=1,X_i)-M(\mathrm{Price}=0,X_i)$ 估计销量效应。\inkred{底部红色标记为“R-learner”。}
+
+\paragraph{非参数双重／去偏 ML。}
+对于价格与销量这样的连续关系，写作
+\[Y_i=\hat M_Y(X_i)+\tau(X_i)\{T_i-\hat M_T(X_i)\}+\hat\varepsilon_i.\]
+整理残差：
+\[\hat\varepsilon_i=\{Y_i-\hat M_Y(X_i)\}-\tau(X_i)\{T_i-\hat M_T(X_i)\}.\]
+最小化残差平方，得到因果 R-loss 并估计 CATE：
+\begin{align*}
+\hat L_n(\tau)&=\frac1n\sum_{i=1}^n\left[\{Y_i-\hat M_Y(X_i)\}-\tau(X_i)\{T_i-\hat M_T(X_i)\}\right]^2\\
+&=\frac1n\sum_{i=1}^n(\widetilde Y_i-\tau(X_i)\widetilde T_i)^2\\
+&=\frac1n\sum_{i=1}^n\widetilde T_i^2\left(\frac{\widetilde Y_i}{\widetilde T_i}-\tau(X_i)\right)^2.
+\end{align*}
+\begin{inkblock}{blue}
+\textbf{我的理解。} 这就是用任意预测模型预测 $\widetilde Y_i/\widetilde T_i$，权重为 $\widetilde T_i^2$。
+\end{inkblock}
+
+“哪里是非参数？”这里区分非参数和非线性。基本方程 $\widetilde Y_i=\tau(X_i)\widetilde T_i+e_i$ 对残差处理仍是线性的。Double ML 对非线性 CATE 关系给出局部线性近似，相当于寻找某个 $X_i$ 处的导数。
+
+\subsection{尚未完成的非线性推广}
+\sourcepages{Chapter1-23.pdf, p. 38 main discussion, then facing-page supplement p. 37}
+\textbf{作者标注：未完成。} 标题为“Non-Scientific Double/Debiased ML”。作者希望从个体数据点出发，得到反事实预测（“CATE？”）乃至整条结果曲线。把
+\[\widetilde Y_i=\tau(X_i)\widetilde T_i+e_i\]
+替换为
+\[\widetilde Y_i=\tau(X_i,\widetilde T_i)+e_i.\]
+笔记说这是一个较特别的函数，可以用 ML 估计：先预测 $\widetilde T_i$，再用它和 $X$ 拟合 $\widetilde Y$。可以用任意 ML 模型，尤其提到 LGBM。一处手写预测标签是“price”，旁边函数却为 $\hat\tau(X_i,\widetilde T_i)$；这个标签与实际建模的结果变量不一致。
+
+测试集按与训练集相同的流程处理。旁注还提到后续交叉预测，将模型预测平均为一个值［前面的简短实现缩写无法从扫描中确定］。
+
+流程图使用两个交叉拟合的处理模型和两个结果模型，得到 $T$ 残差、$Y$ 残差，再与 $X$ 一起交给最终 CATE 模型。缺点：(1) 正则化使效应偏向零；(2) 结果依赖具体 ML 方法。提升树不容易给出光滑预测，也不擅长外推到未见过的价格，在那里可能得到奇怪的预测。
+
+\paragraph{对页的逐步补充。}
+设 $Y$ 为销量，$T$ 为价格，$X$ 为协变量。用五折 LGBM 交叉预测估计 $\hat Y\sim X$ 与 $\hat T\sim X$。计算 $\widetilde Y=Y-\hat Y$、$\widetilde T=T-\hat T$。用 $(\widetilde T,X)$ 拟合 $\widetilde Y$，可采用 LGBM，将最终模型记为 \texttt{finalM}。
+
+预测时，给定 $X$，用五个 LGBM 模型得到 $\hat T'$。原手写步骤说用 $\hat T'$ 减去新设定的处理 $T_{\mathrm{new}}$，形成 $\widetilde T'$。这里的新处理是一个反事实值。将 $(\widetilde T',X)$ 输入最终模型，对每个 $T_{\mathrm{new}}$ 得到 $\widetilde Y'$。笔记还说可以输入零作为参照残差。再把预测基线 $\hat Y$ 加回 $\widetilde Y'$，得到最终结果曲线。这一补充是在解释尚未完成的构想，并未将其视为已验证的估计方法。
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\node (data) at (0,0) {$(X,T,Y)$};\node[draw,align=center] (mt) at (3,1) {交叉拟合 $M_T$\\预测 $T$};\node[draw,align=center] (my) at (3,-1) {交叉拟合 $M_Y$\\预测 $Y$};\node (tr) at (6,1) {$\widetilde T=T-\hat T$};\node (yr) at (6,-1) {$\widetilde Y=Y-\hat Y$};\node[draw,align=center] (final) at (9,0) {最终学习器\\$(X,\widetilde T)\mapsto\widetilde Y$};\node (out) at (9,-2) {“CATE？”／结果曲线};\draw[->] (data)--(mt);\draw[->] (data)--(my);\draw[->] (mt)--(tr);\draw[->] (my)--(yr);\draw[->] (tr)--(final);\draw[->] (yr)--(final);\draw[->] (final)--(out);
+
+\end{tikzpicture}
+\par{\small 原扫描第37--38页：交叉预测、残差与尚未完成的最终学习器。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{预测结果}{第36页残差方程中的 $\hat M_Y(X)$}
+\notearrow{blue}{预测处理}{第36页残差方程中的 $\hat M_T(X)$}
+\notearrow{blue}{R-loss：R-learner 最小化的损失}{$\hat L_n(\tau)$}
+\notearrow{black}{残差对残差回归}{由 FWL 恢复 $X_1$ 的系数}
+\notearrow{red}{去噪模型}{$\hat M_Y(X)$}
+\notearrow{red}{去偏模型}{$\hat M_T(X)$}
+\notearrow{blue}{结果模型过拟合}{吸收处理信号，残差中的效应可能缩小}
+\notearrow{blue}{处理模型过拟合}{处理残差变异缩小，效应估计方差增大}
+\notearrow{blue}{预测目标与权重}{$\widetilde Y_i/\widetilde T_i$，权重 $\widetilde T_i^2$}
+\notearrow{black}{未完成：替换线性的残差关系}{$\widetilde Y_i=\tau(X_i,\widetilde T_i)+e_i$}
+\notearrow{black}{假想的反事实价格}{对页预测步骤中的 $T_{\rm new}$}
+\begin{reviewnote}{qualification}{B1-033}{残差回归的目标不总是 ATE}{Chapter1-23.pdf, pp. 34, 35}
+部分线性模型 $Y=\theta T+g(X)+\varepsilon$、$E[\varepsilon\mid T,X]=0$ 支持常数因果斜率。二元处理效应异质时，合并后的残差 OLS 目标是 $E[e(X)(1-e(X))\tau(X)]/E[e(X)(1-e(X))]$，一般不是 ATE。交叉拟合减少使用自身观测造成的过拟合，但不能替代可交换性、重叠性、矩条件或干扰函数收敛率条件。对 partialling-out 得分，一个充分的余项条件是 $\|\hat m-m\|_2(\|\hat\ell-\ell\|_2+\|\hat m-m\|_2)=o_p(n^{-1/2})$。有关区别见 DML 第4.1、5.1节。
+\par\smallskip\textit{参考：} \href{https://arxiv.org/html/1608.00060v7#S4.SS1}{Chernozhukov 等，DML 第4.1节}; \href{https://arxiv.org/html/1608.00060v7#S5.SS1}{Chernozhukov 等，DML 第5.1节}.
+\end{reviewnote}
+
+\begin{reviewnote}{original}{B1-034}{仅靠 R-loss 不能识别局部导数}{Chapter1-23.pdf, pp. 36}
+这个说法在原笔记中确实存在，也延续了教材中过强的表述。最小化条件 R-loss 得到 $\tau^*(x)=\operatorname{Cov}(T,Y\mid X=x)/\operatorname{Var}(T\mid X=x)$。条件响应为线性时，它等于处理导数；但对一般非线性的 $E[Y\mid T,X]$，并非如此。例如 $Y=T^2$、$T\sim U(0,1)$ 时斜率为 $1$，导数却是 $2t$。对 $x$ 使用非参数灵活拟合，本身并不意味着在处理 $t$ 上做了局部化。
+\par\smallskip\textit{参考：} \href{https://arxiv.org/html/1712.04912v4#S2}{Nie--Wager，第2节（R-loss）}; \href{https://matheusfacure.github.io/python-causality-handbook/22-Debiased-Orthogonal-Machine-Learning.html}{教材第22章}.
+\end{reviewnote}
+
+\begin{reviewnote}{original}{B1-035}{预测残差的减法方向写反了}{Chapter1-23.pdf, pp. 37}
+第37页的减法方向是原笔记错误：训练使用 $\widetilde T=T-\hat m(X)$，预测也必须使用 $\widetilde T_{\rm new}=T_{\rm new}-\hat m(X)$。反转符号会改变拟合关系。第38页标为“price”的输出应是结果残差预测 $\widehat{\widetilde Y}$，因为最终学习器预测的是销量残差。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/22-Debiased-Orthogonal-Machine-Learning.html}{教材第22章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-036}{保留非线性构想的未完成性质}{Chapter1-23.pdf, pp. 37, 38}
+作者标为“未完成”是合适的。给定函数 $m,\ell$，固定 $x$ 时变换 $r=t-m(x)$ 可逆：若一致地拟合 $f(x,r)=E[Y-\ell(X)\mid X=x,T-m(X)=r]$，可重建 $E[Y\mid x,t]=\ell(x)+f(x,t-m(x))$。称其为因果响应还需可交换性和支持条件；其导数或两个剂量之差才是效应。任意的残差 S-learning 不会自动继承 R-loss 估计量的正交性／收敛率保证，未见过的处理取值则需要无数据支持的外推。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/22-Debiased-Orthogonal-Machine-Learning.html}{教材第22章}.
+\end{reviewnote}
+\begin{reviewnote}{original}{B1-041}{矩阵乘积须与给定的排列约定一致}{Chapter1-23.pdf, pp. 18, 34}
+原扫描把观测放在 $X_j\in\mathbb R^{n\times p_j}$ 的行上，并称系数为行向量。按此约定，维度相容的公式应为 $\hat Y=X_1\hat\beta_1^{\mathsf T}+X_2\hat\beta_2^{\mathsf T}$，而非 $\hat\beta_1X_1+\hat\beta_2X_2$。也可改用列系数向量，写成 $X_1\hat\beta_1+X_2\hat\beta_2$。拟合投影为 $\hat Y^*=P_{X_2}Y$ 和 $\hat X_1=P_{X_2}X_1$。这是对矩阵方向的修正，FWL 残差化论证不变。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/05-The-Unreasonable-Effectiveness-of-Linear-Regression.html}{教材第5章}.
+\end{reviewnote}
+
+\section{第23章：效应异质性与非线性}
+\sourcepages{Chapter1-23.pdf, pp. 39--40}
+处理效应异质性（TEH）指不同个体的处理效应不同。例子研究一个潜在连续结果：
+\begin{align*}
+Y_{\mathrm{latent}}&\sim N(-4.5+0.001\,\mathrm{income}+\mathrm{nudge}
++0.01\,\mathrm{nudge}\cdot\mathrm{age},\ 1),\\
+\mathrm{nudge}&\sim B(0.5),\qquad \mathrm{age}\sim G(10,4).
+\end{align*}
+收入分布写作 $G(20,2)$。\inkblue{收入的加性系数对所有人都相同；年龄才是划分异质处理效应的变量。} 定义 $\mathrm{conversion}=\mathbf1\{Y_{\mathrm{latent}}>0\}$，阈值旁写了“50\%”。原文给出的真实 ATE，在潜在尺度为1.4，转化结果为0.394。转化不是线性的。
+
+\paragraph{几幅草图的意思。}
+对潜在结果的效应，按年龄排序的累计效应曲线起点很高，随后下降至 ATE；按估计收入排序则一直在 ATE 附近。对转化的效应，年龄和估计收入都表现出处理效应异质性。即使收入在潜在尺度不与处理交互，它仍强烈预测转化。
+
+第三幅图把转化概率画成估计收入的 S 形函数，低端标低转化率，高端标高转化率。两端曲线较平，处理效应都较小。最后的文字比较写“高转化／高基础转化率，处理效应低”，接着又写“低转化，高基础转化率，处理效应高”。
+
+\paragraph{第二个例子：价格响应。}
+销量—价格图有两条向下的非线性曲线，分别为 $a$、$b$ 两种人；$a$ 标为富裕者。价格区间不断提高时，图上 $a$ 的下降量约为1、2、3、4，$b$ 为2、4、5。效应既依赖类型（$a$ 或 $b$），也依赖价格，不能简单按一个固定弹性排序。最后建议变换价格，使它与 $Y$ 线性，例子写作 $-(\mathrm{price}^{4})$；指数未完全辨清。
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, line width=.65pt]
+
+\draw[->] (0,0)--(4,0) node[right] {百分位};\draw[->] (0,0)--(0,2.8);\draw (.3,2.5) .. controls (.7,.5) and (2,.4) .. (3.8,.3) node[right] {年龄};\draw (.1,.25) .. controls (1,.55) and (2,.2) .. (3.8,.3);\node at (2,1.9) {潜在尺度};\node at (1.4,-.4) {收入排序接近 ATE};
+\begin{scope}[xshift=7cm]\draw[->] (0,0)--(4,0) node[right] {百分位};\draw[->] (0,0)--(0,2.8);\draw (.2,2.5) .. controls (1,1.9) and (2,1.8) .. (3.8,1.7) node[right] {年龄};\draw (.2,.2) .. controls (1.1,1.6) and (2.5,2.1) .. (3.8,1.7);\node at (2,.55) {收入};\node at (2,2.7) {转化};\end{scope}
+\begin{scope}[yshift=-5cm]\draw[->] (0,0)--(4,0) node[right] {收入};\draw[->] (0,0)--(0,3) node[above] {转化};\draw (.1,.15) .. controls (2,.15) and (1.4,2.6) .. (3.8,2.6);\node[left] at (0,.2) {低};\node[left] at (0,2.6) {高};\end{scope}
+\begin{scope}[xshift=7cm,yshift=-5cm]\draw[->] (0,0)--(4.3,0) node[right] {价格};\draw[->] (0,0)--(0,3) node[above] {销量};\draw (.2,2.7) .. controls (2.2,2.7) and (2.8,2.1) .. (4,1.5) node[right] {$a$：富裕};\draw (.2,2.1) .. controls (2,1.9) and (2.6,.6) .. (4,0) node[above right,yshift=3pt] {$b$};\draw[dashed] (1.2,0)--(1.2,2.65);\draw[dashed] (2.7,0)--(2.7,2.2);\node at (.7,2.9) {1};\node at (1.8,2.8) {2};\node at (2.5,2.55) {3};\node at (3.4,2.05) {4};\node at (.7,2.2) {2};\node at (1.8,1.7) {4};\node at (3,.6) {5};\end{scope}
+
+\end{tikzpicture}
+\par{\small 原扫描第39--40页：潜在尺度与转化尺度的排序、饱和效应，以及类型／价格依赖。}
+\end{center}
+\par\Needspace{9\baselineskip}\smallskip\textbf{原笔记的指向关系。}\par\smallskip
+\notearrow{blue}{对每个人都有相同的加性效应}{潜在方程中的 $0.001\,\mathrm{income}$}
+\notearrow{blue}{划分处理效应的变量}{$0.01\,\mathrm{nudge}\cdot\mathrm{age}$ 中的 $\mathrm{age}$}
+\notearrow{black}{收入也可能呈现处理效应异质性}{转化尺度的效应曲线}
+\notearrow{black}{处理效应同时依赖类型和价格}{$a,b$ 的销量曲线；单一固定排序有问题}
+\begin{reviewnote}{original}{B1-037}{所写模拟不能产生引用的转化效应}{Chapter1-23.pdf, pp. 39}
+原笔记的不一致可追溯到教材的文字与代码不一致。按 Gamma 的形状—尺度参数化，所写收入的均值为 $40$，不是 $4000$。教材代码用的是 $\mathrm{income}=100G(20,2)$ 和 $\mathbf1\{Y_{\rm latent}>0.1\}$；报告的 $0.39477$ 是模拟的处理组减对照组差异。潜在尺度 ATE 为 $1+0.01E[\mathrm{age}]=1.4$。按手写中未经放大的数据生成过程，基线潜在均值约为 $-4.46$，因此不能推出约50\%的转化率或所引用的转化效应。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/23-Challenges-with-Effect-Heterogeneity-and-Nonlinearity.html}{教材第23章}.
+\end{reviewnote}
+
+\begin{reviewnote}{original}{B1-038}{基础转化率低不一定意味着效应大}{Chapter1-23.pdf, pp. 39}
+重复出现的“高基础转化率”和笼统的“低转化、高效应”结论都在原扫描中。设潜在均值为 $a$、处理平移量 $\delta>0$、正态噪声方差为一、阈值为 $c$，则转化效应为 $\Phi(a+\delta-c)-\Phi(a-c)$。当 $a\to-\infty$ 或 $a\to+\infty$ 时，效应均变小，在中间区域最大。作者前面“两端平缓”的直觉才是与此一致的。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/23-Challenges-with-Effect-Heterogeneity-and-Nonlinearity.html}{教材第23章}.
+\end{reviewnote}
+
+\begin{reviewnote}{qualification}{B1-039}{幂变换是一个模型设想}{Chapter1-23.pdf, pp. 40}
+价格变换是尝试性的建模思路，手写指数尚未完全辨清。只有曲线的函数形式支持这种选择时，变换 $q=h(p)$ 才能将其线性化。若 $E[Y\mid p,x]=a(x)+b(x)h(p)$，价格效应仍为 $b(x)h'(p)$，所以变换后价格的斜率恒定，不代表原价格效应恒定。应保留作者关于 $a/b$ 类型与价格共同影响排序的洞见。
+\par\smallskip\textit{参考：} \href{https://matheusfacure.github.io/python-causality-handbook/23-Challenges-with-Effect-Heterogeneity-and-Nonlinearity.html}{教材第23章}.
+\end{reviewnote}
+
+}

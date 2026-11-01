@@ -1,0 +1,25 @@
+\usepackage[fontset=fandol,scheme=plain]{ctex}
+
+% Original pen colors and editorial colors are intentionally distinct.
+\usepackage{etoolbox}
+\usepackage{tabularx}
+\definecolor{blue}{HTML}{244DA8}
+\definecolor{red}{HTML}{C92B32}
+\definecolor{ReviewPurple}{HTML}{7A2B91}
+\definecolor{ReviewOrange}{HTML}{B45A00}
+\newcommand{\inkblue}[1]{\textcolor{blue}{#1}}
+\newcommand{\inkred}[1]{\textcolor{red}{#1}}
+\newenvironment{inkblock}[1]{\par\begingroup\color{#1}}{\par\endgroup}
+\newcommand{\notearrow}[3]{%
+\par\Needspace{6\baselineskip}\smallskip
+\noindent\begin{minipage}[c]{0.43\linewidth}\raggedright\color{#1}#2\end{minipage}%
+\hfill\textcolor{#1}{\(\longrightarrow\)}\hfill%
+\begin{minipage}[c]{0.43\linewidth}\raggedright#3\end{minipage}\par\smallskip}
+\newenvironment{reviewnote}[4]{%
+\par\Needspace{6\baselineskip}\medskip\begingroup
+\ifstrequal{#1}{original}{\color{ReviewPurple}\ifdefined\ChineseEdition\def\reviewkind{原笔记纠错}\else\def\reviewkind{Original-note correction}\fi}%
+{\color{ReviewOrange}\ifdefined\ChineseEdition\def\reviewkind{补充条件／待确认}\else\def\reviewkind{Qualification / unresolved point}\fi}%
+\noindent\rule{\linewidth}{0.45pt}\par\nobreak
+\noindent\textbf{\reviewkind\ (#2): #3}\par\nobreak
+{\small\textit{\ifdefined\ChineseEdition 来源：\else Source: \fi #4}\par}\nobreak\smallskip
+}{\par\nobreak\smallskip\noindent\rule{\linewidth}{0.45pt}\par\endgroup\medskip}

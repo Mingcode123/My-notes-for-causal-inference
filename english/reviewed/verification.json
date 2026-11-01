@@ -1,0 +1,156 @@
+{
+  "books": {
+    "STATS361-English": {
+      "pages": 76,
+      "findings": {
+        "original": 38,
+        "qualification": 45,
+        "transcription": 5
+      },
+      "review_boxes": 83,
+      "arrow_relations": 72,
+      "markdown_diagrams": 12,
+      "outline_entries": 76,
+      "color_character_counts": {
+        "red": 6679,
+        "blue": 5638,
+        "purple": 16332,
+        "orange": 21932
+      },
+      "safe_bounds_violations": [],
+      "latex_warnings": [],
+      "sha256": "4f6a23f7a8a972d186c75701f2442682c6a22bbe0ff76152761217f5238cfd90"
+    },
+    "STATS361-Chinese": {
+      "pages": 70,
+      "findings": {
+        "original": 38,
+        "qualification": 45,
+        "transcription": 5
+      },
+      "review_boxes": 83,
+      "arrow_relations": 72,
+      "markdown_diagrams": 12,
+      "outline_entries": 76,
+      "color_character_counts": {
+        "red": 2934,
+        "blue": 2431,
+        "purple": 7514,
+        "orange": 9450
+      },
+      "safe_bounds_violations": [],
+      "latex_warnings": [],
+      "sha256": "26ee9a50caf7876426ca57937ffea9fd3f62a9f63fd96281c293a90344220df7"
+    },
+    "Brave-and-True-English": {
+      "pages": 54,
+      "findings": {
+        "transcription": 7,
+        "qualification": 36,
+        "original": 24
+      },
+      "review_boxes": 61,
+      "arrow_relations": 119,
+      "markdown_diagrams": 17,
+      "outline_entries": 40,
+      "color_character_counts": {
+        "red": 1662,
+        "blue": 8269,
+        "purple": 9943,
+        "orange": 16056
+      },
+      "safe_bounds_violations": [],
+      "latex_warnings": [],
+      "sha256": "c844aed98fcb347e7d006baca85f3e75073d4fa3e0932d8ff136c7334cc2f5dd"
+    },
+    "Brave-and-True-Chinese": {
+      "pages": 49,
+      "findings": {
+        "transcription": 7,
+        "qualification": 36,
+        "original": 24
+      },
+      "review_boxes": 61,
+      "arrow_relations": 119,
+      "markdown_diagrams": 17,
+      "outline_entries": 40,
+      "color_character_counts": {
+        "red": 596,
+        "blue": 3225,
+        "purple": 4624,
+        "orange": 7007
+      },
+      "safe_bounds_violations": [],
+      "latex_warnings": [],
+      "sha256": "454a3cd3c3228852bd437bf9ef3e4464a25ae722a9a330315ee5c00bc0c0f0e8"
+    }
+  },
+  "source_scans": {
+    "note_for_Causal _inference_STATS_361/Lecture1-10.pdf": {
+      "pages": 58,
+      "sha256": "25770eb453c1e1364d388d74389766e96135894fc1a9ddbe38e0fc3787a07b77",
+      "present_in_current_tree": false
+    },
+    "note_for_Causal _inference_STATS_361/Lecture11-14.pdf": {
+      "pages": 31,
+      "sha256": "6d26a4179ad8490fc95631109bc5a0c8754afcca8f634d9db9e30e289236c8bc",
+      "present_in_current_tree": false
+    },
+    "note_for_Causal_Inference_for_The_Brave_and_True/Chapter1-23.pdf": {
+      "pages": 40,
+      "sha256": "0f2385db4c04f15e0ff3e724930660067c9eae7c7b4c662f99fa8ea358c9a83d",
+      "present_in_current_tree": false
+    },
+    "note_for_Causal_Inference_for_The_Brave_and_True/Chapter24-25.pdf": {
+      "pages": 14,
+      "sha256": "c465ff2ad0d41856b8d4862e7d1deed7de796e0b1eac270c5156336cfcce4149",
+      "present_in_current_tree": false
+    }
+  },
+  "checks": {
+    "all_books_checked": true,
+    "source_pages": 143,
+    "errors": [],
+    "passed": true
+  },
+  "limitations": [
+    "Scan reading and mathematical review are human/model judgments, not proof that every possible error has been found.",
+    "GitHub strips prose CSS colors; the PDF is the color reference.",
+    "English layout is reflowed; arrows retain relationships and diagrams are schematic."
+  ],
+  "source_reference_commit": "d678a0b5eff1704c6b28873f96345a9beee11919",
+  "scans_removed_as_requested": true,
+  "math_comparison": "Display mathematics is compared after removing translated text labels and retaining numeric equation tags.",
+  "bilingual_structure": {
+    "stats1-body": {
+      "review_ids_and_arrow_colors_match": true,
+      "english_display_math_blocks": 143,
+      "chinese_display_math_blocks": 143,
+      "math_blocks_needing_review": []
+    },
+    "stats1-tail": {
+      "review_ids_and_arrow_colors_match": true,
+      "english_display_math_blocks": 76,
+      "chinese_display_math_blocks": 76,
+      "math_blocks_needing_review": []
+    },
+    "stats2-body": {
+      "review_ids_and_arrow_colors_match": true,
+      "english_display_math_blocks": 120,
+      "chinese_display_math_blocks": 120,
+      "math_blocks_needing_review": []
+    },
+    "brave1-body": {
+      "review_ids_and_arrow_colors_match": true,
+      "english_display_math_blocks": 82,
+      "chinese_display_math_blocks": 82,
+      "math_blocks_needing_review": []
+    },
+    "brave2-body": {
+      "review_ids_and_arrow_colors_match": true,
+      "english_display_math_blocks": 45,
+      "chinese_display_math_blocks": 45,
+      "math_blocks_needing_review": []
+    }
+  }
+}

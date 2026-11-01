@@ -1,3 +1,5 @@
+> Historical review of the initial four-volume translation. Superseded by the [reviewed two-book edition](README.md) and its [verification report](reviewed/verification.json).
+
 # Final review record
 
 All 143 source pages were visually read, and the page inventories cover each original PDF page. Reading order was reconstructed from content, binding edges, chapter headings, and arrows.

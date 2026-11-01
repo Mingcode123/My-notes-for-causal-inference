@@ -1,0 +1,16 @@
+[
+  {
+    "book": "stats",
+    "figures": 12,
+    "arrows": 72,
+    "warnings": [],
+    "sha256": "4f6a23f7a8a972d186c75701f2442682c6a22bbe0ff76152761217f5238cfd90"
+  },
+  {
+    "book": "stats-zh",
+    "figures": 12,
+    "arrows": 72,
+    "warnings": [],
+    "sha256": "26ee9a50caf7876426ca57937ffea9fd3f62a9f63fd96281c293a90344220df7"
+  }
+]
